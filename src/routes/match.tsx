@@ -262,18 +262,42 @@ function MatchPage() {
     const oppKeeperBypass = oppCondorHit || oppFoxHit || oppIguanaHit;
     const offChance = wolves ? 0.25 : 0.1;
     const frostHit = frostForceOff && Math.random() < 0.4;
-    const offTarget = frostHit || Math.random() < offChance;
+    const offTarget = oppDragons ? false : frostHit || Math.random() < offChance;
     const crocSave = crocodiles && shotMeta.row === 1 && Math.random() < 0.5;
     const bearSave = bears && shotMeta.col === 1 && Math.random() < 0.5;
     const perkSaveChance = (inv.perks.saveBoost ?? 0) * 0.05;
     const perkSave = perkSaveChance > 0 && Math.random() < perkSaveChance;
-    const autoSave = (tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave;
-    const effectiveKeeper: Zone = autoSave ? shot : playerKeeper;
+    const autoSave =
+      !oppKeeperBypass &&
+      ((tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave);
+    // Если соперник пробил вратаря (Кондоры/Лисы/Игуаны) — вратарь точно мимо
+    const effectiveKeeper: Zone = autoSave
+      ? shot
+      : oppKeeperBypass
+        ? ALL_ZONES.filter((z) => z !== shot)[Math.floor(Math.random() * 5)]
+        : playerKeeper;
     let scored = !offTarget && shot !== effectiveKeeper;
     let butterflyFlip = false;
+    const oppButterflyFlip = oppTeam === "Бабочки" && Math.random() < 0.15;
     if (butterflies && Math.random() < 0.15) {
       butterflyFlip = true;
       scored = !scored;
+    } else if (oppButterflyFlip) {
+      scored = !scored;
+    }
+    // Соперник-Снежные барсы / Носороги: пробивают сквозь нашего вратаря
+    if (
+      !scored &&
+      !offTarget &&
+      ((oppTeam === "Снежные барсы" && Math.random() < 0.2) ||
+        (oppTeam === "Носороги" && Math.random() < 0.2))
+    ) {
+      scored = true;
+      setAbilityFlash(
+        oppTeam === "Снежные барсы"
+          ? `${oppEmoji} ${oppTeam}: гол сквозь вратаря`
+          : `${oppEmoji} ${oppTeam}: таран!`,
+      );
     }
 
     // Корона: cancel first opponent goal
@@ -285,6 +309,16 @@ function MatchPage() {
       setAbilityFlash("🦌 Северное сияние! Соперник замёрз и бьёт мимо");
     } else if (butterflyFlip) {
       setAbilityFlash("🦋 Эффект бабочки! Исход перевёрнут");
+    } else if (oppButterflyFlip) {
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: эффект бабочки`);
+    } else if (oppKeeperBypass && scored) {
+      setAbilityFlash(
+        oppCondorHit
+          ? `${oppEmoji} ${oppTeam}: пике сверху`
+          : oppFoxHit
+            ? `${oppEmoji} ${oppTeam}: хитрый финт`
+            : `${oppEmoji} ${oppTeam}: липкий язык`,
+      );
     } else if (autoSave) {
       setAbilityFlash(
         crocSave
@@ -299,16 +333,24 @@ function MatchPage() {
       setAbilityFlash(null);
     }
     if (frostForceOff) reindeerFrostArmed.current = false;
+    if (oppFoxFintArmed.current) oppFoxFintArmed.current = false;
+    if (oppIguanaArmed.current) oppIguanaArmed.current = false;
 
     setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
     setPhase("result");
     setResultLocked(true);
     window.setTimeout(() => setResultLocked(false), 4000);
-    if (scored) setOppScore((s) => s + 1);
+    if (scored) {
+      setOppScore((s) => s + 1);
+      // Опп-Олени: после своего гола замораживают наш следующий удар
+      if (oppTeam === "Олени") oppReindeerFrostArmed.current = true;
+    }
     if (!scored) {
       inv.addCoins(15 + (inv.perks.coinBoost ?? 0) * 5); // save reward + perk
       // Игуаны: после сейва — следующий удар гарантированный гол
       if (team === "Игуаны") iguanaArmed.current = true;
+      // Опп-Лисы: после нашего сейва соперник армирует финт (он "промахнулся" по нам)
+      if (oppTeam === "Лисы") oppFoxFintArmed.current = true;
     }
     // Лисы: после промаха соперника (offTarget) — следующий твой удар обманет вратаря
     if (team === "Лисы" && offTarget) foxFintArmed.current = true;
