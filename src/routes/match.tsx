@@ -12,6 +12,38 @@ function teamColor(name: string): string {
   return TEAMS.find((t) => t.name === name)?.color ?? "#ccff00";
 }
 
+type GloveStyle = "classic" | "striped" | "tech" | "carbon";
+
+// Per-team glove identity: color, accent, decoration style.
+// Each team gets a recognizable glove look tied to their brand color.
+function teamGlove(name: string): { color: string; accent: string; style: GloveStyle } {
+  const tc = teamColor(name);
+  switch (name) {
+    case "Акулы":
+      return { color: tc, accent: "#e0f2fe", style: "tech" };
+    case "Молнии":
+      return { color: "#1a1a1a", accent: tc, style: "tech" };
+    case "Орлы":
+      return { color: tc, accent: "#fde68a", style: "tech" };
+    case "Драконы":
+      return { color: tc, accent: "#fde047", style: "striped" };
+    case "Тигры":
+      return { color: tc, accent: "#0a0a0a", style: "striped" };
+    case "Львы":
+      return { color: tc, accent: "#7c2d12", style: "striped" };
+    case "Кобры":
+      return { color: tc, accent: "#ecfccb", style: "striped" };
+    case "Короли":
+      return { color: tc, accent: "#1a1208", style: "classic" };
+    case "Волки":
+      return { color: "#1a1a1a", accent: tc, style: "carbon" };
+    case "Быки":
+      return { color: tc, accent: "#fde68a", style: "classic" };
+    default:
+      return { color: "#ff7a1a", accent: "#ffb066", style: "classic" };
+  }
+}
+
 function teamAbility(name: string): { ability: string; abilityDesc: string } {
   const t = TEAMS.find((t) => t.name === name);
   return {
@@ -92,9 +124,11 @@ function MatchPage() {
   const equippedBoot = getItem(inv.equipped.boot);
   const equippedBand = getItem(inv.equipped.wristband);
   const equippedSock = getItem(inv.equipped.sock);
+  const tGlove = teamGlove(team);
   const gear = {
-    gloveColor: resolveColor(equippedGlove?.color ?? "#ff7a1a", tColor),
-    gloveAccent: equippedGlove?.accent ?? "#ffb066",
+    gloveColor: resolveColor(equippedGlove?.color ?? tGlove.color, tColor),
+    gloveAccent: equippedGlove?.accent ?? tGlove.accent,
+    gloveStyle: tGlove.style,
     bootColor: resolveColor(equippedBoot?.color ?? "#0a0a0a", tColor),
     bootAccent: resolveColor(equippedBoot?.accent ?? "#fff", tColor),
     bandColor: resolveColor(equippedBand?.color ?? "#fff", tColor),
@@ -674,6 +708,79 @@ function Fan({
   );
 }
 
+function GloveDecor({ style, accent }: { style: GloveStyle; accent: string }) {
+  // Local glove coords: palm spans roughly x ∈ [-10, 12], y ∈ [-12, 13].
+  switch (style) {
+    case "striped":
+      return (
+        <>
+          {/* Bold horizontal bands across palm — tiger-stripe feel */}
+          <rect x="-9" y="-7" width="20" height="2" fill={accent} opacity="0.95" />
+          <rect x="-9" y="-2" width="20" height="2" fill={accent} opacity="0.95" />
+          <rect x="-9" y="3" width="20" height="2" fill={accent} opacity="0.95" />
+          <rect x="-9" y="8" width="20" height="2" fill={accent} opacity="0.95" />
+          {/* Fingertip caps */}
+          <rect x="-5" y="-23" width="3.4" height="2.5" rx="1" fill={accent} />
+          <rect x="-1" y="-26" width="3.4" height="2.5" rx="1" fill={accent} />
+          <rect x="3" y="-24" width="3.4" height="2.5" rx="1" fill={accent} />
+          <rect x="7" y="-20" width="3.4" height="2.5" rx="1" fill={accent} />
+        </>
+      );
+    case "tech":
+      return (
+        <>
+          {/* Diagonal slash + chevron — futuristic tech look */}
+          <path d="M-9 8 L11 -6" stroke={accent} strokeWidth="2.2" strokeLinecap="round" />
+          <path
+            d="M-7 -5 L1 -9 L9 -5"
+            stroke={accent}
+            strokeWidth="1.6"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx="6" cy="6" r="1.6" fill={accent} />
+          {/* Knuckle dots */}
+          <circle cx="-3" cy="-10" r="0.7" fill={accent} />
+          <circle cx="1" cy="-11" r="0.7" fill={accent} />
+          <circle cx="5" cy="-10" r="0.7" fill={accent} />
+        </>
+      );
+    case "carbon":
+      return (
+        <>
+          {/* Dense grid of dots — carbon/grip pattern */}
+          {[-7, -3, 1, 5, 9].map((cx) =>
+            [-6, -2, 2, 6, 10].map((cy) => (
+              <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="0.6" fill={accent} opacity="0.85" />
+            )),
+          )}
+          {/* Single bold edge stripe */}
+          <rect x="-9" y="11" width="20" height="1.2" fill={accent} opacity="0.95" />
+        </>
+      );
+    case "classic":
+    default:
+      return (
+        <>
+          {/* Two clean brand stripes + grip dots */}
+          <path d="M-8 0 L11 0" stroke={accent} strokeWidth="1.6" strokeLinecap="round" />
+          <path
+            d="M-7 4 Q2 5 10 4"
+            stroke={accent}
+            strokeWidth="1.1"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <circle cx="-5" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
+          <circle cx="-1" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
+          <circle cx="3" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
+          <circle cx="7" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
+        </>
+      );
+  }
+}
+
 function PlayerFigure({
   color,
   pose,
@@ -912,24 +1019,7 @@ function PlayerFigure({
               strokeWidth="0.7"
             />
             {/* Brand stripes */}
-            <path
-              d="M-8 0 L11 0"
-              stroke={gear.gloveAccent}
-              strokeWidth="1.6"
-              strokeLinecap="round"
-            />
-            <path
-              d="M-7 4 Q2 5 10 4"
-              stroke={gear.gloveAccent}
-              strokeWidth="1.1"
-              fill="none"
-              strokeLinecap="round"
-            />
-            {/* Grip dots */}
-            <circle cx="-5" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
-            <circle cx="-1" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
-            <circle cx="3" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
-            <circle cx="7" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
+            <GloveDecor style={gear.gloveStyle} accent={gear.gloveAccent} />
             {/* Cuff at bottom */}
             <rect x="-10" y="10" width="22" height="5" rx="1.2" fill="#0a0a0a" />
             <rect x="-10" y="11" width="22" height="1.5" fill={gear.gloveAccent} opacity="0.9" />
@@ -1013,23 +1103,7 @@ function PlayerFigure({
               stroke="#0a0a0a"
               strokeWidth="0.7"
             />
-            <path
-              d="M-8 0 L11 0"
-              stroke={gear.gloveAccent}
-              strokeWidth="1.6"
-              strokeLinecap="round"
-            />
-            <path
-              d="M-7 4 Q2 5 10 4"
-              stroke={gear.gloveAccent}
-              strokeWidth="1.1"
-              fill="none"
-              strokeLinecap="round"
-            />
-            <circle cx="-5" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
-            <circle cx="-1" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
-            <circle cx="3" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
-            <circle cx="7" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
+            <GloveDecor style={gear.gloveStyle} accent={gear.gloveAccent} />
             <rect x="-10" y="10" width="22" height="5" rx="1.2" fill="#0a0a0a" />
             <rect x="-10" y="11" width="22" height="1.5" fill={gear.gloveAccent} opacity="0.9" />
           </g>
@@ -1226,6 +1300,7 @@ function zoneCoords(z: Zone): { left: string; top: string } {
 type Gear = {
   gloveColor: string;
   gloveAccent: string;
+  gloveStyle: GloveStyle;
   bootColor: string;
   bootAccent: string;
   bandColor: string;
@@ -1236,6 +1311,7 @@ type Gear = {
 const DEFAULT_GEAR: Gear = {
   gloveColor: "#ff7a1a",
   gloveAccent: "#ffb066",
+  gloveStyle: "classic",
   bootColor: "#0a0a0a",
   bootAccent: "#ffffff",
   bandColor: "#ffffff",
