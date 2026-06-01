@@ -229,9 +229,10 @@ function MatchPage() {
     const shotMeta = ZONES.find((z) => z.id === shot)!;
     const frostForceOff = reindeerFrostArmed.current; // Олени: после твоего гола
     const offChance = wolves ? 0.25 : 0.1;
-    const offTarget = frostForceOff || Math.random() < offChance;
-    const crocSave = crocodiles && shotMeta.row === 1;
-    const bearSave = bears && shotMeta.col === 1;
+    const frostHit = frostForceOff && Math.random() < 0.4;
+    const offTarget = frostHit || Math.random() < offChance;
+    const crocSave = crocodiles && shotMeta.row === 1 && Math.random() < 0.5;
+    const bearSave = bears && shotMeta.col === 1 && Math.random() < 0.5;
     const autoSave = (tigers && Math.random() < 0.2) || crocSave || bearSave;
     const effectiveKeeper: Zone = autoSave ? shot : playerKeeper;
     let scored = !offTarget && shot !== effectiveKeeper;
@@ -246,7 +247,7 @@ function MatchPage() {
       kingCancelUsed.current = true;
       scored = false;
       setAbilityFlash("👑 Корона! Гол отменён");
-    } else if (frostForceOff) {
+    } else if (frostHit) {
       setAbilityFlash("🦌 Северное сияние! Соперник замёрз и бьёт мимо");
     } else if (butterflyFlip) {
       setAbilityFlash("🦋 Эффект бабочки! Исход перевёрнут");
