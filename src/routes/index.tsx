@@ -146,12 +146,11 @@ function Index() {
             to="/teams"
             className="group relative inline-flex items-center justify-center rounded-xl px-10 py-5 text-xl font-black tracking-widest uppercase transition-all duration-200 hover:scale-105 active:scale-95"
             style={{
-              backgroundColor: "#000",
-              color: "#ccff00",
-              border: "2px solid #ccff00",
-              boxShadow: "0 0 8px #ccff00, 0 0 16px #ccff00, 0 0 24px #ccff00",
+              backgroundColor: "#e0ff33",
+              color: "#111111",
+              border: "2px solid #e0ff33",
+              boxShadow: "0 0 12px #e0ff33, 0 0 28px #e0ff33, 0 0 48px #e0ff33",
               animation: "neonPulse 2s ease-in-out infinite",
-              textShadow: "0 0 4px #ccff00, 0 0 8px #ccff00",
             }}
           >
             <span className="relative">Начать</span>
