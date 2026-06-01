@@ -349,8 +349,6 @@ function MatchPage() {
       inv.addCoins(15 + (inv.perks.coinBoost ?? 0) * 5); // save reward + perk
       // Игуаны: после сейва — следующий удар гарантированный гол
       if (team === "Игуаны") iguanaArmed.current = true;
-      // Опп-Лисы: после нашего сейва соперник армирует финт (он "промахнулся" по нам)
-      if (oppTeam === "Лисы") oppFoxFintArmed.current = true;
     }
     // Лисы: после промаха соперника (offTarget) — следующий твой удар обманет вратаря
     if (team === "Лисы" && offTarget) foxFintArmed.current = true;
