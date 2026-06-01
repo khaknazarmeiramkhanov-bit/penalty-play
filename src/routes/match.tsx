@@ -2126,6 +2126,29 @@ function GoalScene({
             ⚽
           </div>
         )}
+
+        {/* Click target overlay — player picks WHERE to shoot */}
+        {onPickShot && (
+          <div className="absolute inset-0 z-20 grid grid-cols-3 grid-rows-2 gap-1 p-2">
+            {ZONES.map((z) => (
+              <button
+                key={z.id}
+                type="button"
+                onClick={() => onPickShot(z.id)}
+                aria-label={`Бей в зону ${z.label}`}
+                className="group relative rounded-md border-2 border-white/30 bg-white/5 transition-all duration-150 hover:scale-[1.03] hover:border-[#ccff00] hover:bg-[#ccff00]/20 active:scale-95"
+                style={{ backdropFilter: "blur(1px)" }}
+              >
+                <span
+                  className="pointer-events-none absolute inset-0 flex items-center justify-center text-2xl font-black text-white/70 transition-colors group-hover:text-[#ccff00]"
+                  style={{ textShadow: "0 2px 6px rgba(0,0,0,0.7)" }}
+                >
+                  ⊕
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Pitch in front of the goal */}
