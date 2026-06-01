@@ -291,9 +291,19 @@ export function useInventory() {
     write(next);
   }, []);
 
+  const buyTeam = useCallback((teamName: string, price: number) => {
+    const next = read();
+    if (next.ownedTeams.includes(teamName)) return true;
+    if (next.crystals < price) return false;
+    next.crystals -= price;
+    next.ownedTeams = [...next.ownedTeams, teamName];
+    write(next);
+    return true;
+  }, []);
+
   const reset = useCallback(() => write(initial), []);
 
-  return { ...store, addCoins, addCrystals, buy, buyPerk, equip, reset };
+  return { ...store, addCoins, addCrystals, buy, buyPerk, buyTeam, equip, reset };
 }
 
 export function resolveColor(raw: string, teamColor: string): string {
