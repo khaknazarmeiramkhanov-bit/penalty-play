@@ -118,12 +118,12 @@ export const Route = createFileRoute("/match")({
 
 type Zone = "TL" | "TC" | "TR" | "BL" | "BC" | "BR";
 const ZONES: { id: Zone; label: string; col: 0 | 1 | 2; row: 0 | 1 }[] = [
-  { id: "TL", label: "↖", col: 0, row: 0 },
-  { id: "TC", label: "↑", col: 1, row: 0 },
-  { id: "TR", label: "↗", col: 2, row: 0 },
-  { id: "BL", label: "↙", col: 0, row: 1 },
-  { id: "BC", label: "↓", col: 1, row: 1 },
-  { id: "BR", label: "↘", col: 2, row: 1 },
+  { id: "TL", label: "левый верх", col: 0, row: 0 },
+  { id: "TC", label: "центр верх", col: 1, row: 0 },
+  { id: "TR", label: "правый верх", col: 2, row: 0 },
+  { id: "BL", label: "левый низ", col: 0, row: 1 },
+  { id: "BC", label: "центр низ", col: 1, row: 1 },
+  { id: "BR", label: "правый низ", col: 2, row: 1 },
 ];
 const ALL_ZONES: Zone[] = ZONES.map((z) => z.id);
 const MIN_ROUNDS = 5;
