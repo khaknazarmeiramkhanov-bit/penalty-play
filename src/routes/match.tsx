@@ -1429,8 +1429,8 @@ function GoalScene({
           />
         </div>
 
-        {/* Ball */}
-        {finalBallPos && (
+        {/* Ball — flies only after the wind-up completes */}
+        {finalBallPos && ballFly && (
           <div
             key={`ball-${tick}`}
             className="absolute -translate-x-1/2 -translate-y-1/2 text-3xl"
