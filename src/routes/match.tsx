@@ -1510,6 +1510,13 @@ function GoalScene({
           0%, 100% { transform: translateY(0) scaleY(1); }
           50% { transform: translateY(-6px) scaleY(1.05); }
         }
+        @keyframes strikerWindup {
+          0% { transform: translateX(-50%) rotate(0deg) scale(1); }
+          25% { transform: translateX(-50%) rotate(-3deg) scale(1.02) translateY(-2px); }
+          50% { transform: translateX(-50%) rotate(-6deg) scale(1.03) translateY(-3px); }
+          75% { transform: translateX(-50%) rotate(-3deg) scale(1.02) translateY(-2px); }
+          100% { transform: translateX(-50%) rotate(0deg) scale(1); }
+        }
       `}</style>
     </div>
   );
