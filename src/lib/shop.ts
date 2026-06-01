@@ -2,11 +2,14 @@ import { useEffect, useState, useCallback } from "react";
 
 export type ItemKind = "glove" | "boot" | "wristband" | "sock";
 
+export type Rarity = "common" | "rare" | "legendary";
+
 export type ShopItem = {
   id: string;
   kind: ItemKind;
   name: string;
   price: number;
+  rarity: Rarity;
   // visual props applied to PlayerFigure
   color: string; // primary color
   accent?: string; // secondary highlight
