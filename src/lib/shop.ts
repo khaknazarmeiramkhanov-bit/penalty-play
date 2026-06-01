@@ -386,6 +386,7 @@ type Store = {
   matches: number;
   spentCoins: number;
   sponsor: string;
+  playerName: string | null;
 };
 
 const initial: Store = {
