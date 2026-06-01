@@ -633,11 +633,13 @@ function PlayerFigure({
   pose,
   size = 44,
   emotion = "neutral",
+  kicking = false,
 }: {
   color: string;
   pose: "striker" | "keeper";
   size?: number;
   emotion?: "neutral" | "happy" | "sad";
+  kicking?: boolean;
 }) {
   const isKeeper = pose === "keeper";
   // Modern flat-vector style — clean silhouette, no creepy face.
@@ -765,7 +767,7 @@ function PlayerFigure({
           <ellipse cx="88" cy="24" rx="5.5" ry="4.5" fill="#ff7a1a" stroke="#1a1208" strokeWidth="0.6" transform="rotate(30 88 24)" />
           <path d="M91 22 L86 21 L86 25 L90 27 Z" fill="#ffb066" />
         </>
-      ) : (
+      ) : kicking ? (
         <>
           {/* LEFT arm — back swung, longer reach */}
           {/* Upper arm (jersey) */}
@@ -782,6 +784,17 @@ function PlayerFigure({
           <path d="M72 60 L82 74 L78 78 L68 64 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
           <rect x="75" y="73" width="6" height="2.5" fill={accent} transform="rotate(-55 78 74)" />
           <ellipse cx="81" cy="78" rx="3.4" ry="3.8" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+        </>
+      ) : (
+        <>
+          {/* IDLE arms — hanging at sides */}
+          <path d="M26 46 L22 70 L28 72 L32 48 Z" fill={`url(#${jerseyId})`} />
+          <path d="M22 70 L20 86 L26 88 L28 72 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          <ellipse cx="23" cy="90" rx="3.2" ry="3.6" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+
+          <path d="M64 46 L68 70 L62 72 L58 48 Z" fill={`url(#${jerseyId})`} />
+          <path d="M68 70 L70 86 L64 88 L62 72 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          <ellipse cx="67" cy="90" rx="3.2" ry="3.6" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
         </>
       )}
 
@@ -810,7 +823,7 @@ function PlayerFigure({
           <rect x="30" y="121" width="14" height="1.5" fill={color} />
           <rect x="46" y="121" width="14" height="1.5" fill={color} />
         </>
-      ) : (
+      ) : kicking ? (
         <>
           {/* Planted leg */}
           <path d="M34 100 L36 118 L44 118 L44 100 Z" fill={sockDark} />
@@ -827,6 +840,18 @@ function PlayerFigure({
             <path d="M54 110 Q60 108 68 110 L68 114 Q60 116 54 114 Z" fill={cleat} />
             <rect x="54" y="113" width="14" height="1.5" fill={color} />
           </g>
+        </>
+      ) : (
+        <>
+          {/* IDLE — both legs straight */}
+          <path d="M34 100 L36 118 L44 118 L44 100 Z" fill={sockDark} />
+          <path d="M46 100 L46 118 L54 118 L56 100 Z" fill={sockDark} />
+          <rect x="35" y="112" width="9" height="2.5" fill={color} />
+          <rect x="46" y="112" width="9" height="2.5" fill={color} />
+          <path d="M30 118 Q34 116 44 118 L44 122 Q37 124 30 122 Z" fill={cleat} />
+          <path d="M46 118 Q56 116 60 118 L60 122 Q53 124 46 122 Z" fill={cleat} />
+          <rect x="30" y="121" width="14" height="1.5" fill={color} />
+          <rect x="46" y="121" width="14" height="1.5" fill={color} />
         </>
       )}
     </svg>
