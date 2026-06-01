@@ -280,8 +280,12 @@ function MatchPage() {
     const oppIguanaHit = oppIguanaArmed.current && Math.random() < 0.5;
     const oppGorillaHit = oppTeam === "Гориллы" && shotMeta.row === 1 && Math.random() < 0.3;
     const oppCheetahHit = oppTeam === "Гепарды" && Math.random() < 0.3;
+    const oppKrakenHit = oppTeam === "Кракены" && Math.random() < 0.35;
+    const oppVikingHit = oppVikingsArmed.current && Math.random() < 0.6;
+    const oppGhostHit = oppTeam === "Призраки" && Math.random() < 0.25;
     const oppKeeperBypass =
-      oppCondorHit || oppFoxHit || oppIguanaHit || oppGorillaHit || oppCheetahHit;
+      oppCondorHit || oppFoxHit || oppIguanaHit || oppGorillaHit || oppCheetahHit ||
+      oppKrakenHit || oppVikingHit || oppGhostHit;
     const offChance = wolves ? 0.25 : 0.1;
     const frostHit = frostForceOff && Math.random() < 0.4;
     const oppPhoenixSafe = oppTeam === "Фениксы" && oppPhoenixRebornArmed.current;
@@ -344,7 +348,13 @@ function MatchPage() {
               ? `${oppEmoji} ${oppTeam}: липкий язык`
               : oppGorillaHit
                 ? `${oppEmoji} ${oppTeam}: силовой удар!`
-                : `${oppEmoji} ${oppTeam}: скорость!`,
+                : oppCheetahHit
+                  ? `${oppEmoji} ${oppTeam}: скорость!`
+                  : oppKrakenHit
+                    ? `${oppEmoji} ${oppTeam}: щупальца!`
+                    : oppVikingHit
+                      ? `${oppEmoji} ${oppTeam}: берсерк!`
+                      : `${oppEmoji} ${oppTeam}: фантом!`,
       );
     } else if (autoSave) {
       setAbilityFlash(
@@ -364,6 +374,8 @@ function MatchPage() {
     if (oppIguanaArmed.current) oppIguanaArmed.current = false;
     if (oppPhoenixSafe) oppPhoenixRebornArmed.current = false;
     if (offTarget && oppTeam === "Фениксы") oppPhoenixRebornArmed.current = true;
+    if (oppVikingsArmed.current) oppVikingsArmed.current = false;
+    if (offTarget && oppTeam === "Викинги") oppVikingsArmed.current = true;
 
     setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
     setPhase("result");
