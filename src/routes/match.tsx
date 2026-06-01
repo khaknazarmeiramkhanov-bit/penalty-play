@@ -215,6 +215,9 @@ function MatchPage() {
   // Фениксы: после промаха мимо ворот следующий удар гарантированно в створ
   const phoenixRebornArmed = useRef(false);
   const oppPhoenixRebornArmed = useRef(false);
+  // Викинги: после промаха игрока — следующий удар 60% обмануть вратаря
+  const vikingsArmed = useRef(false);
+  const oppVikingsArmed = useRef(false);
 
   // Precompute opponent's shot whenever opponent phase starts
   useEffect(() => {
