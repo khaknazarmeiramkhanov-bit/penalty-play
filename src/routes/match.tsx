@@ -282,10 +282,10 @@ function ZonePad({
             type="button"
             disabled={disabled}
             onClick={() => onPick(z.id)}
-            className="rounded-xl px-2 py-4 text-2xl font-black text-black transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50"
+            className="rounded-lg px-2 py-2 text-base font-black text-black transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50"
             style={{
               backgroundColor: "#ccff00",
-              boxShadow: "0 5px 0 rgb(132,163,0)",
+              boxShadow: "0 3px 0 rgb(132,163,0)",
             }}
           >
             {z.label}
@@ -307,10 +307,10 @@ function ResultBlock({ last, onNext }: { last: Last; onNext: () => void }) {
         {isOpp
           ? last.scored
             ? "Соперник забил! +1 ему"
-            : "Ты отбил! −1 сопернику"
+            : "Ты отбил!"
           : last.scored
             ? "ГОЛ! +1 тебе"
-            : "Вратарь отбил! −1 тебе"}
+            : "Вратарь отбил!"}
       </p>
       <p className="text-[10px] tracking-[0.25em] text-white/70 uppercase">
         Удар: {zoneLabel(last.shot)} · Вратарь: {zoneLabel(last.keeper)}
