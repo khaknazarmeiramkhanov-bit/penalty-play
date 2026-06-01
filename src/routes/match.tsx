@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { TEAMS } from "./teams";
+import { useInventory, getItem, resolveColor } from "@/lib/shop";
 
 const searchSchema = z.object({ team: z.string().default("Команда") });
 
@@ -85,6 +86,22 @@ function mostUsed(history: Zone[]): Zone {
 function MatchPage() {
   const { team } = Route.useSearch();
   const { ability, abilityDesc } = teamAbility(team);
+  const inv = useInventory();
+  const tColor = teamColor(team);
+  const equippedGlove = getItem(inv.equipped.glove);
+  const equippedBoot = getItem(inv.equipped.boot);
+  const equippedBand = getItem(inv.equipped.wristband);
+  const equippedSock = getItem(inv.equipped.sock);
+  const gear = {
+    gloveColor: resolveColor(equippedGlove?.color ?? "#ff7a1a", tColor),
+    gloveAccent: equippedGlove?.accent ?? "#ffb066",
+    bootColor: resolveColor(equippedBoot?.color ?? "#0a0a0a", tColor),
+    bootAccent: resolveColor(equippedBoot?.accent ?? "#fff", tColor),
+    bandColor: resolveColor(equippedBand?.color ?? "#fff", tColor),
+    sockColor: resolveColor(equippedSock?.color ?? "#0c0c10", tColor),
+    sockAccent: resolveColor(equippedSock?.accent ?? tColor, tColor),
+  };
+  const winRewarded = useRef(false);
 
   const [round, setRound] = useState(1);
   const [phase, setPhase] = useState<Phase>("opponent");
@@ -158,6 +175,7 @@ function MatchPage() {
     setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
     setPhase("result");
     if (scored) setOppScore((s) => s + 1);
+    if (!scored) inv.addCoins(15); // save reward
     pendingOppShot.current = null;
     window.setTimeout(() => setAnimating(false), 700);
   }
@@ -196,6 +214,7 @@ function MatchPage() {
     setLast({ shooter: "player", shot: playerShot, keeper, scored, offTarget });
     setPhase("result");
     if (scored) setPlayerScore((s) => s + 1);
+    if (scored) inv.addCoins(20); // goal reward
     window.setTimeout(() => setAnimating(false), 700);
   }
 
@@ -217,6 +236,10 @@ function MatchPage() {
 
     if (playerWinsOutright || reachedSuddenTarget) {
       setPhase("over");
+      if (!winRewarded.current && playerScore > oppScore) {
+        winRewarded.current = true;
+        inv.addCoins(100);
+      }
       return;
     }
     setRound((r) => r + 1);
@@ -234,6 +257,7 @@ function MatchPage() {
     playerShotHistory.current = [];
     pendingOppShot.current = null;
     kingCancelUsed.current = false;
+    winRewarded.current = false;
   }
 
   const isSudden = round > MIN_ROUNDS;
