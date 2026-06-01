@@ -174,7 +174,7 @@ function MatchPage() {
     setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
     setPhase("result");
     setResultLocked(true);
-    window.setTimeout(() => setResultLocked(false), 3000);
+    window.setTimeout(() => setResultLocked(false), 4000);
     if (scored) setOppScore((s) => s + 1);
     if (!scored) inv.addCoins(15); // save reward
     pendingOppShot.current = null;
@@ -215,7 +215,7 @@ function MatchPage() {
     setLast({ shooter: "player", shot: playerShot, keeper, scored, offTarget });
     setPhase("result");
     setResultLocked(true);
-    window.setTimeout(() => setResultLocked(false), 3000);
+    window.setTimeout(() => setResultLocked(false), 4000);
     if (scored) setPlayerScore((s) => s + 1);
     if (scored) inv.addCoins(20); // goal reward
     window.setTimeout(() => setAnimating(false), 700);
