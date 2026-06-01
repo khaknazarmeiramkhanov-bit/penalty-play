@@ -300,33 +300,57 @@ function MatchPage() {
     const oppIguanaHit = oppIguanaArmed.current && Math.random() < 0.5;
     const oppGorillaHit = oppTeam === "Гориллы" && shotMeta.row === 1 && Math.random() < 0.3;
     const oppCheetahHit = oppTeam === "Гепарды" && Math.random() < 0.3;
+    // Зебры (у соперника): каждый 3-й удар — гарантия
+    const oppZebraHit =
+      oppTeam === "Зебры" && (oppShotHistory.current.length % 3 === 0);
+    // Соколы (у соперника): по углам +30%
+    const oppFalconHit =
+      oppTeam === "Соколы" && shotMeta.col !== 1 && Math.random() < 0.3;
     const oppKeeperBypass =
-      oppCondorHit || oppFoxHit || oppIguanaHit || oppGorillaHit || oppCheetahHit;
+      oppCondorHit || oppFoxHit || oppIguanaHit || oppGorillaHit || oppCheetahHit ||
+      oppZebraHit || oppFalconHit;
     const offChance = wolves ? 0.25 : 0.1;
     const frostHit = frostForceOff && Math.random() < 0.4;
     const oppPhoenixSafe = oppTeam === "Фениксы" && oppPhoenixRebornArmed.current;
     // Призраки (у игрока): первый удар соперника в матче — мимо
     const ghostFearForce =
       team === "Призраки" && !ghostFearUsed.current;
+    // Черепахи (у игрока): после гола соперника — следующий удар мимо
+    const turtleForce = team === "Черепахи" && turtleArmed.current;
     const offTarget =
-      ghostFearForce
+      ghostFearForce || turtleForce
         ? true
         : oppDragons || oppPhoenixSafe
           ? false
           : frostHit || Math.random() < offChance;
+    // Скорпионы (у соперника): мимо → 35% закрутка в створ
+    let oppScorpionRecover = false;
+    let oppOffTargetFinal = offTarget;
+    if (
+      oppOffTargetFinal &&
+      oppTeam === "Скорпионы" &&
+      !ghostFearForce &&
+      !turtleForce &&
+      Math.random() < 0.35
+    ) {
+      oppOffTargetFinal = false;
+      oppScorpionRecover = true;
+    }
     const crocSave = crocodiles && shotMeta.row === 1 && Math.random() < 0.5;
     const bearSave = bears && shotMeta.col === 1 && Math.random() < 0.5;
     const perkSaveChance = (inv.perks.saveBoost ?? 0) * 0.05;
     const perkSave = perkSaveChance > 0 && Math.random() < perkSaveChance;
+    // Барсуки (у игрока): +15% автосейв
+    const badgerSave = team === "Барсуки" && Math.random() < 0.15;
     const autoSave =
-      !oppKeeperBypass && ((tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave);
+      !oppKeeperBypass && ((tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave || badgerSave);
     // Если соперник пробил вратаря (Кондоры/Лисы/Игуаны) — вратарь точно мимо
     const effectiveKeeper: Zone = autoSave
       ? shot
       : oppKeeperBypass
         ? ALL_ZONES.filter((z) => z !== shot)[Math.floor(Math.random() * 5)]
         : playerKeeper;
-    let scored = !offTarget && shot !== effectiveKeeper;
+    let scored = !oppOffTargetFinal && shot !== effectiveKeeper;
     let butterflyFlip = false;
     const oppButterflyFlip = oppTeam === "Бабочки" && Math.random() < 0.15;
     if (butterflies && Math.random() < 0.15) {
