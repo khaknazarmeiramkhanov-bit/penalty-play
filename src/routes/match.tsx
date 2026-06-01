@@ -181,6 +181,8 @@ function MatchPage() {
   const reindeerFrostArmed = useRef(false);
   // Elephants: full history of opp shots for "memory" hint (from round 2)
   const oppShotHistory = useRef<Zone[]>([]);
+  // Owls: per-opponent-phase flag — is the hint truthful or misleading
+  const owlHintZone = useRef<Zone | null>(null);
 
   // Precompute opponent's shot whenever opponent phase starts
   useEffect(() => {
@@ -188,6 +190,11 @@ function MatchPage() {
     const lionsDumb = team === "Львы" || team === "Носороги";
     const smart = !lionsDumb && Math.random() < 0.7;
     pendingOppShot.current = smart ? leastUsed(playerGuessHistory.current) : randomZone();
+    if (team === "Совы") {
+      // 70% правдивая, 30% случайная (возможно ложная)
+      owlHintZone.current =
+        Math.random() < 0.7 ? pendingOppShot.current : randomZone();
+    }
   }, [phase, team, round]);
 
   const oppHint = useMemo(() => {
@@ -197,7 +204,10 @@ function MatchPage() {
     if (team === "Орлы") return `Подсказка: соперник бьёт ${meta.row === 0 ? "ВВЕРХ" : "ВНИЗ"}`;
     if (team === "Молнии")
       return `Подсказка: соперник бьёт ${meta.col === 0 ? "ВЛЕВО" : meta.col === 1 ? "В ЦЕНТР" : "ВПРАВО"}`;
-    if (team === "Совы") return `Подсказка: соперник бьёт ${meta.label}`;
+    if (team === "Совы" && owlHintZone.current) {
+      const owlMeta = ZONES.find((x) => x.id === owlHintZone.current!)!;
+      return `Подсказка: соперник бьёт ${owlMeta.label}`;
+    }
     if (team === "Слоны" && oppShotHistory.current.length >= 1) {
       const fav = mostUsed(oppShotHistory.current);
       const favMeta = ZONES.find((x) => x.id === fav)!;
