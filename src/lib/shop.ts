@@ -139,6 +139,9 @@ export const ITEMS: ShopItem[] = [
   { id: "boot_chrome", kind: "boot", name: "Хром", price: 260, color: "#cbd5e1", accent: "#0f172a" },
   { id: "boot_lava", kind: "boot", name: "Лава", price: 320, color: "#dc2626", accent: "#facc15" },
   { id: "boot_galaxy", kind: "boot", name: "Галактика", price: 400, color: "#1e1b4b", accent: "#a78bfa" },
+  { id: "boot_titan", kind: "boot", name: "Титан", price: 1200, color: "#374151", accent: "#60a5fa" },
+  { id: "boot_abyss", kind: "boot", name: "Бездна", price: 1400, color: "#020617", accent: "#22d3ee" },
+  { id: "boot_magma", kind: "boot", name: "Магма", price: 1100, color: "#7c2d12", accent: "#f97316" },
 
   // Wristbands
   {
