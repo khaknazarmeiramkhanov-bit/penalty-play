@@ -1335,16 +1335,22 @@ function GoalScene({
   // Animation: ball travels from striker spot to its zone after picking
   const [tick, setTick] = useState(0);
   // Kick animation: idle → wind-up → strike
-  const [kickStage, setKickStage] = useState<"idle" | "kick">("idle");
+  const [kickStage, setKickStage] = useState<"idle" | "windup" | "kick">("idle");
+  const [ballFly, setBallFly] = useState(false);
   useEffect(() => {
     if (phase === "result") {
       setTick((t) => t + 1);
-      // Show wind-up for at least 3 seconds, then strike
-      setKickStage("idle");
-      const t1 = window.setTimeout(() => setKickStage("kick"), 3000);
+      setBallFly(false);
+      // Visible wind-up for 3 seconds, then strike + ball fly together
+      setKickStage("windup");
+      const t1 = window.setTimeout(() => {
+        setKickStage("kick");
+        setBallFly(true);
+      }, 3000);
       return () => window.clearTimeout(t1);
     } else {
       setKickStage("idle");
+      setBallFly(false);
     }
   }, [phase, last]);
 
