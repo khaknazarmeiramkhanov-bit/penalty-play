@@ -205,6 +205,9 @@ function MatchPage() {
   const oppFoxFintArmed = useRef(false); // Лисы: после нашего промаха
   const oppIguanaArmed = useRef(false); // Игуаны: после сейва соперника
   const oppReindeerFrostArmed = useRef(false); // Олени: после гола соперника
+  // Фениксы: после промаха мимо ворот следующий удар гарантированно в створ
+  const phoenixRebornArmed = useRef(false);
+  const oppPhoenixRebornArmed = useRef(false);
 
   // Precompute opponent's shot whenever opponent phase starts
   useEffect(() => {
