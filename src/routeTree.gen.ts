@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TeamsRouteImport } from './routes/teams'
+import { Route as ShopRouteImport } from './routes/shop'
 import { Route as MatchRouteImport } from './routes/match'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TeamsRoute = TeamsRouteImport.update({
   id: '/teams',
   path: '/teams',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatchRoute = MatchRouteImport.update({
@@ -32,30 +38,34 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/match': typeof MatchRoute
+  '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/match': typeof MatchRoute
+  '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/match': typeof MatchRoute
+  '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/match' | '/teams'
+  fullPaths: '/' | '/match' | '/shop' | '/teams'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/match' | '/teams'
-  id: '__root__' | '/' | '/match' | '/teams'
+  to: '/' | '/match' | '/shop' | '/teams'
+  id: '__root__' | '/' | '/match' | '/shop' | '/teams'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MatchRoute: typeof MatchRoute
+  ShopRoute: typeof ShopRoute
   TeamsRoute: typeof TeamsRoute
 }
 
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/teams'
       fullPath: '/teams'
       preLoaderRoute: typeof TeamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/match': {
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MatchRoute: MatchRoute,
+  ShopRoute: ShopRoute,
   TeamsRoute: TeamsRoute,
 }
 export const routeTree = rootRouteImport

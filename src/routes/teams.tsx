@@ -125,12 +125,20 @@ function TeamsPage() {
         )}
 
         {/* Back link */}
-        <Link
-          to="/"
-          className="mt-2 text-xs font-bold tracking-[0.2em] text-white/70 uppercase transition-colors hover:text-white"
-        >
-          ← Назад
-        </Link>
+        <div className="mt-2 flex items-center gap-6">
+          <Link
+            to="/"
+            className="text-xs font-bold tracking-[0.2em] text-white/70 uppercase transition-colors hover:text-white"
+          >
+            ← Назад
+          </Link>
+          <Link
+            to="/shop"
+            className="rounded-lg bg-white/10 px-4 py-2 text-xs font-black tracking-[0.2em] text-white uppercase transition-all hover:bg-white/20"
+          >
+            🪙 Магазин
+          </Link>
+        </div>
       </div>
     </main>
   );

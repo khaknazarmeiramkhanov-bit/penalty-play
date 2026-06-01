@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { TEAMS } from "./teams";
+import { useInventory, getItem, resolveColor } from "@/lib/shop";
 
 const searchSchema = z.object({ team: z.string().default("Команда") });
 
@@ -85,6 +86,22 @@ function mostUsed(history: Zone[]): Zone {
 function MatchPage() {
   const { team } = Route.useSearch();
   const { ability, abilityDesc } = teamAbility(team);
+  const inv = useInventory();
+  const tColor = teamColor(team);
+  const equippedGlove = getItem(inv.equipped.glove);
+  const equippedBoot = getItem(inv.equipped.boot);
+  const equippedBand = getItem(inv.equipped.wristband);
+  const equippedSock = getItem(inv.equipped.sock);
+  const gear = {
+    gloveColor: resolveColor(equippedGlove?.color ?? "#ff7a1a", tColor),
+    gloveAccent: equippedGlove?.accent ?? "#ffb066",
+    bootColor: resolveColor(equippedBoot?.color ?? "#0a0a0a", tColor),
+    bootAccent: resolveColor(equippedBoot?.accent ?? "#fff", tColor),
+    bandColor: resolveColor(equippedBand?.color ?? "#fff", tColor),
+    sockColor: resolveColor(equippedSock?.color ?? "#0c0c10", tColor),
+    sockAccent: resolveColor(equippedSock?.accent ?? tColor, tColor),
+  };
+  const winRewarded = useRef(false);
 
   const [round, setRound] = useState(1);
   const [phase, setPhase] = useState<Phase>("opponent");
@@ -158,6 +175,7 @@ function MatchPage() {
     setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
     setPhase("result");
     if (scored) setOppScore((s) => s + 1);
+    if (!scored) inv.addCoins(15); // save reward
     pendingOppShot.current = null;
     window.setTimeout(() => setAnimating(false), 700);
   }
@@ -196,6 +214,7 @@ function MatchPage() {
     setLast({ shooter: "player", shot: playerShot, keeper, scored, offTarget });
     setPhase("result");
     if (scored) setPlayerScore((s) => s + 1);
+    if (scored) inv.addCoins(20); // goal reward
     window.setTimeout(() => setAnimating(false), 700);
   }
 
@@ -217,6 +236,10 @@ function MatchPage() {
 
     if (playerWinsOutright || reachedSuddenTarget) {
       setPhase("over");
+      if (!winRewarded.current && playerScore > oppScore) {
+        winRewarded.current = true;
+        inv.addCoins(100);
+      }
       return;
     }
     setRound((r) => r + 1);
@@ -234,6 +257,7 @@ function MatchPage() {
     playerShotHistory.current = [];
     pendingOppShot.current = null;
     kingCancelUsed.current = false;
+    winRewarded.current = false;
   }
 
   const isSudden = round > MIN_ROUNDS;
@@ -267,6 +291,23 @@ function MatchPage() {
             </span>
           </div>
           <ScorePane label="Соперник" name="Враги" score={oppScore} />
+        </div>
+
+        {/* Coins + shop */}
+        <div className="relative z-20 flex w-full items-center justify-between gap-3">
+          <div
+            className="flex items-center gap-2 rounded-lg bg-black/40 px-3 py-1.5 font-black text-white"
+            style={{ border: "2px solid #ccff00" }}
+          >
+            <span className="text-base">🪙</span>
+            <span className="text-sm">{inv.coins}</span>
+          </div>
+          <Link
+            to="/shop"
+            className="rounded-lg bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.2em] text-white uppercase hover:bg-white/20"
+          >
+            Магазин →
+          </Link>
         </div>
 
         {/* Phase title */}
@@ -315,6 +356,7 @@ function MatchPage() {
           last={last}
           playerColor={teamColor(team)}
           oppColor={OPPONENT_COLOR}
+          gear={gear}
         />
 
         {/* Zone controls */}
@@ -634,24 +676,33 @@ function PlayerFigure({
   size = 44,
   emotion = "neutral",
   kicking = false,
+  gear = DEFAULT_GEAR,
 }: {
   color: string;
   pose: "striker" | "keeper";
   size?: number;
   emotion?: "neutral" | "happy" | "sad";
   kicking?: boolean;
+  gear?: Gear;
 }) {
   const isKeeper = pose === "keeper";
   // Modern flat-vector style — clean silhouette, no creepy face.
   const skin = "#e8b894";
   const skinShade = "#b9805c";
   const hair = "#1a1208";
-  const sockDark = "#0c0c10";
-  const cleat = "#0a0a0a";
+  const sockDark = gear.sockColor;
+  const sockAccent = gear.sockAccent;
+  const cleat = gear.bootColor;
+  const cleatAccent = gear.bootAccent;
+  const bandColor = gear.bandColor;
   const accent = "#ffffff";
   const safeId = color.replace(/[^a-zA-Z0-9]/g, "");
   const jerseyId = `jersey-${pose}-${safeId}`;
   const skinId = `skin-${pose}-${safeId}`;
+  const gloveGradId = `glove-grad-${pose}-${safeId}`;
+  const rainbowId = `rainbow-${pose}-${safeId}`;
+  const usesRainbowBand = bandColor.includes("rainbowGrad");
+  const resolvedBand = usesRainbowBand ? `url(#${rainbowId})` : bandColor;
   const browTilt = emotion === "sad" ? -10 : emotion === "happy" ? 8 : 0;
 
   return (
@@ -669,6 +720,17 @@ function PlayerFigure({
         <linearGradient id={skinId} x1="50%" y1="0%" x2="50%" y2="100%">
           <stop offset="0%" stopColor={skin} />
           <stop offset="100%" stopColor={skinShade} />
+        </linearGradient>
+        <linearGradient id={gloveGradId} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={gear.gloveColor} />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.55" />
+        </linearGradient>
+        <linearGradient id={rainbowId} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#ef4444" />
+          <stop offset="0.25" stopColor="#facc15" />
+          <stop offset="0.5" stopColor="#22c55e" />
+          <stop offset="0.75" stopColor="#3b82f6" />
+          <stop offset="1" stopColor="#a855f7" />
         </linearGradient>
       </defs>
 
@@ -754,18 +816,51 @@ function PlayerFigure({
           <path d="M26 46 L14 34 L10 38 L22 52 Z" fill={`url(#${jerseyId})`} />
           {/* Forearm (skin) */}
           <path d="M14 34 L4 26 L0 30 L10 38 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
-          {/* Wrist band */}
-          <rect x="6" y="28" width="6" height="2.5" fill={accent} transform="rotate(40 9 29)" />
-          {/* Glove */}
-          <ellipse cx="2" cy="24" rx="5.5" ry="4.5" fill="#ff7a1a" stroke="#1a1208" strokeWidth="0.6" transform="rotate(-30 2 24)" />
-          <path d="M-1 22 L4 21 L4 25 L0 27 Z" fill="#ffb066" />
+          {/* Cuff (wristband over glove cuff) */}
+          <rect x="2" y="26" width="9" height="4" rx="1.5" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.4" transform="rotate(40 6 28)" />
+          {/* Glove — realistic with fingers + thumb */}
+          <g transform="rotate(-30 2 22)">
+            {/* Palm */}
+            <path d="M-5 18 Q-6 12 0 12 L6 12 Q9 12 9 16 L9 23 Q9 27 5 27 L-3 27 Q-6 27 -6 23 Z" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
+            {/* Fingers */}
+            <rect x="-2.5" y="6" width="2.3" height="9" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
+            <rect x="0.6" y="4" width="2.3" height="11" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
+            <rect x="3.7" y="5" width="2.3" height="10" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
+            <rect x="6.8" y="8" width="2.3" height="7" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
+            {/* Thumb */}
+            <path d="M-6 18 Q-9 16 -8 22 L-6 24 Z" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
+            {/* Palm grip dots */}
+            <circle cx="0" cy="19" r="0.5" fill="#0a0a0a" opacity="0.5" />
+            <circle cx="3" cy="19" r="0.5" fill="#0a0a0a" opacity="0.5" />
+            <circle cx="6" cy="19" r="0.5" fill="#0a0a0a" opacity="0.5" />
+            <circle cx="0" cy="22" r="0.5" fill="#0a0a0a" opacity="0.5" />
+            <circle cx="3" cy="22" r="0.5" fill="#0a0a0a" opacity="0.5" />
+            <circle cx="6" cy="22" r="0.5" fill="#0a0a0a" opacity="0.5" />
+            {/* Brand accent stripe */}
+            <path d="M-4 14 L8 14" stroke={gear.gloveAccent} strokeWidth="1.2" strokeLinecap="round" />
+            <path d="M-3 16 Q3 17 7 16" stroke={gear.gloveAccent} strokeWidth="0.8" fill="none" />
+          </g>
 
           {/* RIGHT arm mirrored */}
           <path d="M64 46 L76 34 L80 38 L68 52 Z" fill={`url(#${jerseyId})`} />
           <path d="M76 34 L86 26 L90 30 L80 38 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
-          <rect x="78" y="28" width="6" height="2.5" fill={accent} transform="rotate(-40 81 29)" />
-          <ellipse cx="88" cy="24" rx="5.5" ry="4.5" fill="#ff7a1a" stroke="#1a1208" strokeWidth="0.6" transform="rotate(30 88 24)" />
-          <path d="M91 22 L86 21 L86 25 L90 27 Z" fill="#ffb066" />
+          <rect x="79" y="26" width="9" height="4" rx="1.5" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.4" transform="rotate(-40 84 28)" />
+          <g transform="rotate(30 88 22) translate(176, 0) scale(-1, 1)">
+            <path d="M-5 18 Q-6 12 0 12 L6 12 Q9 12 9 16 L9 23 Q9 27 5 27 L-3 27 Q-6 27 -6 23 Z" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
+            <rect x="-2.5" y="6" width="2.3" height="9" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
+            <rect x="0.6" y="4" width="2.3" height="11" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
+            <rect x="3.7" y="5" width="2.3" height="10" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
+            <rect x="6.8" y="8" width="2.3" height="7" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
+            <path d="M-6 18 Q-9 16 -8 22 L-6 24 Z" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
+            <circle cx="0" cy="19" r="0.5" fill="#0a0a0a" opacity="0.5" />
+            <circle cx="3" cy="19" r="0.5" fill="#0a0a0a" opacity="0.5" />
+            <circle cx="6" cy="19" r="0.5" fill="#0a0a0a" opacity="0.5" />
+            <circle cx="0" cy="22" r="0.5" fill="#0a0a0a" opacity="0.5" />
+            <circle cx="3" cy="22" r="0.5" fill="#0a0a0a" opacity="0.5" />
+            <circle cx="6" cy="22" r="0.5" fill="#0a0a0a" opacity="0.5" />
+            <path d="M-4 14 L8 14" stroke={gear.gloveAccent} strokeWidth="1.2" strokeLinecap="round" />
+            <path d="M-3 16 Q3 17 7 16" stroke={gear.gloveAccent} strokeWidth="0.8" fill="none" />
+          </g>
         </>
       ) : kicking ? (
         <>
@@ -775,14 +870,14 @@ function PlayerFigure({
           {/* Forearm (skin) */}
           <path d="M18 60 L8 74 L12 78 L22 64 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
           {/* Wrist band */}
-          <rect x="9" y="73" width="6" height="2.5" fill={accent} transform="rotate(55 12 74)" />
+          <rect x="9" y="73" width="6" height="2.5" fill={resolvedBand} transform="rotate(55 12 74)" />
           {/* Hand */}
           <ellipse cx="9" cy="78" rx="3.4" ry="3.8" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
 
           {/* RIGHT arm — forward swing */}
           <path d="M64 46 L72 60 L68 64 L60 50 Z" fill={`url(#${jerseyId})`} />
           <path d="M72 60 L82 74 L78 78 L68 64 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
-          <rect x="75" y="73" width="6" height="2.5" fill={accent} transform="rotate(-55 78 74)" />
+          <rect x="75" y="73" width="6" height="2.5" fill={resolvedBand} transform="rotate(-55 78 74)" />
           <ellipse cx="81" cy="78" rx="3.4" ry="3.8" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
         </>
       ) : (
@@ -790,10 +885,12 @@ function PlayerFigure({
           {/* IDLE arms — hanging at sides */}
           <path d="M26 46 L22 70 L28 72 L32 48 Z" fill={`url(#${jerseyId})`} />
           <path d="M22 70 L20 86 L26 88 L28 72 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          <rect x="20" y="83" width="6" height="3" rx="1" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.3" />
           <ellipse cx="23" cy="90" rx="3.2" ry="3.6" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
 
           <path d="M64 46 L68 70 L62 72 L58 48 Z" fill={`url(#${jerseyId})`} />
           <path d="M68 70 L70 86 L64 88 L62 72 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          <rect x="64" y="83" width="6" height="3" rx="1" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.3" />
           <ellipse cx="67" cy="90" rx="3.2" ry="3.6" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
         </>
       )}
@@ -814,14 +911,14 @@ function PlayerFigure({
           <path d="M34 100 L36 118 L44 118 L43 100 Z" fill={sockDark} />
           <path d="M47 100 L46 118 L54 118 L56 100 Z" fill={sockDark} />
           {/* Sock bands (team color) */}
-          <rect x="35" y="112" width="9" height="2.5" fill={color} />
-          <rect x="46" y="112" width="9" height="2.5" fill={color} />
+          <rect x="35" y="112" width="9" height="2.5" fill={sockAccent} />
+          <rect x="46" y="112" width="9" height="2.5" fill={sockAccent} />
           {/* Cleats */}
           <path d="M30 118 Q34 116 44 118 L44 122 Q37 124 30 122 Z" fill={cleat} />
           <path d="M46 118 Q56 116 60 118 L60 122 Q53 124 46 122 Z" fill={cleat} />
           {/* Cleat sole stripe */}
-          <rect x="30" y="121" width="14" height="1.5" fill={color} />
-          <rect x="46" y="121" width="14" height="1.5" fill={color} />
+          <rect x="30" y="121" width="14" height="1.5" fill={cleatAccent} />
+          <rect x="46" y="121" width="14" height="1.5" fill={cleatAccent} />
         </>
       ) : kicking ? (
         <>
@@ -830,15 +927,15 @@ function PlayerFigure({
           {/* Kicking leg swung forward */}
           <path d="M46 100 L62 110 L60 116 L44 106 Z" fill={sockDark} />
           {/* Sock bands */}
-          <rect x="35" y="112" width="9" height="2.5" fill={color} />
-          <rect x="50" y="105" width="9" height="2.5" fill={color} transform="rotate(30 54 106)" />
+          <rect x="35" y="112" width="9" height="2.5" fill={sockAccent} />
+          <rect x="50" y="105" width="9" height="2.5" fill={sockAccent} transform="rotate(30 54 106)" />
           {/* Planted cleat */}
           <path d="M30 118 Q34 116 44 118 L44 122 Q37 124 30 122 Z" fill={cleat} />
-          <rect x="30" y="121" width="14" height="1.5" fill={color} />
+          <rect x="30" y="121" width="14" height="1.5" fill={cleatAccent} />
           {/* Kicking cleat */}
           <g transform="rotate(20 60 113)">
             <path d="M54 110 Q60 108 68 110 L68 114 Q60 116 54 114 Z" fill={cleat} />
-            <rect x="54" y="113" width="14" height="1.5" fill={color} />
+            <rect x="54" y="113" width="14" height="1.5" fill={cleatAccent} />
           </g>
         </>
       ) : (
@@ -846,12 +943,12 @@ function PlayerFigure({
           {/* IDLE — both legs straight */}
           <path d="M34 100 L36 118 L44 118 L44 100 Z" fill={sockDark} />
           <path d="M46 100 L46 118 L54 118 L56 100 Z" fill={sockDark} />
-          <rect x="35" y="112" width="9" height="2.5" fill={color} />
-          <rect x="46" y="112" width="9" height="2.5" fill={color} />
+          <rect x="35" y="112" width="9" height="2.5" fill={sockAccent} />
+          <rect x="46" y="112" width="9" height="2.5" fill={sockAccent} />
           <path d="M30 118 Q34 116 44 118 L44 122 Q37 124 30 122 Z" fill={cleat} />
           <path d="M46 118 Q56 116 60 118 L60 122 Q53 124 46 122 Z" fill={cleat} />
-          <rect x="30" y="121" width="14" height="1.5" fill={color} />
-          <rect x="46" y="121" width="14" height="1.5" fill={color} />
+          <rect x="30" y="121" width="14" height="1.5" fill={cleatAccent} />
+          <rect x="46" y="121" width="14" height="1.5" fill={cleatAccent} />
         </>
       )}
     </svg>
@@ -866,16 +963,38 @@ function zoneCoords(z: Zone): { left: string; top: string } {
   return { left, top };
 }
 
+type Gear = {
+  gloveColor: string;
+  gloveAccent: string;
+  bootColor: string;
+  bootAccent: string;
+  bandColor: string;
+  sockColor: string;
+  sockAccent: string;
+};
+
+const DEFAULT_GEAR: Gear = {
+  gloveColor: "#ff7a1a",
+  gloveAccent: "#ffb066",
+  bootColor: "#0a0a0a",
+  bootAccent: "#ffffff",
+  bandColor: "#ffffff",
+  sockColor: "#0c0c10",
+  sockAccent: "#ffffff",
+};
+
 function GoalScene({
   phase,
   last,
   playerColor,
   oppColor,
+  gear,
 }: {
   phase: Phase;
   last: Last | null;
   playerColor: string;
   oppColor: string;
+  gear: Gear;
 }) {
   // Animation: ball travels from striker spot to its zone after picking
   const [tick, setTick] = useState(0);
@@ -962,7 +1081,13 @@ function GoalScene({
           className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
           style={{ left: keeperPos.left, top: keeperPos.top }}
         >
-          <PlayerFigure color={keeperColor} pose="keeper" size={104} emotion={keeperEmotion} />
+          <PlayerFigure
+            color={keeperColor}
+            pose="keeper"
+            size={104}
+            emotion={keeperEmotion}
+            gear={activeShooter === "player" ? DEFAULT_GEAR : gear}
+          />
         </div>
 
         {/* Ball */}
@@ -1016,6 +1141,7 @@ function GoalScene({
             size={120}
             emotion={strikerEmotion}
             kicking={kickStage === "kick"}
+            gear={activeShooter === "player" ? gear : DEFAULT_GEAR}
           />
         </div>
         {/* Label */}
