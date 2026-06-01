@@ -853,18 +853,13 @@ function MatchPage() {
           gear={gear}
           sponsor={playerSponsor}
           onPickShot={
-            phase === "player" && !animating ? (z) => handlePlayerShot(z) : undefined
+            !animating && phase === "player"
+              ? (z) => handlePlayerShot(z)
+              : !animating && phase === "opponent"
+                ? (z) => handleOpponentShot(z)
+                : undefined
           }
         />
-
-        {/* Zone controls */}
-        {phase === "opponent" && (
-          <ZonePad
-            onPick={(z) => handleOpponentShot(z)}
-            disabled={animating}
-            actionLabel="Защищай"
-          />
-        )}
 
         {phase === "result" && last && (
           <ResultBlock last={last} onNext={next} locked={resultLocked} />
