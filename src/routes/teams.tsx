@@ -114,8 +114,8 @@ export const TEAMS = [
     color: "#f97316",
     country: "Нидерланды",
     flag: "🇳🇱",
-    ability: "Хитрость",
-    abilityDesc: "15% шанс забить сквозь вратаря",
+    ability: "Двойной шанс",
+    abilityDesc: "Один раз за матч твой промах превращается в гол",
   },
   {
     name: "Медведи",
@@ -123,8 +123,8 @@ export const TEAMS = [
     color: "#92400e",
     country: "Россия",
     flag: "🇷🇺",
-    ability: "Берлога",
-    abilityDesc: "15% шанс автосейва",
+    ability: "Стальные лапы",
+    abilityDesc: "Двойная награда за каждый сейв (+30 монет)",
   },
   {
     name: "Кондоры",
@@ -132,8 +132,8 @@ export const TEAMS = [
     color: "#0ea5e9",
     country: "Аргентина",
     flag: "🇦🇷",
-    ability: "Пике",
-    abilityDesc: "Соперник бьёт мимо с 20% шансом",
+    ability: "Пике сверху",
+    abilityDesc: "Твои удары в верхний ряд — гарантированный гол",
   },
   {
     name: "Олени",
@@ -141,8 +141,8 @@ export const TEAMS = [
     color: "#1e3a5a",
     country: "Финляндия",
     flag: "🇫🇮",
-    ability: "Мороз",
-    abilityDesc: "Вратарь соперника угадывает хуже",
+    ability: "Снежный след",
+    abilityDesc: "Соперник не может бить в одну зону дважды подряд",
   },
   {
     name: "Игуаны",
@@ -150,8 +150,8 @@ export const TEAMS = [
     color: "#10b981",
     country: "Мексика",
     flag: "🇲🇽",
-    ability: "Обманка",
-    abilityDesc: "20% шанс — вратарь соперника прыгнет не туда",
+    ability: "Липкий язык",
+    abilityDesc: "После сейва твой следующий удар точно становится голом",
   },
   {
     name: "Совы",
@@ -168,8 +168,8 @@ export const TEAMS = [
     color: "#065f46",
     country: "Австралия",
     flag: "🇦🇺",
-    ability: "Сжатие",
-    abilityDesc: "20% шанс гола сквозь вратаря",
+    ability: "Засада",
+    abilityDesc: "Удары соперника в нижний ряд автоматически парируются",
   },
   {
     name: "Слоны",
@@ -177,8 +177,8 @@ export const TEAMS = [
     color: "#6b7280",
     country: "Индия",
     flag: "🇮🇳",
-    ability: "Мощь",
-    abilityDesc: "Никогда не бьёшь мимо",
+    ability: "Землетрясение",
+    abilityDesc: "Каждый 3-й удар соперника летит мимо ворот",
   },
   {
     name: "Носороги",
@@ -186,8 +186,8 @@ export const TEAMS = [
     color: "#ef4444",
     country: "Южная Корея",
     flag: "🇰🇷",
-    ability: "Таран",
-    abilityDesc: "Соперник бьёт случайно, без стратегии",
+    ability: "Бронебойный",
+    abilityDesc: "30% шанс пробить вратаря, даже если он угадал",
   },
   {
     name: "Бабочки",
@@ -195,8 +195,8 @@ export const TEAMS = [
     color: "#818cf8",
     country: "Франция",
     flag: "🇫🇷",
-    ability: "Эффект бабочки",
-    abilityDesc: "15% шанс отменить гол соперника",
+    ability: "Метаморфоза",
+    abilityDesc: "Каждый раунд — случайная подсказка (верх/низ или сторона)",
   },
 ];
 
