@@ -177,7 +177,7 @@ function MatchPage() {
   // Precompute opponent's shot whenever opponent phase starts
   useEffect(() => {
     if (phase !== "opponent") return;
-    const lionsDumb = team === "Львы";
+    const lionsDumb = team === "Львы" || team === "Носороги";
     const smart = !lionsDumb && Math.random() < 0.7;
     pendingOppShot.current = smart ? leastUsed(playerGuessHistory.current) : randomZone();
   }, [phase, team, round]);
