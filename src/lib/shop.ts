@@ -95,6 +95,30 @@ export const ITEMS: ShopItem[] = [
     color: "#020617",
     accent: "#a855f7",
   },
+  {
+    id: "glove_dragon",
+    kind: "glove",
+    name: "Дракон",
+    price: 1200,
+    color: "#7f1d1d",
+    accent: "#f59e0b",
+  },
+  {
+    id: "glove_void",
+    kind: "glove",
+    name: "Пустота",
+    price: 1500,
+    color: "#0f0f23",
+    accent: "#c084fc",
+  },
+  {
+    id: "glove_aurora",
+    kind: "glove",
+    name: "Полярное сияние",
+    price: 1050,
+    color: "#06b6d4",
+    accent: "#d946ef",
+  },
 
   // Boots
   { id: "boot_black", kind: "boot", name: "Чёрные", price: 0, color: "#0a0a0a", accent: "#ffffff" },
@@ -115,6 +139,9 @@ export const ITEMS: ShopItem[] = [
   { id: "boot_chrome", kind: "boot", name: "Хром", price: 260, color: "#cbd5e1", accent: "#0f172a" },
   { id: "boot_lava", kind: "boot", name: "Лава", price: 320, color: "#dc2626", accent: "#facc15" },
   { id: "boot_galaxy", kind: "boot", name: "Галактика", price: 400, color: "#1e1b4b", accent: "#a78bfa" },
+  { id: "boot_titan", kind: "boot", name: "Титан", price: 1200, color: "#374151", accent: "#60a5fa" },
+  { id: "boot_abyss", kind: "boot", name: "Бездна", price: 1400, color: "#020617", accent: "#22d3ee" },
+  { id: "boot_magma", kind: "boot", name: "Магма", price: 1100, color: "#7c2d12", accent: "#f97316" },
 
   // Wristbands
   {
@@ -181,6 +208,30 @@ export const ITEMS: ShopItem[] = [
     color: "#7dd3fc",
     accent: "#000",
   },
+  {
+    id: "band_legend",
+    kind: "wristband",
+    name: "Легенда",
+    price: 900,
+    color: "#b45309",
+    accent: "#facc15",
+  },
+  {
+    id: "band_void",
+    kind: "wristband",
+    name: "Пустота",
+    price: 1100,
+    color: "#1e1b4b",
+    accent: "#c084fc",
+  },
+  {
+    id: "band_crown",
+    kind: "wristband",
+    name: "Корона",
+    price: 800,
+    color: "#fef08a",
+    accent: "#ca8a04",
+  },
 
   // Socks
   { id: "sock_black", kind: "sock", name: "Чёрные", price: 0, color: "#0c0c10", accent: "TEAM" },
@@ -199,6 +250,9 @@ export const ITEMS: ShopItem[] = [
   { id: "sock_gold", kind: "sock", name: "Золото", price: 240, color: "#facc15", accent: "#0a0a0a" },
   { id: "sock_purple", kind: "sock", name: "Пурпур", price: 160, color: "#7c3aed", accent: "#fde047" },
   { id: "sock_stripe", kind: "sock", name: "Полоски", price: 200, color: "#0a0a0a", accent: "#ffffff" },
+  { id: "sock_nova", kind: "sock", name: "Сверхновая", price: 900, color: "#4c1d95", accent: "#facc15" },
+  { id: "sock_eclipse", kind: "sock", name: "Затмение", price: 1200, color: "#020617", accent: "#f43f5e" },
+  { id: "sock_aurora", kind: "sock", name: "Сияние", price: 1000, color: "#164e63", accent: "#67e8f9" },
 ];
 
 export const DEFAULT_EQUIPPED: Record<ItemKind, string> = {
