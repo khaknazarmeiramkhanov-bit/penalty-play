@@ -399,11 +399,22 @@ function MatchPage() {
       const others = ALL_ZONES.filter((z) => z !== playerShot);
       keeper = others[Math.floor(Math.random() * others.length)];
     }
+    // Opp keeper auto-saves
+    const oppCrocSave = oppCrocs && shotMeta.row === 1 && Math.random() < 0.5;
+    const oppBearSave = oppBears && shotMeta.col === 1 && Math.random() < 0.5;
+    const oppTigerSave = oppTigers && Math.random() < 0.2;
+    const oppAutoSave =
+      !(condorHit || iguanaHit || foxHit || perkGoalHit) &&
+      (oppCrocSave || oppBearSave || oppTigerSave);
+    if (oppAutoSave) keeper = playerShot; // принудительный сейв
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
     const baseOff = Math.max(0, 0.1 - (inv.perks.accuracy ?? 0) * 0.02);
+    const wolvesOff = oppWolves && Math.random() < 0.25;
     const offTarget =
-      dragons || condorHit || iguanaHit || foxHit || perkGoalHit ? false : Math.random() < baseOff;
+      dragons || condorHit || iguanaHit || foxHit || perkGoalHit
+        ? false
+        : oppFrostHit || wolvesOff || Math.random() < baseOff;
     let scored = !offTarget && playerShot !== keeper;
     if (
       !scored &&
