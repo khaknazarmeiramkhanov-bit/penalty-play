@@ -1567,47 +1567,38 @@ function PlayerFigure({
       {/* === ARMS === */}
       {isKeeper ? (
         <>
-          {/* LEFT arm — shoulder (28,46) → wrist (35,68), arms forward to chest */}
+          {/* LEFT arm — hanging at side */}
+          <path d="M26 46 L22 70 L28 72 L32 48 Z" fill={`url(#${jerseyId})`} />
           <path
-            d="M28 44 L30 48 L37 64 L33 66 Z"
-            fill={`url(#${jerseyId})`}
-            stroke="#0a0a0a"
-            strokeWidth="0.4"
-          />
-          <path
-            d="M33 64 L37 64 L36 69 L32 68 Z"
+            d="M22 70 L20 86 L26 88 L28 72 Z"
             fill={`url(#${skinId})`}
             stroke="#1a1208"
             strokeWidth="0.4"
           />
           <rect
-            x="32"
-            y="66"
-            width="7"
+            x="20"
+            y="83"
+            width="6"
             height="3"
             rx="1"
             fill={resolvedBand}
             stroke="#0a0a0a"
-            strokeWidth="0.4"
-            transform="rotate(38 35 68)"
+            strokeWidth="0.3"
           />
-          {/* LEFT GLOVE — centered on chest */}
-          <g transform="translate(39 70) scale(0.6)">
-            {/* Palm */}
+          {/* LEFT GLOVE — at left side, fingers down */}
+          <g transform="translate(23 92) scale(-0.6 -0.6)">
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
               fill={`url(#${gloveGradId})`}
               stroke="#0a0a0a"
               strokeWidth="0.8"
             />
-            {/* Thumb */}
             <path
               d="M-10 -2 Q-14 -10 -8 -14 Q-3 -14 -3 -8 Z"
               fill={`url(#${gloveGradId})`}
               stroke="#0a0a0a"
               strokeWidth="0.7"
             />
-            {/* 4 Fingers */}
             <rect
               x="-5"
               y="-23"
@@ -1648,40 +1639,32 @@ function PlayerFigure({
               stroke="#0a0a0a"
               strokeWidth="0.7"
             />
-            {/* Brand stripes */}
             <GloveBaseDetails />
             <GloveDecor style={gear.gloveStyle} accent={gear.gloveAccent} />
-            {/* Cuff at bottom */}
             <rect x="-10" y="10" width="22" height="5" rx="1.2" fill="#0a0a0a" />
             <rect x="-10" y="11" width="22" height="1.5" fill={gear.gloveAccent} opacity="0.9" />
           </g>
 
-          {/* RIGHT arm — shoulder (62,46) → wrist (55,68), mirrored forward */}
+          {/* RIGHT arm — hanging at side */}
+          <path d="M64 46 L68 70 L62 72 L58 48 Z" fill={`url(#${jerseyId})`} />
           <path
-            d="M62 44 L60 48 L53 64 L57 66 Z"
-            fill={`url(#${jerseyId})`}
-            stroke="#0a0a0a"
-            strokeWidth="0.4"
-          />
-          <path
-            d="M57 64 L53 64 L54 69 L58 68 Z"
+            d="M68 70 L70 86 L64 88 L62 72 Z"
             fill={`url(#${skinId})`}
             stroke="#1a1208"
             strokeWidth="0.4"
           />
           <rect
-            x="51"
-            y="66"
-            width="7"
+            x="64"
+            y="83"
+            width="6"
             height="3"
             rx="1"
             fill={resolvedBand}
             stroke="#0a0a0a"
-            strokeWidth="0.4"
-            transform="rotate(-38 55 68)"
+            strokeWidth="0.3"
           />
-          {/* RIGHT GLOVE — centered mirrored on chest */}
-          <g transform="translate(51 70) scale(-0.6 0.6)">
+          {/* RIGHT GLOVE — at right side, fingers down */}
+          <g transform="translate(67 92) scale(0.6 -0.6)">
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
               fill={`url(#${gloveGradId})`}
