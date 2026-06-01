@@ -144,23 +144,17 @@ function Index() {
         <div className="flex flex-col items-center gap-4">
           <Link
             to="/teams"
-            className="group relative inline-flex items-center justify-center rounded-xl px-10 py-5 text-xl font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
+            className="group relative inline-flex items-center justify-center rounded-xl px-10 py-5 text-xl font-black tracking-widest uppercase transition-all duration-200 hover:scale-105 active:scale-95"
             style={{
-              backgroundColor: "#ccff00",
-              boxShadow: "0 8px 0 rgb(132,163,0)",
+              backgroundColor: "#000",
+              color: "#ccff00",
+              border: "2px solid #ccff00",
+              boxShadow: "0 0 8px #ccff00, 0 0 16px #ccff00, 0 0 24px #ccff00",
+              animation: "neonPulse 2s ease-in-out infinite",
+              textShadow: "0 0 4px #ccff00, 0 0 8px #ccff00",
             }}
           >
             <span className="relative">Начать</span>
-            {/* Shine Effect */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
-              <div
-                className="absolute inset-0 -translate-x-full transition-transform duration-700 group-hover:translate-x-full"
-                style={{
-                  background:
-                    "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
-                }}
-              />
-            </div>
           </Link>
 
           <Link
