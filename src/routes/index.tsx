@@ -23,13 +23,11 @@ export const Route = createFileRoute("/")({
 function Index() {
   const inv = useInventory();
   const [nameInput, setNameInput] = useState("");
-  const [showNameModal, setShowNameModal] = useState(!inv.playerName);
 
   const handleSaveName = () => {
     const trimmed = nameInput.trim();
     if (!trimmed) return;
     inv.setPlayerName(trimmed);
-    setShowNameModal(false);
   };
 
   return (
@@ -62,7 +60,7 @@ function Index() {
       />
 
       {/* Name Input Modal */}
-      {showNameModal && (
+      {!inv.playerName && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div
             className="w-full max-w-sm rounded-2xl border-2 border-white/10 p-8 text-center"
