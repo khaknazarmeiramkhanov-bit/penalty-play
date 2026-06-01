@@ -189,6 +189,7 @@ function MatchPage() {
     if (team === "Орлы") return `Подсказка: соперник бьёт ${meta.row === 0 ? "ВВЕРХ" : "ВНИЗ"}`;
     if (team === "Молнии")
       return `Подсказка: соперник бьёт ${meta.col === 0 ? "ВЛЕВО" : meta.col === 1 ? "В ЦЕНТР" : "ВПРАВО"}`;
+    if (team === "Совы") return `Подсказка: соперник бьёт ${meta.label}`;
     return null;
   }, [phase, team, round]);
 
