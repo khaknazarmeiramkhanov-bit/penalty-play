@@ -88,10 +88,14 @@ function Index() {
             <button
               onClick={handleSaveName}
               disabled={!nameInput.trim()}
-              className="w-full rounded-xl px-6 py-3 text-lg font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
+              className="w-full rounded-xl px-6 py-3 text-lg font-black tracking-widest uppercase transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
               style={{
-                backgroundColor: "#ccff00",
-                boxShadow: "0 6px 0 rgb(132,163,0)",
+                backgroundColor: "#000",
+                color: "#ccff00",
+                border: "2px solid #ccff00",
+                boxShadow: "0 0 8px #ccff00, 0 0 16px #ccff00, 0 0 24px #ccff00",
+                animation: "neonPulse 2s ease-in-out infinite",
+                textShadow: "0 0 4px #ccff00, 0 0 8px #ccff00",
               }}
             >
               Играть
