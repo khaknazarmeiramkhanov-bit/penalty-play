@@ -190,6 +190,7 @@ type Store = {
   owned: string[];
   equipped: Record<ItemKind, string>;
   perks: Record<PerkId, number>;
+  ownedTeams: string[];
 };
 
 const initial: Store = {
@@ -198,6 +199,7 @@ const initial: Store = {
   owned: ITEMS.filter((i) => i.price === 0).map((i) => i.id),
   equipped: { ...DEFAULT_EQUIPPED },
   perks: { saveBoost: 0, goalBoost: 0, coinBoost: 0, accuracy: 0 },
+  ownedTeams: [],
 };
 
 function read(): Store {
