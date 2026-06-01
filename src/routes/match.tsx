@@ -181,6 +181,8 @@ function MatchPage() {
   const reindeerFrostArmed = useRef(false);
   // Elephants: full history of opp shots for "memory" hint (from round 2)
   const oppShotHistory = useRef<Zone[]>([]);
+  // Owls: per-opponent-phase flag — is the hint truthful or misleading
+  const owlHintZone = useRef<Zone | null>(null);
 
   // Precompute opponent's shot whenever opponent phase starts
   useEffect(() => {
@@ -188,6 +190,10 @@ function MatchPage() {
     const lionsDumb = team === "Львы" || team === "Носороги";
     const smart = !lionsDumb && Math.random() < 0.7;
     pendingOppShot.current = smart ? leastUsed(playerGuessHistory.current) : randomZone();
+    if (team === "Совы") {
+      // 70% правдивая, 30% случайная (возможно ложная)
+      owlHintZone.current = Math.random() < 0.7 ? pendingOppShot.current : randomZone();
+    }
   }, [phase, team, round]);
 
   const oppHint = useMemo(() => {
@@ -197,7 +203,10 @@ function MatchPage() {
     if (team === "Орлы") return `Подсказка: соперник бьёт ${meta.row === 0 ? "ВВЕРХ" : "ВНИЗ"}`;
     if (team === "Молнии")
       return `Подсказка: соперник бьёт ${meta.col === 0 ? "ВЛЕВО" : meta.col === 1 ? "В ЦЕНТР" : "ВПРАВО"}`;
-    if (team === "Совы") return `Подсказка: соперник бьёт ${meta.label}`;
+    if (team === "Совы" && owlHintZone.current) {
+      const owlMeta = ZONES.find((x) => x.id === owlHintZone.current!)!;
+      return `Подсказка: соперник бьёт ${owlMeta.label}`;
+    }
     if (team === "Слоны" && oppShotHistory.current.length >= 1) {
       const fav = mostUsed(oppShotHistory.current);
       const favMeta = ZONES.find((x) => x.id === fav)!;
@@ -229,9 +238,10 @@ function MatchPage() {
     const shotMeta = ZONES.find((z) => z.id === shot)!;
     const frostForceOff = reindeerFrostArmed.current; // Олени: после твоего гола
     const offChance = wolves ? 0.25 : 0.1;
-    const offTarget = frostForceOff || Math.random() < offChance;
-    const crocSave = crocodiles && shotMeta.row === 1;
-    const bearSave = bears && shotMeta.col === 1;
+    const frostHit = frostForceOff && Math.random() < 0.4;
+    const offTarget = frostHit || Math.random() < offChance;
+    const crocSave = crocodiles && shotMeta.row === 1 && Math.random() < 0.5;
+    const bearSave = bears && shotMeta.col === 1 && Math.random() < 0.5;
     const autoSave = (tigers && Math.random() < 0.2) || crocSave || bearSave;
     const effectiveKeeper: Zone = autoSave ? shot : playerKeeper;
     let scored = !offTarget && shot !== effectiveKeeper;
@@ -246,7 +256,7 @@ function MatchPage() {
       kingCancelUsed.current = true;
       scored = false;
       setAbilityFlash("👑 Корона! Гол отменён");
-    } else if (frostForceOff) {
+    } else if (frostHit) {
       setAbilityFlash("🦌 Северное сияние! Соперник замёрз и бьёт мимо");
     } else if (butterflyFlip) {
       setAbilityFlash("🦋 Эффект бабочки! Исход перевёрнут");
@@ -301,39 +311,34 @@ function MatchPage() {
       keeper = others[Math.floor(Math.random() * others.length)];
     }
     const shotMeta = ZONES.find((z) => z.id === playerShot)!;
-    // Кондоры: верхний ряд — вратарь всегда не туда
-    if (condors && shotMeta.row === 0) {
-      const others = ALL_ZONES.filter((z) => z !== playerShot);
-      keeper = others[Math.floor(Math.random() * others.length)];
-    }
-    // Игуаны: накопленный гарантированный гол
-    if (iguanaShot) {
-      const others = ALL_ZONES.filter((z) => z !== playerShot);
-      keeper = others[Math.floor(Math.random() * others.length)];
-    }
-    // Лисы: хитрый финт — вратарь точно прыгает не туда
-    if (foxFint) {
+    // Кондоры: верхний ряд — 40% обмануть вратаря
+    const condorHit = condors && shotMeta.row === 0 && Math.random() < 0.4;
+    // Игуаны: после сейва — 50% обмануть вратаря
+    const iguanaHit = iguanaShot && Math.random() < 0.5;
+    // Лисы: после промаха соперника — 50% обмануть вратаря
+    const foxHit = foxFint && Math.random() < 0.5;
+    if (condorHit || iguanaHit || foxHit) {
       const others = ALL_ZONES.filter((z) => z !== playerShot);
       keeper = others[Math.floor(Math.random() * others.length)];
     }
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
-    const offTarget = dragons || foxFint || iguanaShot ? false : Math.random() < 0.1;
+    const offTarget = dragons || condorHit || iguanaHit || foxHit ? false : Math.random() < 0.1;
     let scored = !offTarget && playerShot !== keeper;
     if (
       !scored &&
       !offTarget &&
-      ((snowLeopards && Math.random() < 0.2) || (rhinos && Math.random() < 0.3))
+      ((snowLeopards && Math.random() < 0.2) || (rhinos && Math.random() < 0.2))
     ) {
       scored = true;
       setAbilityFlash(
         snowLeopards ? "🐆 Горный хищник! Гол сквозь вратаря" : "🦏 Таран! Пробил вратаря",
       );
-    } else if (foxFint && scored) {
+    } else if (foxHit && scored) {
       setAbilityFlash("🦊 Хитрый финт! Вратарь обманут");
-    } else if (iguanaShot && scored) {
-      setAbilityFlash("🦎 Липкий язык! Гарантированный гол");
-    } else if (condors && shotMeta.row === 0 && scored) {
+    } else if (iguanaHit && scored) {
+      setAbilityFlash("🦎 Липкий язык! Вратарь обманут");
+    } else if (condorHit && scored) {
       setAbilityFlash("🦅 Пике сверху! Верх — твой");
     } else if (cobras && keeper !== playerShot && scored) {
       setAbilityFlash("🐍 Гипноз сработал!");
@@ -347,6 +352,7 @@ function MatchPage() {
       scored = !scored;
       setAbilityFlash("🦋 Эффект бабочки! Исход перевёрнут");
     }
+    // Способность всегда тратится, попала она или нет
     if (iguanaShot) iguanaArmed.current = false;
     if (foxFint) foxFintArmed.current = false;
     // Олени: после твоего гола взводим заморозку соперника
