@@ -11,6 +11,14 @@ function teamColor(name: string): string {
   return TEAMS.find((t) => t.name === name)?.color ?? "#ccff00";
 }
 
+function teamAbility(name: string): { ability: string; abilityDesc: string } {
+  const t = TEAMS.find((t) => t.name === name);
+  return {
+    ability: t?.ability ?? "—",
+    abilityDesc: t?.abilityDesc ?? "",
+  };
+}
+
 export const Route = createFileRoute("/match")({
   validateSearch: searchSchema,
   head: () => ({
@@ -76,6 +84,7 @@ function mostUsed(history: Zone[]): Zone {
 
 function MatchPage() {
   const { team } = Route.useSearch();
+  const { ability, abilityDesc } = teamAbility(team);
 
   const [round, setRound] = useState(1);
   const [phase, setPhase] = useState<Phase>("opponent");
@@ -83,10 +92,35 @@ function MatchPage() {
   const [oppScore, setOppScore] = useState(0);
   const [last, setLast] = useState<Last | null>(null);
   const [animating, setAnimating] = useState(false);
+  const [abilityFlash, setAbilityFlash] = useState<string | null>(null);
 
   // History of player choices to drive smarter AI
   const playerGuessHistory = useRef<Zone[]>([]); // where player dives as keeper
   const playerShotHistory = useRef<Zone[]>([]); // where player shoots
+  // Precomputed opponent shot for current opponent phase (for hint abilities)
+  const pendingOppShot = useRef<Zone | null>(null);
+  // One-time uses
+  const kingCancelUsed = useRef(false);
+
+  // Precompute opponent's shot whenever opponent phase starts
+  useEffect(() => {
+    if (phase !== "opponent") return;
+    const lionsDumb = team === "Львы";
+    const smart = !lionsDumb && Math.random() < 0.7;
+    pendingOppShot.current = smart
+      ? leastUsed(playerGuessHistory.current)
+      : randomZone();
+  }, [phase, team, round]);
+
+  const oppHint = useMemo(() => {
+    if (phase !== "opponent" || !pendingOppShot.current) return null;
+    const z = pendingOppShot.current;
+    const meta = ZONES.find((x) => x.id === z)!;
+    if (team === "Орлы") return `Подсказка: соперник бьёт ${meta.row === 0 ? "ВВЕРХ" : "ВНИЗ"}`;
+    if (team === "Молнии")
+      return `Подсказка: соперник бьёт ${meta.col === 0 ? "ВЛЕВО" : meta.col === 1 ? "В ЦЕНТР" : "ВПРАВО"}`;
+    return null;
+  }, [phase, team, round]);
 
   const phaseLabel = useMemo(() => {
     if (phase === "opponent") return "Бьёт соперник — выбери угол";
@@ -98,29 +132,67 @@ function MatchPage() {
   function handleOpponentShot(playerKeeper: Zone) {
     if (animating) return;
     setAnimating(true);
-    // Smarter AI: 70% pick the zone player guesses least, 30% random
-    const smart = Math.random() < 0.7;
-    const shot: Zone = smart ? leastUsed(playerGuessHistory.current) : randomZone();
+    const shot: Zone = pendingOppShot.current ?? randomZone();
     playerGuessHistory.current = [...playerGuessHistory.current, playerKeeper];
 
-    const offTarget = Math.random() < 0.1;
-    const scored = !offTarget && shot !== playerKeeper;
-    setLast({ shooter: "opponent", shot, keeper: playerKeeper, scored, offTarget });
+    // ABILITIES affecting opponent shot:
+    const wolves = team === "Волки";       // opp off-target chance up to 25%
+    const tigers = team === "Тигры";       // 20% auto-save
+    const offChance = wolves ? 0.25 : 0.1;
+    const offTarget = Math.random() < offChance;
+    const autoSave = tigers && Math.random() < 0.2;
+    const effectiveKeeper: Zone = autoSave ? shot : playerKeeper;
+    let scored = !offTarget && shot !== effectiveKeeper;
+
+    // Корона: cancel first opponent goal
+    if (scored && team === "Короли" && !kingCancelUsed.current) {
+      kingCancelUsed.current = true;
+      scored = false;
+      setAbilityFlash("👑 Корона! Гол отменён");
+    } else if (autoSave) {
+      setAbilityFlash("🐯 Прыжок тигра! Автосейв");
+    } else {
+      setAbilityFlash(null);
+    }
+
+    setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
     setPhase("result");
     if (scored) setOppScore((s) => s + 1);
+    pendingOppShot.current = null;
     window.setTimeout(() => setAnimating(false), 700);
   }
 
   function handlePlayerShot(playerShot: Zone) {
     if (animating) return;
     setAnimating(true);
-    // Smarter AI keeper: 70% dive to player's most-used shot zone, 30% random
-    const smart = Math.random() < 0.7;
-    const keeper: Zone = smart ? mostUsed(playerShotHistory.current) : randomZone();
+    // ABILITIES affecting player shot:
+    const bulls = team === "Быки";       // weaker keeper guess
+    const cobras = team === "Кобры";     // 20% keeper jumps wrong
+    const dragons = team === "Драконы";  // never off-target
+    const sharks = team === "Акулы";     // 20% score-through
+
+    const smartChance = bulls ? 0.3 : 0.7;
+    const smart = Math.random() < smartChance;
+    let keeper: Zone = smart ? mostUsed(playerShotHistory.current) : randomZone();
+    if (cobras && Math.random() < 0.2) {
+      const others = ALL_ZONES.filter((z) => z !== playerShot);
+      keeper = others[Math.floor(Math.random() * others.length)];
+    }
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
-    const offTarget = Math.random() < 0.1;
-    const scored = !offTarget && playerShot !== keeper;
+    const offTarget = dragons ? false : Math.random() < 0.1;
+    let scored = !offTarget && playerShot !== keeper;
+    if (!scored && !offTarget && sharks && Math.random() < 0.2) {
+      scored = true;
+      setAbilityFlash("🦈 Хищный удар! Гол сквозь вратаря");
+    } else if (cobras && keeper !== playerShot && scored) {
+      setAbilityFlash("🐍 Гипноз сработал!");
+    } else if (dragons && playerShot !== keeper) {
+      setAbilityFlash("🐉 Огненный удар!");
+    } else {
+      setAbilityFlash(null);
+    }
+
     setLast({ shooter: "player", shot: playerShot, keeper, scored, offTarget });
     setPhase("result");
     if (scored) setPlayerScore((s) => s + 1);
@@ -157,8 +229,11 @@ function MatchPage() {
     setPlayerScore(0);
     setOppScore(0);
     setLast(null);
+    setAbilityFlash(null);
     playerGuessHistory.current = [];
     playerShotHistory.current = [];
+    pendingOppShot.current = null;
+    kingCancelUsed.current = false;
   }
 
   const isSudden = round > MIN_ROUNDS;
