@@ -28,7 +28,6 @@ function Index() {
     const trimmed = nameInput.trim();
     if (!trimmed) return;
     inv.setPlayerName(trimmed);
-    setShowNameModal(false);
   };
 
   return (
