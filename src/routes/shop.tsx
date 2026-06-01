@@ -176,6 +176,78 @@ function Section({
   );
 }
 
+function PerksSection({
+  perks,
+  levels,
+  crystals,
+  onBuy,
+}: {
+  perks: Perk[];
+  levels: Record<string, number>;
+  crystals: number;
+  onBuy: (id: Perk["id"]) => void;
+}) {
+  return (
+    <section className="flex flex-col gap-3">
+      <h2 className="flex items-center gap-2 text-xs font-black tracking-[0.3em] text-white/80 uppercase">
+        <span>💎</span> Способности
+      </h2>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {perks.map((p) => {
+          const lvl = levels[p.id] ?? 0;
+          const maxed = lvl >= p.maxLevel;
+          const canAfford = !maxed && crystals >= p.pricePerLevel;
+          return (
+            <div
+              key={p.id}
+              className="flex flex-col gap-2 rounded-xl bg-black/40 p-3 backdrop-blur-sm"
+              style={{ border: "2px solid rgba(255,255,255,0.15)" }}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{p.icon}</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-black tracking-wider text-white uppercase">
+                    {p.name}
+                  </span>
+                  <span className="text-[10px] tracking-widest text-white/60 uppercase">
+                    {p.step}
+                  </span>
+                </div>
+              </div>
+              <p className="text-xs text-white/70">{p.desc}</p>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: p.maxLevel }).map((_, i) => (
+                  <span
+                    key={i}
+                    className="h-2 flex-1 rounded-full"
+                    style={{ backgroundColor: i < lvl ? "#ccff00" : "rgba(255,255,255,0.15)" }}
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                disabled={!canAfford}
+                onClick={() => onBuy(p.id)}
+                className="flex w-full items-center justify-center gap-1 rounded-md px-3 py-2 text-xs font-black tracking-widest uppercase transition-all disabled:opacity-50"
+                style={{
+                  backgroundColor: maxed
+                    ? "rgba(204,255,0,0.25)"
+                    : canAfford
+                      ? "#ccff00"
+                      : "rgba(255,255,255,0.08)",
+                  color: maxed ? "#fff" : canAfford ? "#000" : "#fff",
+                }}
+              >
+                {maxed ? "Максимум" : `💎 ${p.pricePerLevel} · ур. ${lvl + 1}/${p.maxLevel}`}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function Preview({ item }: { item: ShopItem }) {
   const color =
     item.color === "TEAM" ? "#ccff00" : item.color === "RAINBOW" ? "url(#rg)" : item.color;
