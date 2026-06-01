@@ -709,6 +709,8 @@ function Fan({
 }
 
 function GloveDecor({ style, accent }: { style: GloveStyle; accent: string }) {
+  // Style-specific top-layer decorations. Realistic seams/textures are rendered
+  // separately by <GloveBaseDetails /> beneath this layer.
   // Local glove coords: palm spans roughly x ∈ [-10, 12], y ∈ [-12, 13].
   switch (style) {
     case "striped":
