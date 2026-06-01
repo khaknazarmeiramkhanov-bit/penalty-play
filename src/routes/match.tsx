@@ -76,6 +76,16 @@ function teamGlove(name: string): { color: string; accent: string; style: GloveS
       return { color: tc, accent: "#1a1208", style: "carbon" };
     case "Призраки":
       return { color: "#1a1a1a", accent: tc, style: "tech" };
+    case "Черепахи":
+      return { color: tc, accent: "#bbf7d0", style: "classic" };
+    case "Зебры":
+      return { color: "#1a1a1a", accent: "#fafafa", style: "striped" };
+    case "Соколы":
+      return { color: tc, accent: "#fde68a", style: "tech" };
+    case "Скорпионы":
+      return { color: tc, accent: "#1a1a1a", style: "carbon" };
+    case "Барсуки":
+      return { color: tc, accent: "#fafafa", style: "striped" };
     default:
       return { color: "#ff7a1a", accent: "#ffb066", style: "classic" };
   }
@@ -225,6 +235,9 @@ function MatchPage() {
   // Призраки: соперник пугается и пробивает мимо в первом раунде
   const ghostFearUsed = useRef(false);
   const oppGhostFearUsed = useRef(false);
+  // Черепахи: после гола соперника — следующий его удар мимо
+  const turtleArmed = useRef(false);
+  const oppTurtleArmed = useRef(false);
 
   // Precompute opponent's shot whenever opponent phase starts
   useEffect(() => {
@@ -287,33 +300,57 @@ function MatchPage() {
     const oppIguanaHit = oppIguanaArmed.current && Math.random() < 0.5;
     const oppGorillaHit = oppTeam === "Гориллы" && shotMeta.row === 1 && Math.random() < 0.3;
     const oppCheetahHit = oppTeam === "Гепарды" && Math.random() < 0.3;
+    // Зебры (у соперника): каждый 3-й удар — гарантия
+    const oppZebraHit =
+      oppTeam === "Зебры" && (oppShotHistory.current.length % 3 === 0);
+    // Соколы (у соперника): по углам +30%
+    const oppFalconHit =
+      oppTeam === "Соколы" && shotMeta.col !== 1 && Math.random() < 0.3;
     const oppKeeperBypass =
-      oppCondorHit || oppFoxHit || oppIguanaHit || oppGorillaHit || oppCheetahHit;
+      oppCondorHit || oppFoxHit || oppIguanaHit || oppGorillaHit || oppCheetahHit ||
+      oppZebraHit || oppFalconHit;
     const offChance = wolves ? 0.25 : 0.1;
     const frostHit = frostForceOff && Math.random() < 0.4;
     const oppPhoenixSafe = oppTeam === "Фениксы" && oppPhoenixRebornArmed.current;
     // Призраки (у игрока): первый удар соперника в матче — мимо
     const ghostFearForce =
       team === "Призраки" && !ghostFearUsed.current;
+    // Черепахи (у игрока): после гола соперника — следующий удар мимо
+    const turtleForce = team === "Черепахи" && turtleArmed.current;
     const offTarget =
-      ghostFearForce
+      ghostFearForce || turtleForce
         ? true
         : oppDragons || oppPhoenixSafe
           ? false
           : frostHit || Math.random() < offChance;
+    // Скорпионы (у соперника): мимо → 35% закрутка в створ
+    let oppScorpionRecover = false;
+    let oppOffTargetFinal = offTarget;
+    if (
+      oppOffTargetFinal &&
+      oppTeam === "Скорпионы" &&
+      !ghostFearForce &&
+      !turtleForce &&
+      Math.random() < 0.35
+    ) {
+      oppOffTargetFinal = false;
+      oppScorpionRecover = true;
+    }
     const crocSave = crocodiles && shotMeta.row === 1 && Math.random() < 0.5;
     const bearSave = bears && shotMeta.col === 1 && Math.random() < 0.5;
     const perkSaveChance = (inv.perks.saveBoost ?? 0) * 0.05;
     const perkSave = perkSaveChance > 0 && Math.random() < perkSaveChance;
+    // Барсуки (у игрока): +15% автосейв
+    const badgerSave = team === "Барсуки" && Math.random() < 0.15;
     const autoSave =
-      !oppKeeperBypass && ((tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave);
+      !oppKeeperBypass && ((tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave || badgerSave);
     // Если соперник пробил вратаря (Кондоры/Лисы/Игуаны) — вратарь точно мимо
     const effectiveKeeper: Zone = autoSave
       ? shot
       : oppKeeperBypass
         ? ALL_ZONES.filter((z) => z !== shot)[Math.floor(Math.random() * 5)]
         : playerKeeper;
-    let scored = !offTarget && shot !== effectiveKeeper;
+    let scored = !oppOffTargetFinal && shot !== effectiveKeeper;
     let butterflyFlip = false;
     const oppButterflyFlip = oppTeam === "Бабочки" && Math.random() < 0.15;
     if (butterflies && Math.random() < 0.15) {
@@ -325,7 +362,7 @@ function MatchPage() {
     // Соперник-Снежные барсы / Носороги: пробивают сквозь нашего вратаря
     if (
       !scored &&
-      !offTarget &&
+      !oppOffTargetFinal &&
       ((oppTeam === "Снежные барсы" && Math.random() < 0.2) ||
         (oppTeam === "Носороги" && Math.random() < 0.2))
     ) {
@@ -346,6 +383,10 @@ function MatchPage() {
       setAbilityFlash("🦌 Северное сияние! Соперник замёрз и бьёт мимо");
     } else if (ghostFearForce) {
       setAbilityFlash("👻 Страх! Соперник испугался и бьёт мимо");
+    } else if (turtleForce) {
+      setAbilityFlash("🐢 Панцирь! Соперник промахнулся после гола");
+    } else if (oppScorpionRecover) {
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: жало — мяч закрутился в створ`);
     } else if (butterflyFlip) {
       setAbilityFlash("🦋 Эффект бабочки! Исход перевёрнут");
     } else if (oppButterflyFlip) {
@@ -362,7 +403,11 @@ function MatchPage() {
                 ? `${oppEmoji} ${oppTeam}: силовой удар!`
                 : oppCheetahHit
                   ? `${oppEmoji} ${oppTeam}: скорость!`
-                  : "",
+                  : oppZebraHit
+                    ? `${oppEmoji} ${oppTeam}: стадо — гарантия!`
+                    : oppFalconHit
+                      ? `${oppEmoji} ${oppTeam}: точность сокола`
+                      : "",
       );
     } else if (autoSave) {
       setAbilityFlash(
@@ -372,7 +417,9 @@ function MatchPage() {
             ? "🐻 Медвежья хватка! Ловишь в центре"
             : tigers
               ? "🐯 Прыжок тигра! Автосейв"
-              : "🧤 Реакция вратаря! Автосейв",
+              : badgerSave
+                ? "🦡 Цепкая лапа! Автосейв"
+                : "🧤 Реакция вратаря! Автосейв",
       );
     } else {
       setAbilityFlash(null);
@@ -381,10 +428,11 @@ function MatchPage() {
     if (oppFoxFintArmed.current) oppFoxFintArmed.current = false;
     if (oppIguanaArmed.current) oppIguanaArmed.current = false;
     if (oppPhoenixSafe) oppPhoenixRebornArmed.current = false;
-    if (offTarget && oppTeam === "Фениксы") oppPhoenixRebornArmed.current = true;
+    if (oppOffTargetFinal && oppTeam === "Фениксы") oppPhoenixRebornArmed.current = true;
     if (ghostFearForce) ghostFearUsed.current = true;
+    if (turtleForce) turtleArmed.current = false;
 
-    setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
+    setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget: oppOffTargetFinal });
     setPhase("result");
     setResultLocked(true);
     window.setTimeout(() => setResultLocked(false), 4000);
@@ -397,6 +445,8 @@ function MatchPage() {
       if (oppVikingDouble) setAbilityFlash(`${oppEmoji} ${oppTeam}: двойной гол!`);
       // Опп-Олени: после своего гола замораживают наш следующий удар
       if (oppTeam === "Олени") oppReindeerFrostArmed.current = true;
+      // Черепахи (у игрока): после гола соперника взводим панцирь
+      if (team === "Черепахи") turtleArmed.current = true;
     }
     if (!scored) {
       inv.addCoins(15 + (inv.perks.coinBoost ?? 0) * 5); // save reward + perk
@@ -428,6 +478,8 @@ function MatchPage() {
     // Призраки (у соперника): первый твой удар в матче — мимо
     const oppGhostFearForce =
       oppTeam === "Призраки" && !oppGhostFearUsed.current;
+    // Черепахи (у соперника): после нашего гола — наш следующий удар мимо
+    const oppTurtleForce = oppTeam === "Черепахи" && oppTurtleArmed.current;
 
     // ---- OPPONENT keeper abilities (соперник защищает ворота) ----
     const oppTigers = oppTeam === "Тигры";
@@ -435,6 +487,7 @@ function MatchPage() {
     const oppCrocs = oppTeam === "Крокодилы";
     const oppWolves = oppTeam === "Волки";
     const oppButterflies = oppTeam === "Бабочки";
+    const oppBadgers = oppTeam === "Барсуки";
     const oppFrostHit = oppReindeerFrostArmed.current && Math.random() < 0.4;
 
     const smartChance = bulls ? 0.3 : 0.7;
@@ -455,10 +508,16 @@ function MatchPage() {
     const gorillaHit = gorillas && shotMeta.row === 1 && Math.random() < 0.3;
     // Гепарды: вратарь не успевает
     const cheetahHit = cheetahs && Math.random() < 0.3;
+    // Зебры: каждый 3-й удар — гарантированный гол
+    const zebraHit =
+      team === "Зебры" && (playerShotHistory.current.length % 3 === 0);
+    // Соколы: боковые углы — +30% обмануть вратаря
+    const falconHit =
+      team === "Соколы" && shotMeta.col !== 1 && Math.random() < 0.3;
     // Перк "Удар по углам" — общий шанс что вратарь прыгнет не туда
     const perkGoalChance = (inv.perks.goalBoost ?? 0) * 0.05;
     const perkGoalHit = perkGoalChance > 0 && Math.random() < perkGoalChance;
-    if (condorHit || iguanaHit || foxHit || perkGoalHit || gorillaHit || cheetahHit) {
+    if (condorHit || iguanaHit || foxHit || perkGoalHit || gorillaHit || cheetahHit || zebraHit || falconHit) {
       const others = ALL_ZONES.filter((z) => z !== playerShot);
       keeper = others[Math.floor(Math.random() * others.length)];
     }
@@ -466,17 +525,18 @@ function MatchPage() {
     const oppCrocSave = oppCrocs && shotMeta.row === 1 && Math.random() < 0.5;
     const oppBearSave = oppBears && shotMeta.col === 1 && Math.random() < 0.5;
     const oppTigerSave = oppTigers && Math.random() < 0.2;
+    const oppBadgerSave = oppBadgers && Math.random() < 0.15;
     const oppAutoSave =
-      !(condorHit || iguanaHit || foxHit || perkGoalHit || gorillaHit || cheetahHit) &&
-      (oppCrocSave || oppBearSave || oppTigerSave);
+      !(condorHit || iguanaHit || foxHit || perkGoalHit || gorillaHit || cheetahHit || zebraHit || falconHit) &&
+      (oppCrocSave || oppBearSave || oppTigerSave || oppBadgerSave);
     if (oppAutoSave) keeper = playerShot; // принудительный сейв
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
     const baseOff = Math.max(0, 0.1 - (inv.perks.accuracy ?? 0) * 0.02);
     const wolvesOff = oppWolves && Math.random() < 0.25;
     const phoenixSafe = phoenixes && phoenixRebornArmed.current;
-    const offTarget =
-      oppGhostFearForce
+    let offTarget =
+      oppGhostFearForce || oppTurtleForce
         ? true
         : dragons ||
       condorHit ||
@@ -485,9 +545,23 @@ function MatchPage() {
       perkGoalHit ||
       gorillaHit ||
       cheetahHit ||
+      zebraHit ||
+      falconHit ||
       phoenixSafe
         ? false
         : oppFrostHit || wolvesOff || Math.random() < baseOff;
+    // 🦂 Скорпионы: мимо → 35% закрутка обратно в створ
+    let scorpionRecover = false;
+    if (
+      team === "Скорпионы" &&
+      offTarget &&
+      !oppGhostFearForce &&
+      !oppTurtleForce &&
+      Math.random() < 0.35
+    ) {
+      offTarget = false;
+      scorpionRecover = true;
+    }
     let scored = !offTarget && playerShot !== keeper;
     // 🐙 Кракены: раз за матч — повторный удар после сейва
     let krakenReboundFlash = false;
@@ -522,10 +596,20 @@ function MatchPage() {
       setAbilityFlash("🦍 Сила! Пробил вратаря низом");
     } else if (cheetahHit && scored) {
       setAbilityFlash("🐅 Скорость! Вратарь не успел");
+    } else if (zebraHit && scored) {
+      setAbilityFlash("🦓 Стадо! Гарантированный гол");
+    } else if (falconHit && scored) {
+      setAbilityFlash("🦅 Точность сокола! В угол");
+    } else if (scorpionRecover) {
+      setAbilityFlash(
+        scored ? "🦂 Жало! Закрутка — гол" : "🦂 Жало! Закрутка спасена вратарём",
+      );
     } else if (krakenReboundFlash) {
       setAbilityFlash(scored ? "🐙 Второй шанс! Гол с добивания" : "🐙 Второй шанс... мимо");
     } else if (oppGhostFearForce) {
       setAbilityFlash(`${oppEmoji} ${oppTeam}: страх! Ты бьёшь мимо`);
+    } else if (oppTurtleForce) {
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: панцирь — ты бьёшь мимо`);
     } else if (phoenixSafe && scored) {
       setAbilityFlash("🔥 Возрождение! В створ");
     } else if (cobras && keeper !== playerShot && scored) {
@@ -542,7 +626,9 @@ function MatchPage() {
           ? `${oppEmoji} ${oppTeam}: засада снизу!`
           : oppBearSave
             ? `${oppEmoji} ${oppTeam}: медвежья хватка!`
-            : `${oppEmoji} ${oppTeam}: прыжок тигра!`,
+            : oppTigerSave
+              ? `${oppEmoji} ${oppTeam}: прыжок тигра!`
+              : `${oppEmoji} ${oppTeam}: цепкая лапа!`,
       );
     } else {
       setAbilityFlash(null);
@@ -567,6 +653,7 @@ function MatchPage() {
     if (phoenixSafe) phoenixRebornArmed.current = false;
     if (offTarget && phoenixes) phoenixRebornArmed.current = true;
     if (oppGhostFearForce) oppGhostFearUsed.current = true;
+    if (oppTurtleForce) oppTurtleArmed.current = false;
     if (oppFrostHit) oppReindeerFrostArmed.current = false;
     if (offTarget && oppTeam === "Лисы") oppFoxFintArmed.current = true;
     if (!scored && !offTarget && oppTeam === "Игуаны") oppIguanaArmed.current = true;
@@ -587,6 +674,8 @@ function MatchPage() {
       setPlayerScore((s) => s + (vikingDouble ? 2 : 1));
     }
     if (scored) inv.addCoins(20 + (inv.perks.coinBoost ?? 0) * 5); // goal reward + perk
+    // Опп-Черепахи: после нашего гола взводим панцирь
+    if (scored && oppTeam === "Черепахи") oppTurtleArmed.current = true;
     window.setTimeout(() => setAnimating(false), 700);
   }
 
