@@ -407,10 +407,12 @@ function PlayerFigure({
   color,
   pose,
   size = 44,
+  emotion = "neutral",
 }: {
   color: string;
   pose: "striker" | "keeper";
   size?: number;
+  emotion?: "neutral" | "happy" | "sad";
 }) {
   const isKeeper = pose === "keeper";
   return (
@@ -422,6 +424,17 @@ function PlayerFigure({
     >
       {/* head */}
       <circle cx="24" cy="10" r="7" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+      {/* eyes */}
+      <circle cx="21.5" cy="9" r="0.9" fill="#000" />
+      <circle cx="26.5" cy="9" r="0.9" fill="#000" />
+      {/* mouth */}
+      {emotion === "sad" ? (
+        <path d="M21 13 Q24 11 27 13" stroke="#000" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+      ) : emotion === "happy" ? (
+        <path d="M21 12 Q24 15 27 12" stroke="#000" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+      ) : (
+        <path d="M22 13 L26 13" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+      )}
       {/* jersey / body */}
       <path
         d={
@@ -498,8 +511,37 @@ function GoalScene({
   // Keeper is the OTHER team
   const keeperColor = activeShooter === "player" ? oppColor : playerColor;
 
+  // Emotions only during result
+  let strikerEmotion: "neutral" | "happy" | "sad" = "neutral";
+  let keeperEmotion: "neutral" | "happy" | "sad" = "neutral";
+  if (showAction && last) {
+    if (last.offTarget) {
+      strikerEmotion = "sad";
+      keeperEmotion = "happy";
+    } else if (last.scored) {
+      strikerEmotion = "happy";
+      keeperEmotion = "sad";
+    } else {
+      strikerEmotion = "sad";
+      keeperEmotion = "happy";
+    }
+  }
+
+  // Off-target ball position: throw it off to the side / over the bar
+  const offBallPos =
+    showAction && last?.offTarget
+      ? last.shot === "TL" || last.shot === "BL"
+        ? { left: "-8%", top: "20%" }
+        : last.shot === "TR" || last.shot === "BR"
+          ? { left: "108%", top: "20%" }
+          : { left: "50%", top: "-15%" }
+      : null;
+  const finalBallPos = offBallPos ?? ballPos;
+
   return (
     <div className="relative w-full max-w-md">
+      {/* Crowd */}
+      <Crowd playerColor={playerColor} oppColor={oppColor} />
       {/* Goal frame */}
       <div
         className="relative w-full overflow-hidden rounded-lg bg-white/5"
@@ -519,17 +561,17 @@ function GoalScene({
           className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
           style={{ left: keeperPos.left, top: keeperPos.top }}
         >
-          <PlayerFigure color={keeperColor} pose="keeper" size={46} />
+          <PlayerFigure color={keeperColor} pose="keeper" size={64} emotion={keeperEmotion} />
         </div>
 
         {/* Ball */}
-        {ballPos && (
+        {finalBallPos && (
           <div
             key={`ball-${tick}`}
             className="absolute -translate-x-1/2 -translate-y-1/2 text-3xl"
             style={{
-              left: ballPos.left,
-              top: ballPos.top,
+              left: finalBallPos.left,
+              top: finalBallPos.top,
               filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))",
               animation: "ballFly 0.55s ease-out",
             }}
@@ -555,11 +597,11 @@ function GoalScene({
 
       {/* Striker outside the goal */}
       <div className="mt-2 flex items-center justify-between px-2">
-        <PlayerFigure color={strikerColor} pose="striker" size={44} />
+        <PlayerFigure color={strikerColor} pose="striker" size={64} emotion={strikerEmotion} />
         <span className="text-[10px] tracking-[0.25em] text-white/70 uppercase">
           {activeShooter === "player" ? "Бьёшь ты" : "Бьёт соперник"}
         </span>
-        <div className="h-10 w-10" />
+        <div className="h-14 w-14" />
       </div>
 
       <style>{`
