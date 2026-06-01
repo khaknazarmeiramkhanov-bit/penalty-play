@@ -431,7 +431,7 @@ function ZonePad({
   );
 }
 
-function ResultBlock({ last, onNext }: { last: Last; onNext: () => void }) {
+function ResultBlock({ last, onNext, locked }: { last: Last; onNext: () => void; locked?: boolean }) {
   const isOpp = last.shooter === "opponent";
   return (
     <div className="flex flex-col items-center gap-3">
