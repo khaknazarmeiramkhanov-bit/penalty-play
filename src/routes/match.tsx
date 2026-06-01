@@ -365,7 +365,7 @@ function MatchPage() {
           />
         )}
 
-        {phase === "result" && last && <ResultBlock last={last} onNext={next} />}
+        {phase === "result" && last && <ResultBlock last={last} onNext={next} locked={resultLocked} />}
 
         {phase === "over" && (
           <OverBlock team={team} playerScore={playerScore} oppScore={oppScore} onReset={reset} />
