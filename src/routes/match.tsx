@@ -2037,16 +2037,75 @@ function GoalScene({
       <Crowd playerColor={playerColor} oppColor={oppColor} />
       {/* Goal frame */}
       <div
-        className="relative z-10 w-full overflow-hidden rounded-lg bg-white/5"
-        style={{
-          aspectRatio: "16 / 9",
-          border: "4px solid white",
-          backgroundImage:
-            "repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px), repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px)",
-        }}
+        className="relative z-10 w-full"
+        style={{ aspectRatio: "16 / 9" }}
       >
-        {/* Goal line shadow */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-black/30" />
+        {/* Net — diagonal mesh with depth fade */}
+        <div
+          className="absolute inset-0 overflow-hidden"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(20,40,30,0.55) 0%, rgba(10,25,18,0.85) 100%)",
+            boxShadow:
+              "inset 0 0 60px rgba(0,0,0,0.55), inset 0 8px 24px rgba(0,0,0,0.35)",
+          }}
+        >
+          {/* Net mesh — two diagonal sets of fine lines */}
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(45deg, rgba(255,255,255,0.18) 0 1px, transparent 1px 14px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.18) 0 1px, transparent 1px 14px)",
+              maskImage:
+                "radial-gradient(ellipse at 50% 40%, #000 60%, rgba(0,0,0,0.6) 100%)",
+              WebkitMaskImage:
+                "radial-gradient(ellipse at 50% 40%, #000 60%, rgba(0,0,0,0.6) 100%)",
+            }}
+          />
+          {/* Subtle vertical net seams */}
+          <div
+            className="absolute inset-0 opacity-40"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(90deg, rgba(255,255,255,0.12) 0 1px, transparent 1px 32px)",
+            }}
+          />
+        </div>
+
+        {/* Crossbar */}
+        <div
+          className="absolute inset-x-0 top-0"
+          style={{
+            height: 10,
+            background:
+              "linear-gradient(180deg, #ffffff 0%, #f1f1f1 55%, #b8b8b8 100%)",
+            boxShadow: "0 3px 6px rgba(0,0,0,0.45)",
+            borderTopLeftRadius: 4,
+            borderTopRightRadius: 4,
+          }}
+        />
+        {/* Left post */}
+        <div
+          className="absolute top-0 bottom-0 left-0"
+          style={{
+            width: 10,
+            background:
+              "linear-gradient(90deg, #ffffff 0%, #e8e8e8 60%, #a8a8a8 100%)",
+            boxShadow: "3px 0 6px rgba(0,0,0,0.4)",
+          }}
+        />
+        {/* Right post */}
+        <div
+          className="absolute top-0 bottom-0 right-0"
+          style={{
+            width: 10,
+            background:
+              "linear-gradient(270deg, #ffffff 0%, #e8e8e8 60%, #a8a8a8 100%)",
+            boxShadow: "-3px 0 6px rgba(0,0,0,0.4)",
+          }}
+        />
+        {/* Goal line shadow at the bottom inside */}
+        <div className="pointer-events-none absolute inset-x-2 bottom-0 h-3 bg-gradient-to-t from-black/55 to-transparent" />
 
         {/* Keeper */}
         <div
@@ -2077,20 +2136,6 @@ function GoalScene({
             }}
           >
             ⚽
-          </div>
-        )}
-
-        {/* Zone grid hint */}
-        {(phase === "opponent" || phase === "player") && (
-          <div className="pointer-events-none absolute inset-0 grid grid-cols-3 grid-rows-2 opacity-30">
-            {ZONES.map((z) => (
-              <div
-                key={z.id}
-                className="flex items-center justify-center border border-white/30 text-2xl text-white/70"
-              >
-                {z.label}
-              </div>
-            ))}
           </div>
         )}
       </div>
