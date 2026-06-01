@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { syncPlayer } from "./leaderboard";
 
 export type ItemKind = "glove" | "boot" | "wristband" | "sock";
 
