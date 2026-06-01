@@ -435,17 +435,41 @@ function MatchPage() {
       setAbilityFlash("🐍 Гипноз сработал!");
     } else if (dragons && playerShot !== keeper) {
       setAbilityFlash("🐉 Огненный удар!");
+    } else if (oppFrostHit) {
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: северное сияние — ты бьёшь мимо`);
+    } else if (wolvesOff) {
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: стая отвлекла — мимо`);
+    } else if (oppAutoSave) {
+      setAbilityFlash(
+        oppCrocSave
+          ? `${oppEmoji} ${oppTeam}: засада снизу!`
+          : oppBearSave
+            ? `${oppEmoji} ${oppTeam}: медвежья хватка!`
+            : `${oppEmoji} ${oppTeam}: прыжок тигра!`,
+      );
     } else {
       setAbilityFlash(null);
     }
-    // Бабочки: 15% перевернуть исход твоего удара
+    // Бабочки (наши/соперника): 15% инверсия
     if (butterflies && Math.random() < 0.15) {
       scored = !scored;
       setAbilityFlash("🦋 Эффект бабочки! Исход перевёрнут");
+    } else if (oppButterflies && Math.random() < 0.15) {
+      scored = !scored;
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: эффект бабочки`);
+    }
+    // Опп-Короли: отменяют наш первый гол
+    if (scored && oppTeam === "Короли" && !oppKingCancelUsed.current) {
+      oppKingCancelUsed.current = true;
+      scored = false;
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: корона отменила гол`);
     }
     // Способность всегда тратится, попала она или нет
     if (iguanaShot) iguanaArmed.current = false;
     if (foxFint) foxFintArmed.current = false;
+    if (oppFrostHit) oppReindeerFrostArmed.current = false;
+    if (offTarget && oppTeam === "Лисы") oppFoxFintArmed.current = true;
+    if (!scored && !offTarget && oppTeam === "Игуаны") oppIguanaArmed.current = true;
     // Олени: после твоего гола взводим заморозку соперника
     if (scored && team === "Олени") reindeerFrostArmed.current = true;
 
