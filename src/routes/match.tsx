@@ -1567,16 +1567,16 @@ function PlayerFigure({
       {/* === ARMS === */}
       {isKeeper ? (
         <>
-          {/* LEFT arm — hanging at side */}
-          <path d="M26 46 L22 70 L28 72 L32 48 Z" fill={`url(#${jerseyId})`} />
+          {/* LEFT arm — slightly away from body */}
+          <path d="M26 46 L16 68 L22 70 L32 48 Z" fill={`url(#${jerseyId})`} />
           <path
-            d="M22 70 L20 86 L26 88 L28 72 Z"
+            d="M16 68 L12 86 L18 88 L22 70 Z"
             fill={`url(#${skinId})`}
             stroke="#1a1208"
             strokeWidth="0.4"
           />
           <rect
-            x="20"
+            x="12"
             y="83"
             width="6"
             height="3"
@@ -1585,8 +1585,8 @@ function PlayerFigure({
             stroke="#0a0a0a"
             strokeWidth="0.3"
           />
-          {/* LEFT GLOVE — at left side, fingers down */}
-          <g transform="translate(23 92) scale(-0.6 -0.6)">
+          {/* LEFT GLOVE — slightly away from body, fingers down */}
+          <g transform="translate(17 92) scale(-0.6 -0.6)">
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
               fill={`url(#${gloveGradId})`}
