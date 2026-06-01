@@ -208,6 +208,7 @@ export const TEAMS = [
     ability: "Сила",
     abilityDesc: "Удары в нижний ряд — 30% пробить вратаря силой",
     special: true,
+    priceCrystals: 5,
   },
   {
     name: "Гепарды",
@@ -218,6 +219,7 @@ export const TEAMS = [
     ability: "Скорость",
     abilityDesc: "30% — вратарь не успевает прыгнуть к мячу",
     special: true,
+    priceCrystals: 5,
   },
   {
     name: "Фениксы",
@@ -228,6 +230,7 @@ export const TEAMS = [
     ability: "Возрождение",
     abilityDesc: "После промаха мимо ворот — следующий удар точно в створ",
     special: true,
+    priceCrystals: 5,
   },
 ];
 
