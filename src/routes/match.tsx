@@ -403,6 +403,55 @@ function zoneLabel(z: Zone) {
   return map[z];
 }
 
+function Crowd({
+  playerColor,
+  oppColor,
+}: {
+  playerColor: string;
+  oppColor: string;
+}) {
+  // Two stands behind the goal: left supports player team, right supports opponent
+  const fans = Array.from({ length: 30 });
+  return (
+    <div
+      className="pointer-events-none absolute -top-6 left-0 right-0 -z-0 flex justify-between gap-1 px-1"
+      aria-hidden
+    >
+      <div className="flex flex-1 flex-wrap items-end gap-0.5">
+        {fans.map((_, i) => (
+          <FanHead key={`l-${i}`} color={playerColor} delay={i * 80} />
+        ))}
+      </div>
+      <div className="flex flex-1 flex-wrap items-end justify-end gap-0.5">
+        {fans.map((_, i) => (
+          <FanHead key={`r-${i}`} color={oppColor} delay={i * 90 + 40} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FanHead({ color, delay }: { color: string; delay: number }) {
+  return (
+    <div
+      className="flex flex-col items-center"
+      style={{
+        animation: "fanBob 1.2s ease-in-out infinite",
+        animationDelay: `${delay}ms`,
+      }}
+    >
+      <div
+        className="h-2 w-2 rounded-full border border-black/50"
+        style={{ backgroundColor: color }}
+      />
+      <div
+        className="h-3 w-3 rounded-sm border border-black/50"
+        style={{ backgroundColor: color, opacity: 0.85 }}
+      />
+    </div>
+  );
+}
+
 function PlayerFigure({
   color,
   pose,
@@ -609,6 +658,10 @@ function GoalScene({
           0% { transform: translate(-50%, 80px) scale(0.4); opacity: 0.4; }
           60% { opacity: 1; }
           100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        @keyframes fanBob {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
         }
       `}</style>
     </div>
