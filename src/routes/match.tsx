@@ -457,7 +457,8 @@ function ResultBlock({ last, onNext, locked }: { last: Last; onNext: () => void;
       <button
         type="button"
         onClick={onNext}
-        className="rounded-xl px-10 py-3 text-lg font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
+        disabled={locked}
+        className="rounded-xl px-10 py-3 text-lg font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
         style={{
           backgroundColor: "#ccff00",
           boxShadow: "0 8px 0 rgb(132,163,0)",
