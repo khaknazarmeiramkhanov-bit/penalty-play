@@ -382,6 +382,9 @@ type Store = {
   perks: Record<PerkId, number>;
   ownedTeams: string[];
   wins: number;
+  losses: number;
+  matches: number;
+  spentCoins: number;
   sponsor: string;
 };
 
@@ -393,6 +396,9 @@ const initial: Store = {
   perks: { saveBoost: 0, goalBoost: 0, coinBoost: 0, accuracy: 0 },
   ownedTeams: [],
   wins: 0,
+  losses: 0,
+  matches: 0,
+  spentCoins: 0,
   sponsor: "none",
 };
 
