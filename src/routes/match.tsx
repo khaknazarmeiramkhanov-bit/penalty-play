@@ -1061,7 +1061,7 @@ function PlayerFigure({
             transform="rotate(38 35 68)"
           />
           {/* LEFT GLOVE — centered on chest */}
-          <g transform="translate(35 72) scale(0.65)">
+          <g transform="translate(39 70) scale(0.6)">
             {/* Palm */}
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
@@ -1150,7 +1150,7 @@ function PlayerFigure({
             transform="rotate(-38 55 68)"
           />
           {/* RIGHT GLOVE — centered mirrored on chest */}
-          <g transform="translate(55 72) scale(-0.65 0.65)">
+          <g transform="translate(51 70) scale(-0.6 0.6)">
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
               fill={`url(#${gloveGradId})`}
