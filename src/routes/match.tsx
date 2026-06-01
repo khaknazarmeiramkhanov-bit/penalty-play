@@ -852,14 +852,17 @@ function MatchPage() {
           oppColor={oppColor}
           gear={gear}
           sponsor={playerSponsor}
+          onPickShot={
+            phase === "player" && !animating ? (z) => handlePlayerShot(z) : undefined
+          }
         />
 
         {/* Zone controls */}
-        {(phase === "opponent" || phase === "player") && (
+        {phase === "opponent" && (
           <ZonePad
-            onPick={(z) => (phase === "opponent" ? handleOpponentShot(z) : handlePlayerShot(z))}
+            onPick={(z) => handleOpponentShot(z)}
             disabled={animating}
-            actionLabel={phase === "opponent" ? "Защищай" : "Бей"}
+            actionLabel="Защищай"
           />
         )}
 
