@@ -198,6 +198,33 @@ export const TEAMS = [
     ability: "Эффект бабочки",
     abilityDesc: "15% шанс, что исход удара перевернётся",
   },
+  {
+    name: "Гориллы",
+    emoji: "🦍",
+    color: "#3f3f46",
+    country: "Камерун",
+    flag: "🇨🇲",
+    ability: "Сила",
+    abilityDesc: "Удары в нижний ряд — 30% пробить вратаря силой",
+  },
+  {
+    name: "Гепарды",
+    emoji: "🐅",
+    color: "#fbbf24",
+    country: "Кения",
+    flag: "🇰🇪",
+    ability: "Скорость",
+    abilityDesc: "30% — вратарь не успевает прыгнуть к мячу",
+  },
+  {
+    name: "Фениксы",
+    emoji: "🔥",
+    color: "#fb7185",
+    country: "Египет",
+    flag: "🇪🇬",
+    ability: "Возрождение",
+    abilityDesc: "После промаха мимо ворот — следующий удар точно в створ",
+  },
 ];
 
 function TeamsPage() {
