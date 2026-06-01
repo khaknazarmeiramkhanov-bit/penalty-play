@@ -159,7 +159,12 @@ function Index() {
 
           <Link
             to="/rating"
-            className="inline-flex items-center justify-center rounded-xl border-2 border-white/20 bg-white/10 px-8 py-3 text-sm font-black tracking-widest text-white uppercase backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:bg-white/20 active:scale-95"
+            className="inline-flex items-center justify-center rounded-xl border-2 border-[#ccff00]/50 bg-black/40 px-8 py-3 text-sm font-black tracking-widest uppercase backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:border-[#ccff00] active:scale-95"
+            style={{
+              color: "#ccff00",
+              boxShadow: "0 0 6px rgba(204,255,0,0.3)",
+              textShadow: "0 0 4px rgba(204,255,0,0.5)",
+            }}
           >
             📊 Рейтинг
           </Link>
