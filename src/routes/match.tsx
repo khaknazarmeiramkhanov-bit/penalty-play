@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { TEAMS } from "./teams";
 import { useInventory, getItem, resolveColor, getSponsor, type Sponsor } from "@/lib/shop";
+import { addMatch, addLoss } from "@/lib/shop";
 
 const searchSchema = z.object({ team: z.string().default("Команда") });
 
