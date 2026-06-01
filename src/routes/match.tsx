@@ -467,15 +467,15 @@ function ZonePad({
 
 function ResultBlock({ last, onNext, locked }: { last: Last; onNext: () => void; locked?: boolean }) {
   const isOpp = last.shooter === "opponent";
-  // Suspense phase: while striker winds up (~3s), hide result and show hype phrases
+  // Suspense phase: while striker winds up (~2s), hide result and show hype phrases
   const HYPE = ["Момент истины!!!", "Иииииии!!!", "Замах...", "Сейчас будет!!!"];
   const [suspense, setSuspense] = useState(true);
   const [hypeIdx, setHypeIdx] = useState(0);
   useEffect(() => {
     setSuspense(true);
     setHypeIdx(0);
-    const rot = window.setInterval(() => setHypeIdx((i) => (i + 1) % HYPE.length), 700);
-    const end = window.setTimeout(() => setSuspense(false), 3000);
+    const rot = window.setInterval(() => setHypeIdx((i) => (i + 1) % HYPE.length), 500);
+    const end = window.setTimeout(() => setSuspense(false), 2000);
     return () => {
       window.clearInterval(rot);
       window.clearTimeout(end);
