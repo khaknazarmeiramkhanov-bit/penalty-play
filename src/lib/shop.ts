@@ -531,6 +531,18 @@ export function useInventory() {
     return true;
   }, []);
 
+  const addMatch = useCallback(() => {
+    const next = read();
+    next.matches = (next.matches ?? 0) + 1;
+    write(next);
+  }, []);
+
+  const addLoss = useCallback(() => {
+    const next = read();
+    next.losses = (next.losses ?? 0) + 1;
+    write(next);
+  }, []);
+
   const reset = useCallback(() => write(initial), []);
 
   return {
@@ -542,6 +554,8 @@ export function useInventory() {
     buyTeam,
     equip,
     addWin,
+    addMatch,
+    addLoss,
     equipSponsor,
     reset,
   };
