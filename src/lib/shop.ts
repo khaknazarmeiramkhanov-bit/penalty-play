@@ -401,6 +401,7 @@ const initial: Store = {
   matches: 0,
   spentCoins: 0,
   sponsor: "none",
+  playerName: null,
 };
 
 function read(): Store {
