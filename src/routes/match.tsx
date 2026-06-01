@@ -110,6 +110,7 @@ function MatchPage() {
   const [last, setLast] = useState<Last | null>(null);
   const [animating, setAnimating] = useState(false);
   const [abilityFlash, setAbilityFlash] = useState<string | null>(null);
+  const [resultLocked, setResultLocked] = useState(false);
 
   // History of player choices to drive smarter AI
   const playerGuessHistory = useRef<Zone[]>([]); // where player dives as keeper
