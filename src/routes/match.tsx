@@ -674,6 +674,8 @@ function MatchPage() {
       setPlayerScore((s) => s + (vikingDouble ? 2 : 1));
     }
     if (scored) inv.addCoins(20 + (inv.perks.coinBoost ?? 0) * 5); // goal reward + perk
+    // Опп-Черепахи: после нашего гола взводим панцирь
+    if (scored && oppTeam === "Черепахи") oppTurtleArmed.current = true;
     window.setTimeout(() => setAnimating(false), 700);
   }
 
