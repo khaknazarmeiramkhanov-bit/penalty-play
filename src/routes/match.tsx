@@ -397,6 +397,9 @@ function MatchPage() {
       if (!winRewarded.current && playerScore > oppScore) {
         winRewarded.current = true;
         inv.addCoins(100);
+        // Кристаллы за победу: +1 за матч, +2 если соперник не забил (сухой матч)
+        const crystals = oppScore === 0 ? 3 : 1;
+        inv.addCrystals(crystals);
       }
       return;
     }
