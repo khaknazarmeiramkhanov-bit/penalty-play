@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useInventory } from "@/lib/shop";
+import { useLeaderboard } from "@/lib/leaderboard";
 
 export const Route = createFileRoute("/rating")({
   head: () => ({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/rating")({
 
 function RatingPage() {
   const inv = useInventory();
+  const { rows, loading, myClientId } = useLeaderboard(50);
   const winRate = inv.matches > 0 ? ((inv.wins / inv.matches) * 100).toFixed(1) : "0.0";
 
   const stats = [
@@ -30,29 +32,12 @@ function RatingPage() {
     { label: "Потрачено монет", value: inv.spentCoins, icon: "💸" },
   ];
 
-  const bots = [
-    { name: "Messi_GOAT", wins: 247, country: "🇦🇷" },
-    { name: "Ronaldo_CR7", wins: 231, country: "🇵🇹" },
-    { name: "Mbappe10", wins: 198, country: "🇫🇷" },
-    { name: "Neymar_Jr", wins: 176, country: "🇧🇷" },
-    { name: "Haaland_9", wins: 154, country: "🇳🇴" },
-    { name: "Vinicius", wins: 132, country: "🇧🇷" },
-    { name: "Bellingham", wins: 118, country: "🏴" },
-    { name: "Pedri", wins: 97, country: "🇪🇸" },
-    { name: "Lewy", wins: 84, country: "🇵🇱" },
-    { name: "Modric", wins: 71, country: "🇭🇷" },
-    { name: "Kane_H", wins: 58, country: "🏴" },
-    { name: "Salah", wins: 42, country: "🇪🇬" },
-    { name: "Son7", wins: 28, country: "🇰🇷" },
-    { name: "Rookie_22", wins: 12, country: "🇺🇦" },
-    { name: "Newbie", wins: 4, country: "🇷🇺" },
-  ];
-  const leaderboard = [
-    ...bots.map((b) => ({ ...b, isYou: false })),
-    { name: "ТЫ", wins: inv.wins, country: "⚽", isYou: true },
-  ]
-    .sort((a, b) => b.wins - a.wins)
-    .map((p, i) => ({ ...p, rank: i + 1 }));
+  const leaderboard = rows.map((r, i) => ({
+    name: r.name,
+    wins: r.wins,
+    isYou: r.client_id === myClientId,
+    rank: i + 1,
+  }));
 
   return (
     <main
