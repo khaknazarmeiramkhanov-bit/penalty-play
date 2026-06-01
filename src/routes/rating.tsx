@@ -109,6 +109,14 @@ function RatingPage() {
             </span>
           </div>
           <div className="flex flex-col gap-1.5">
+            {loading && leaderboard.length === 0 && (
+              <div className="py-4 text-center text-xs text-white/50">Загрузка...</div>
+            )}
+            {!loading && leaderboard.length === 0 && (
+              <div className="py-4 text-center text-xs text-white/50">
+                Пока нет игроков. Сыграй матч!
+              </div>
+            )}
             {leaderboard.map((p) => {
               const medal =
                 p.rank === 1 ? "🥇" : p.rank === 2 ? "🥈" : p.rank === 3 ? "🥉" : null;
