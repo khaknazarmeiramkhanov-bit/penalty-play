@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { useInventory } from "@/lib/shop";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,6 +21,17 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const inv = useInventory();
+  const [nameInput, setNameInput] = useState("");
+  const [showNameModal, setShowNameModal] = useState(!inv.playerName);
+
+  const handleSaveName = () => {
+    const trimmed = nameInput.trim();
+    if (!trimmed) return;
+    inv.setPlayerName(trimmed);
+    setShowNameModal(false);
+  };
+
   return (
     <main
       className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden"
@@ -48,6 +61,47 @@ function Index() {
         }}
       />
 
+      {/* Name Input Modal */}
+      {showNameModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div
+            className="w-full max-w-sm rounded-2xl border-2 border-white/10 p-8 text-center"
+            style={{ backgroundColor: "#0a4a1f" }}
+          >
+            <h2
+              className="mb-2 text-3xl font-black italic tracking-tighter text-white uppercase"
+              style={{ textShadow: "0 3px 0 rgba(0,0,0,0.3)" }}
+            >
+              Как вас зовут?
+            </h2>
+            <p className="mb-6 text-sm text-white/60">
+              Введите имя для вашего аккаунта
+            </p>
+            <input
+              type="text"
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
+              maxLength={20}
+              placeholder="Ваш никнейм"
+              className="mb-4 w-full rounded-xl border-2 border-white/20 bg-white/10 px-4 py-3 text-center text-lg font-bold text-white placeholder-white/30 outline-none focus:border-[#ccff00]"
+              autoFocus
+            />
+            <button
+              onClick={handleSaveName}
+              disabled={!nameInput.trim()}
+              className="w-full rounded-xl px-6 py-3 text-lg font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
+              style={{
+                backgroundColor: "#ccff00",
+                boxShadow: "0 6px 0 rgb(132,163,0)",
+              }}
+            >
+              Играть
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center gap-12 px-6 text-center">
         {/* Title Lockup */}
@@ -68,6 +122,21 @@ function Index() {
             }}
           />
         </div>
+
+        {/* Player Name Display */}
+        {inv.playerName && (
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-xs font-bold tracking-widest text-white/50 uppercase">
+              Игрок
+            </span>
+            <span
+              className="text-2xl font-black italic tracking-tight text-white"
+              style={{ textShadow: "0 2px 0 rgba(0,0,0,0.3)" }}
+            >
+              {inv.playerName}
+            </span>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex flex-col items-center gap-4">

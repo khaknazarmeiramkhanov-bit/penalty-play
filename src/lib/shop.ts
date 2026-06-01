@@ -386,6 +386,7 @@ type Store = {
   matches: number;
   spentCoins: number;
   sponsor: string;
+  playerName: string | null;
 };
 
 const initial: Store = {
@@ -400,6 +401,7 @@ const initial: Store = {
   matches: 0,
   spentCoins: 0,
   sponsor: "none",
+  playerName: null,
 };
 
 function read(): Store {
@@ -420,6 +422,7 @@ function read(): Store {
       matches: parsed.matches ?? initial.matches,
       spentCoins: parsed.spentCoins ?? initial.spentCoins,
       sponsor: parsed.sponsor ?? initial.sponsor,
+      playerName: parsed.playerName ?? initial.playerName,
     };
   } catch {
     return initial;
@@ -543,6 +546,12 @@ export function useInventory() {
     write(next);
   }, []);
 
+  const setPlayerName = useCallback((name: string) => {
+    const next = read();
+    next.playerName = name.trim().slice(0, 20) || null;
+    write(next);
+  }, []);
+
   const reset = useCallback(() => write(initial), []);
 
   return {
@@ -557,6 +566,7 @@ export function useInventory() {
     addMatch,
     addLoss,
     equipSponsor,
+    setPlayerName,
     reset,
   };
 }
