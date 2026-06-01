@@ -414,24 +414,22 @@ function Crowd({
 }) {
   // Three rows of seats, getting smaller toward the back for depth
   const rows = [
-    { count: 22, size: 14, opacity: 1, yOffset: 0 },
-    { count: 26, size: 12, opacity: 0.9, yOffset: -4 },
-    { count: 30, size: 10, opacity: 0.75, yOffset: -8 },
+    { count: 30, size: 10, opacity: 0.7, yOffset: 0 },
+    { count: 26, size: 12, opacity: 0.9, yOffset: 2 },
+    { count: 22, size: 16, opacity: 1, yOffset: 4 },
   ];
   return (
     <div
-      className="pointer-events-none absolute -top-24 left-0 right-0 z-0"
+      className="pointer-events-none relative z-0 w-full overflow-hidden rounded-t-lg"
       aria-hidden
+      style={{
+        height: 96,
+        background:
+          "linear-gradient(180deg, #0a0a0a 0%, #1f1f1f 60%, #2a2a2a 100%)",
+        boxShadow: "inset 0 -6px 12px rgba(0,0,0,0.5)",
+      }}
     >
-      {/* Stand backdrop */}
-      <div
-        className="absolute inset-x-0 bottom-0 h-24 rounded-t-lg"
-        style={{
-          background:
-            "linear-gradient(180deg, #1a1a1a 0%, #2a2a2a 50%, #0d0d0d 100%)",
-        }}
-      />
-      <div className="relative flex flex-col items-stretch justify-end gap-0.5 pb-1">
+      <div className="flex h-full w-full flex-col items-stretch justify-end gap-0.5 pb-1">
         {rows.map((row, rowIdx) => (
           <div
             key={rowIdx}
