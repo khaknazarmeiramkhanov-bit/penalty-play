@@ -710,6 +710,7 @@ function PlayerFigure({
       width={size}
       height={(size * 130) / 90}
       viewBox="0 0 90 130"
+      overflow="visible"
       style={{ filter: "drop-shadow(0 6px 4px rgba(0,0,0,0.45))" }}
     >
       <defs>
