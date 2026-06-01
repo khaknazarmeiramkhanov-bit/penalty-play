@@ -30,6 +30,30 @@ function RatingPage() {
     { label: "Потрачено монет", value: inv.spentCoins, icon: "💸" },
   ];
 
+  const bots = [
+    { name: "Messi_GOAT", wins: 247, country: "🇦🇷" },
+    { name: "Ronaldo_CR7", wins: 231, country: "🇵🇹" },
+    { name: "Mbappe10", wins: 198, country: "🇫🇷" },
+    { name: "Neymar_Jr", wins: 176, country: "🇧🇷" },
+    { name: "Haaland_9", wins: 154, country: "🇳🇴" },
+    { name: "Vinicius", wins: 132, country: "🇧🇷" },
+    { name: "Bellingham", wins: 118, country: "🏴" },
+    { name: "Pedri", wins: 97, country: "🇪🇸" },
+    { name: "Lewy", wins: 84, country: "🇵🇱" },
+    { name: "Modric", wins: 71, country: "🇭🇷" },
+    { name: "Kane_H", wins: 58, country: "🏴" },
+    { name: "Salah", wins: 42, country: "🇪🇬" },
+    { name: "Son7", wins: 28, country: "🇰🇷" },
+    { name: "Rookie_22", wins: 12, country: "🇺🇦" },
+    { name: "Newbie", wins: 4, country: "🇷🇺" },
+  ];
+  const leaderboard = [
+    ...bots.map((b) => ({ ...b, isYou: false })),
+    { name: "ТЫ", wins: inv.wins, country: "⚽", isYou: true },
+  ]
+    .sort((a, b) => b.wins - a.wins)
+    .map((p, i) => ({ ...p, rank: i + 1 }));
+
   return (
     <main
       className="relative flex min-h-screen w-full flex-col items-center px-4 py-8"
@@ -86,6 +110,57 @@ function RatingPage() {
                 backgroundColor: "#ccff00",
               }}
             />
+          </div>
+        </div>
+
+        {/* Leaderboard */}
+        <div className="flex flex-col gap-2 rounded-xl bg-black/40 p-4 backdrop-blur-sm">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-black tracking-[0.2em] text-white uppercase">
+              🌍 Топ игроков
+            </span>
+            <span className="text-[10px] tracking-wider text-white/50 uppercase">
+              по победам
+            </span>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {leaderboard.map((p) => {
+              const medal =
+                p.rank === 1 ? "🥇" : p.rank === 2 ? "🥈" : p.rank === 3 ? "🥉" : null;
+              return (
+                <div
+                  key={p.name + p.rank}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2"
+                  style={{
+                    background: p.isYou
+                      ? "linear-gradient(90deg, rgba(204,255,0,0.25), rgba(204,255,0,0.05))"
+                      : "rgba(255,255,255,0.05)",
+                    border: p.isYou
+                      ? "1.5px solid #ccff00"
+                      : "1px solid rgba(255,255,255,0.08)",
+                  }}
+                >
+                  <span
+                    className="w-7 text-center text-sm font-black text-white"
+                    style={{ textShadow: "0 1px 0 rgba(0,0,0,0.4)" }}
+                  >
+                    {medal ?? `#${p.rank}`}
+                  </span>
+                  <span className="text-base">{p.country}</span>
+                  <span
+                    className="flex-1 truncate text-sm font-bold tracking-wide text-white"
+                  >
+                    {p.name}
+                    {p.isYou && (
+                      <span className="ml-1 text-[10px] text-[#ccff00]">(вы)</span>
+                    )}
+                  </span>
+                  <span className="text-sm font-black text-white">
+                    {p.wins} 🏆
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
