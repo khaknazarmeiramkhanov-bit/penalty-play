@@ -60,7 +60,7 @@ function Index() {
       />
 
       {/* Name Input Modal */}
-      {showNameModal && (
+      {!inv.playerName && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div
             className="w-full max-w-sm rounded-2xl border-2 border-white/10 p-8 text-center"
