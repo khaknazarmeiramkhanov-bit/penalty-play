@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 
 export const Route = createFileRoute("/teams")({
   head: () => ({
@@ -30,6 +31,8 @@ const TEAMS = [
 ];
 
 function TeamsPage() {
+  const [selected, setSelected] = useState<string | null>(null);
+  const navigate = useNavigate();
   return (
     <main
       className="relative flex min-h-screen w-full flex-col items-center overflow-hidden px-6 py-10"
@@ -69,10 +72,15 @@ function TeamsPage() {
             <button
               key={team.name}
               type="button"
+              onClick={() => setSelected(team.name)}
               className="group relative flex flex-col items-center justify-center gap-2 rounded-xl bg-black/30 px-4 py-5 text-white backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95"
               style={{
                 border: `2px solid ${team.color}`,
-                boxShadow: `0 6px 0 rgba(0,0,0,0.35), 0 0 24px ${team.color}33`,
+                boxShadow:
+                  selected === team.name
+                    ? `0 0 0 4px #ccff00, 0 6px 0 rgba(0,0,0,0.35), 0 0 32px ${team.color}88`
+                    : `0 6px 0 rgba(0,0,0,0.35), 0 0 24px ${team.color}33`,
+                transform: selected === team.name ? "scale(1.05)" : undefined,
               }}
             >
               <span className="text-4xl">{team.emoji}</span>
@@ -82,6 +90,23 @@ function TeamsPage() {
             </button>
           ))}
         </div>
+
+        {/* Next Button */}
+        {selected && (
+          <button
+            type="button"
+            onClick={() =>
+              navigate({ to: "/match", search: { team: selected } })
+            }
+            className="group relative inline-flex items-center justify-center rounded-xl px-10 py-4 text-lg font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{
+              backgroundColor: "#ccff00",
+              boxShadow: "0 8px 0 rgb(132,163,0)",
+            }}
+          >
+            Дальше →
+          </button>
+        )}
 
         {/* Back link */}
         <Link
