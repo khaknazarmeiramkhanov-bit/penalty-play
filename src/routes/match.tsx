@@ -268,10 +268,15 @@ function MatchPage() {
     const oppCondorHit = oppCondors && Math.random() < 0.4;
     const oppFoxHit = oppFoxFintArmed.current && Math.random() < 0.5;
     const oppIguanaHit = oppIguanaArmed.current && Math.random() < 0.5;
-    const oppKeeperBypass = oppCondorHit || oppFoxHit || oppIguanaHit;
+    const oppGorillaHit = oppTeam === "Гориллы" && shotMeta.row === 1 && Math.random() < 0.3;
+    const oppCheetahHit = oppTeam === "Гепарды" && Math.random() < 0.3;
+    const oppKeeperBypass =
+      oppCondorHit || oppFoxHit || oppIguanaHit || oppGorillaHit || oppCheetahHit;
     const offChance = wolves ? 0.25 : 0.1;
     const frostHit = frostForceOff && Math.random() < 0.4;
-    const offTarget = oppDragons ? false : frostHit || Math.random() < offChance;
+    const oppPhoenixSafe = oppTeam === "Фениксы" && oppPhoenixRebornArmed.current;
+    const offTarget =
+      oppDragons || oppPhoenixSafe ? false : frostHit || Math.random() < offChance;
     const crocSave = crocodiles && shotMeta.row === 1 && Math.random() < 0.5;
     const bearSave = bears && shotMeta.col === 1 && Math.random() < 0.5;
     const perkSaveChance = (inv.perks.saveBoost ?? 0) * 0.05;
@@ -325,7 +330,11 @@ function MatchPage() {
           ? `${oppEmoji} ${oppTeam}: пике сверху`
           : oppFoxHit
             ? `${oppEmoji} ${oppTeam}: хитрый финт`
-            : `${oppEmoji} ${oppTeam}: липкий язык`,
+            : oppIguanaHit
+              ? `${oppEmoji} ${oppTeam}: липкий язык`
+              : oppGorillaHit
+                ? `${oppEmoji} ${oppTeam}: силовой удар!`
+                : `${oppEmoji} ${oppTeam}: скорость!`,
       );
     } else if (autoSave) {
       setAbilityFlash(
@@ -343,6 +352,8 @@ function MatchPage() {
     if (frostForceOff) reindeerFrostArmed.current = false;
     if (oppFoxFintArmed.current) oppFoxFintArmed.current = false;
     if (oppIguanaArmed.current) oppIguanaArmed.current = false;
+    if (oppPhoenixSafe) oppPhoenixRebornArmed.current = false;
+    if (offTarget && oppTeam === "Фениксы") oppPhoenixRebornArmed.current = true;
 
     setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
     setPhase("result");
