@@ -192,8 +192,7 @@ function MatchPage() {
     pendingOppShot.current = smart ? leastUsed(playerGuessHistory.current) : randomZone();
     if (team === "Совы") {
       // 70% правдивая, 30% случайная (возможно ложная)
-      owlHintZone.current =
-        Math.random() < 0.7 ? pendingOppShot.current : randomZone();
+      owlHintZone.current = Math.random() < 0.7 ? pendingOppShot.current : randomZone();
     }
   }, [phase, team, round]);
 
