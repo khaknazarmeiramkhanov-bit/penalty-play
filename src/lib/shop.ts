@@ -546,6 +546,12 @@ export function useInventory() {
     write(next);
   }, []);
 
+  const setPlayerName = useCallback((name: string) => {
+    const next = read();
+    next.playerName = name.trim().slice(0, 20) || null;
+    write(next);
+  }, []);
+
   const reset = useCallback(() => write(initial), []);
 
   return {
@@ -560,6 +566,7 @@ export function useInventory() {
     addMatch,
     addLoss,
     equipSponsor,
+    setPlayerName,
     reset,
   };
 }
