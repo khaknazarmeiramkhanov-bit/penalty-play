@@ -1377,6 +1377,33 @@ function PlayerFigure({
       >
         {isKeeper ? "01" : "10"}
       </text>
+      {/* Sponsor badge */}
+      {sponsor && sponsor.id !== "none" && (
+        <g>
+          <rect
+            x="32"
+            y="50"
+            width="26"
+            height="7"
+            rx="1.5"
+            fill={sponsor.color}
+            stroke="#0a0a0a"
+            strokeWidth="0.4"
+          />
+          <text
+            x="45"
+            y="55.6"
+            textAnchor="middle"
+            fontSize="5"
+            fontWeight="900"
+            fill={sponsor.textColor}
+            fontFamily="Kanit, sans-serif"
+            letterSpacing="0.4"
+          >
+            {sponsor.name}
+          </text>
+        </g>
+      )}
 
       {/* === ARMS === */}
       {isKeeper ? (
