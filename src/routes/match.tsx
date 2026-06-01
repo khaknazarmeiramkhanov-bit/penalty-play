@@ -399,7 +399,9 @@ function MatchPage() {
           />
         )}
 
-        {phase === "result" && last && <ResultBlock last={last} onNext={next} locked={resultLocked} />}
+        {phase === "result" && last && (
+          <ResultBlock last={last} onNext={next} locked={resultLocked} />
+        )}
 
         {phase === "over" && (
           <OverBlock team={team} playerScore={playerScore} oppScore={oppScore} onReset={reset} />
@@ -465,7 +467,15 @@ function ZonePad({
   );
 }
 
-function ResultBlock({ last, onNext, locked }: { last: Last; onNext: () => void; locked?: boolean }) {
+function ResultBlock({
+  last,
+  onNext,
+  locked,
+}: {
+  last: Last;
+  onNext: () => void;
+  locked?: boolean;
+}) {
   const isOpp = last.shooter === "opponent";
   // Suspense phase: while striker winds up (~1.5s), hide result and show hype phrases
   const HYPE = ["Момент истины!!!", "Иииииии!!!", "Замах...", "Сейчас будет!!!"];
@@ -769,10 +779,7 @@ function GloveBaseDetails() {
   return (
     <>
       {/* Soft highlight on upper-left of palm for leather sheen */}
-      <path
-        d="M-9 -3 Q-9 -10 -2 -11 L4 -11 Q-2 -8 -5 -3 Z"
-        fill={highlight}
-      />
+      <path d="M-9 -3 Q-9 -10 -2 -11 L4 -11 Q-2 -8 -5 -3 Z" fill={highlight} />
       {/* Palm perimeter stitch — runs just inside the palm outline */}
       <path
         d="M-8.5 -3 Q-9 -10.5 -1.5 -11 L7.5 -11 Q11 -11 11 -6.5 L11 7.5 Q11 12 5.5 12 L-3.5 12 Q-9 12 -9 6.5 Z"
@@ -1603,14 +1610,9 @@ function GoalScene({
           style={{
             left: "50%",
             transform:
-              kickStage === "kick"
-                ? "translateX(-50%) translateX(6px)"
-                : "translateX(-50%)",
+              kickStage === "kick" ? "translateX(-50%) translateX(6px)" : "translateX(-50%)",
             transition: "transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1)",
-            animation:
-              kickStage === "windup"
-                ? "strikerWindup 3s ease-in-out infinite"
-                : "none",
+            animation: kickStage === "windup" ? "strikerWindup 3s ease-in-out infinite" : "none",
           }}
         >
           <PlayerFigure
