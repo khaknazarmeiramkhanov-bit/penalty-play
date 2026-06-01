@@ -173,6 +173,8 @@ function MatchPage() {
 
     setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
     setPhase("result");
+    setResultLocked(true);
+    window.setTimeout(() => setResultLocked(false), 3000);
     if (scored) setOppScore((s) => s + 1);
     if (!scored) inv.addCoins(15); // save reward
     pendingOppShot.current = null;
