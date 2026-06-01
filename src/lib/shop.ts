@@ -190,6 +190,7 @@ type Store = {
   owned: string[];
   equipped: Record<ItemKind, string>;
   perks: Record<PerkId, number>;
+  ownedTeams: string[];
 };
 
 const initial: Store = {
@@ -198,6 +199,7 @@ const initial: Store = {
   owned: ITEMS.filter((i) => i.price === 0).map((i) => i.id),
   equipped: { ...DEFAULT_EQUIPPED },
   perks: { saveBoost: 0, goalBoost: 0, coinBoost: 0, accuracy: 0 },
+  ownedTeams: [],
 };
 
 function read(): Store {
@@ -212,6 +214,7 @@ function read(): Store {
       owned: Array.from(new Set([...initial.owned, ...(parsed.owned ?? [])])),
       equipped: { ...DEFAULT_EQUIPPED, ...(parsed.equipped ?? {}) },
       perks: { ...initial.perks, ...(parsed.perks ?? {}) },
+      ownedTeams: parsed.ownedTeams ?? initial.ownedTeams,
     };
   } catch {
     return initial;
@@ -288,9 +291,19 @@ export function useInventory() {
     write(next);
   }, []);
 
+  const buyTeam = useCallback((teamName: string, price: number) => {
+    const next = read();
+    if (next.ownedTeams.includes(teamName)) return true;
+    if (next.crystals < price) return false;
+    next.crystals -= price;
+    next.ownedTeams = [...next.ownedTeams, teamName];
+    write(next);
+    return true;
+  }, []);
+
   const reset = useCallback(() => write(initial), []);
 
-  return { ...store, addCoins, addCrystals, buy, buyPerk, equip, reset };
+  return { ...store, addCoins, addCrystals, buy, buyPerk, buyTeam, equip, reset };
 }
 
 export function resolveColor(raw: string, teamColor: string): string {

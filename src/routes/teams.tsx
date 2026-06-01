@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useInventory } from "@/lib/shop";
 
 export const Route = createFileRoute("/teams")({
   head: () => ({
@@ -207,6 +208,7 @@ export const TEAMS = [
     ability: "Сила",
     abilityDesc: "Удары в нижний ряд — 30% пробить вратаря силой",
     special: true,
+    priceCrystals: 5,
   },
   {
     name: "Гепарды",
@@ -217,6 +219,7 @@ export const TEAMS = [
     ability: "Скорость",
     abilityDesc: "30% — вратарь не успевает прыгнуть к мячу",
     special: true,
+    priceCrystals: 5,
   },
   {
     name: "Фениксы",
@@ -227,12 +230,41 @@ export const TEAMS = [
     ability: "Возрождение",
     abilityDesc: "После промаха мимо ворот — следующий удар точно в створ",
     special: true,
+    priceCrystals: 5,
   },
 ];
 
 function TeamsPage() {
   const [selected, setSelected] = useState<string | null>(null);
+  const [flash, setFlash] = useState<string | null>(null);
   const navigate = useNavigate();
+  const inv = useInventory();
+
+  const isTeamOwned = (team: (typeof TEAMS)[number]) => {
+    if (!team.special) return true;
+    return inv.ownedTeams.includes(team.name);
+  };
+
+  const handleSelect = (team: (typeof TEAMS)[number]) => {
+    if (team.special && !isTeamOwned(team)) return;
+    setSelected(team.name);
+  };
+
+  const handleBuy = (team: (typeof TEAMS)[number]) => {
+    if (!team.special || !team.priceCrystals) return;
+    const ok = inv.buyTeam(team.name, team.priceCrystals);
+    if (ok) {
+      setFlash(`Куплено: ${team.name}!`);
+      setTimeout(() => setFlash(null), 1500);
+      setSelected(team.name);
+    } else {
+      setFlash("Не хватает 💎!");
+      setTimeout(() => setFlash(null), 1500);
+    }
+  };
+
+  const canProceed = selected && isTeamOwned(TEAMS.find((t) => t.name === selected)!);
+
   return (
     <main
       className="relative flex min-h-screen w-full flex-col items-center overflow-hidden px-6 py-10"
@@ -246,6 +278,13 @@ function TeamsPage() {
             "radial-gradient(circle at center, transparent 0%, transparent 60%, rgba(0,0,0,0.35) 100%)",
         }}
       />
+
+      {/* Flash toast */}
+      {flash && (
+        <div className="fixed top-6 z-50 rounded-full bg-black/80 px-6 py-2 text-sm font-black text-white shadow-xl backdrop-blur-md">
+          {flash}
+        </div>
+      )}
 
       <div className="relative z-10 flex w-full max-w-3xl flex-col items-center gap-8">
         {/* Header */}
@@ -262,9 +301,18 @@ function TeamsPage() {
           />
         </div>
 
-        <p className="text-xs font-medium tracking-[0.2em] text-white/60 uppercase">
-          Выберите свою команду
-        </p>
+        <div className="flex items-center gap-4">
+          <p className="text-xs font-medium tracking-[0.2em] text-white/60 uppercase">
+            Выберите свою команду
+          </p>
+          <div
+            className="flex items-center gap-1.5 rounded-lg bg-black/40 px-3 py-1.5 text-xs font-black"
+            style={{ border: "1px solid rgba(255,255,255,0.15)" }}
+          >
+            <span>💎</span>
+            <span className="text-white">{inv.crystals}</span>
+          </div>
+        </div>
 
         {/* Big shop button */}
         <Link
@@ -287,7 +335,7 @@ function TeamsPage() {
             <button
               key={team.name}
               type="button"
-              onClick={() => setSelected(team.name)}
+              onClick={() => handleSelect(team)}
               className="group relative flex flex-col items-center justify-center gap-2 rounded-xl bg-black/30 px-4 py-5 text-white backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95"
               style={{
                 border: `2px solid ${team.color}`,
@@ -334,46 +382,76 @@ function TeamsPage() {
               border: "2px dashed rgba(255,215,0,0.4)",
             }}
           >
-            {TEAMS.filter((t) => t.special).map((team) => (
-              <button
-                key={team.name}
-                type="button"
-                onClick={() => setSelected(team.name)}
-                className="group relative flex flex-col items-center justify-center gap-2 rounded-xl bg-black/40 px-4 py-5 text-white backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95"
-                style={{
-                  border: `2px solid ${team.color}`,
-                  boxShadow:
-                    selected === team.name
-                      ? `0 0 0 4px #ccff00, 0 6px 0 rgba(0,0,0,0.35), 0 0 40px ${team.color}aa`
-                      : `0 6px 0 rgba(0,0,0,0.35), 0 0 32px ${team.color}55`,
-                  transform: selected === team.name ? "scale(1.05)" : undefined,
-                }}
-              >
-                <span
-                  className="absolute -top-2 -right-2 rounded-full px-2 py-0.5 text-[9px] font-black tracking-wider uppercase text-black"
-                  style={{ background: "#ffd700", boxShadow: "0 0 12px rgba(255,215,0,0.7)" }}
+            {TEAMS.filter((t) => t.special).map((team) => {
+              const owned = isTeamOwned(team);
+              const canAfford = inv.crystals >= (team.priceCrystals ?? 0);
+              return (
+                <div
+                  key={team.name}
+                  className="group relative flex flex-col items-center justify-center gap-2 rounded-xl bg-black/40 px-4 py-5 text-white backdrop-blur-sm transition-all duration-200"
+                  style={{
+                    border: `2px solid ${team.color}`,
+                    boxShadow:
+                      selected === team.name && owned
+                        ? `0 0 0 4px #ccff00, 0 6px 0 rgba(0,0,0,0.35), 0 0 40px ${team.color}aa`
+                        : `0 6px 0 rgba(0,0,0,0.35), 0 0 32px ${team.color}55`,
+                    transform: selected === team.name && owned ? "scale(1.05)" : undefined,
+                    opacity: owned ? 1 : 0.7,
+                  }}
                 >
-                  ★ Особая
-                </span>
-                <span className="text-4xl">{team.emoji}</span>
-                <span className="text-sm font-black tracking-wider uppercase">{team.name}</span>
-                <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white/70">
-                  <span className="text-sm leading-none">{team.flag}</span>
-                  {team.country}
-                </span>
-                <span className="text-[10px] font-bold leading-tight tracking-wide text-white/80">
-                  {team.ability}
-                </span>
-                <span className="text-[9px] font-medium leading-tight text-white/55">
-                  {team.abilityDesc}
-                </span>
-              </button>
-            ))}
+                  <span
+                    className="absolute -top-2 -right-2 rounded-full px-2 py-0.5 text-[9px] font-black tracking-wider uppercase text-black"
+                    style={{ background: "#ffd700", boxShadow: "0 0 12px rgba(255,215,0,0.7)" }}
+                  >
+                    ★ Особая
+                  </span>
+                  <span className="text-4xl">{team.emoji}</span>
+                  <span className="text-sm font-black tracking-wider uppercase">{team.name}</span>
+                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white/70">
+                    <span className="text-sm leading-none">{team.flag}</span>
+                    {team.country}
+                  </span>
+                  <span className="text-[10px] font-bold leading-tight tracking-wide text-white/80">
+                    {team.ability}
+                  </span>
+                  <span className="text-[9px] font-medium leading-tight text-white/55">
+                    {team.abilityDesc}
+                  </span>
+
+                  {owned ? (
+                    <button
+                      type="button"
+                      onClick={() => handleSelect(team)}
+                      className="mt-1 w-full rounded-md px-3 py-2 text-xs font-black tracking-widest uppercase transition-all hover:scale-105 active:scale-95"
+                      style={{
+                        backgroundColor: selected === team.name ? "#ccff00" : "rgba(255,255,255,0.1)",
+                        color: selected === team.name ? "#000" : "#fff",
+                      }}
+                    >
+                      {selected === team.name ? "Выбрано" : "Выбрать"}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={!canAfford}
+                      onClick={() => handleBuy(team)}
+                      className="mt-1 flex w-full items-center justify-center gap-1 rounded-md px-3 py-2 text-xs font-black tracking-widest uppercase transition-all disabled:opacity-50 hover:scale-105 active:scale-95"
+                      style={{
+                        backgroundColor: canAfford ? "#ccff00" : "rgba(255,255,255,0.08)",
+                        color: canAfford ? "#000" : "#fff",
+                      }}
+                    >
+                      🔒 Купить 💎 {team.priceCrystals}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
         {/* Next Button */}
-        {selected && (
+        {canProceed && (
           <button
             type="button"
             onClick={() => navigate({ to: "/match", search: { team: selected } })}
