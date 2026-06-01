@@ -268,8 +268,7 @@ function MatchPage() {
     const perkSaveChance = (inv.perks.saveBoost ?? 0) * 0.05;
     const perkSave = perkSaveChance > 0 && Math.random() < perkSaveChance;
     const autoSave =
-      !oppKeeperBypass &&
-      ((tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave);
+      !oppKeeperBypass && ((tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave);
     // Если соперник пробил вратаря (Кондоры/Лисы/Игуаны) — вратарь точно мимо
     const effectiveKeeper: Zone = autoSave
       ? shot
