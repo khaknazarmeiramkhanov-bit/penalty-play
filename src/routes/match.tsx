@@ -1118,6 +1118,7 @@ function PlayerFigure({
               strokeWidth="0.7"
             />
             {/* Brand stripes */}
+            <GloveBaseDetails />
             <GloveDecor style={gear.gloveStyle} accent={gear.gloveAccent} />
             {/* Cuff at bottom */}
             <rect x="-10" y="10" width="22" height="5" rx="1.2" fill="#0a0a0a" />
@@ -1202,6 +1203,7 @@ function PlayerFigure({
               stroke="#0a0a0a"
               strokeWidth="0.7"
             />
+            <GloveBaseDetails />
             <GloveDecor style={gear.gloveStyle} accent={gear.gloveAccent} />
             <rect x="-10" y="10" width="22" height="5" rx="1.2" fill="#0a0a0a" />
             <rect x="-10" y="11" width="22" height="1.5" fill={gear.gloveAccent} opacity="0.9" />
