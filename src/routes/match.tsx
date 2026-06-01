@@ -1230,6 +1230,7 @@ function PlayerFigure({
   emotion = "neutral",
   kicking = false,
   gear = DEFAULT_GEAR,
+  sponsor,
 }: {
   color: string;
   pose: "striker" | "keeper";
@@ -1237,6 +1238,7 @@ function PlayerFigure({
   emotion?: "neutral" | "happy" | "sad";
   kicking?: boolean;
   gear?: Gear;
+  sponsor?: Sponsor;
 }) {
   const isKeeper = pose === "keeper";
   // Modern flat-vector style — clean silhouette, no creepy face.
