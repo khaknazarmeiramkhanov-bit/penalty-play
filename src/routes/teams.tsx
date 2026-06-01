@@ -18,16 +18,26 @@ export const Route = createFileRoute("/teams")({
 });
 
 export const TEAMS = [
-  { name: "Акулы", emoji: "🦈", color: "#1e90ff" },
-  { name: "Короли", emoji: "👑", color: "#ffd700" },
-  { name: "Драконы", emoji: "🐉", color: "#dc2626" },
-  { name: "Орлы", emoji: "🦅", color: "#8b5cf6" },
-  { name: "Волки", emoji: "🐺", color: "#94a3b8" },
-  { name: "Тигры", emoji: "🐯", color: "#f97316" },
-  { name: "Львы", emoji: "🦁", color: "#eab308" },
-  { name: "Быки", emoji: "🐂", color: "#7c2d12" },
-  { name: "Кобры", emoji: "🐍", color: "#16a34a" },
-  { name: "Молнии", emoji: "⚡", color: "#fde047" },
+  { name: "Акулы", emoji: "🦈", color: "#1e90ff",
+    ability: "Хищный удар", abilityDesc: "+20% шанс гола даже если вратарь угадал" },
+  { name: "Короли", emoji: "👑", color: "#ffd700",
+    ability: "Корона", abilityDesc: "Первый гол соперника отменяется" },
+  { name: "Драконы", emoji: "🐉", color: "#dc2626",
+    ability: "Огненный удар", abilityDesc: "Никогда не бьёшь мимо" },
+  { name: "Орлы", emoji: "🦅", color: "#8b5cf6",
+    ability: "Зоркий глаз", abilityDesc: "Видишь, верх или низ выберет соперник" },
+  { name: "Волки", emoji: "🐺", color: "#94a3b8",
+    ability: "Стая", abilityDesc: "Соперник бьёт мимо на 25%" },
+  { name: "Тигры", emoji: "🐯", color: "#f97316",
+    ability: "Прыжок тигра", abilityDesc: "20% шанс автосейва" },
+  { name: "Львы", emoji: "🦁", color: "#eab308",
+    ability: "Рык", abilityDesc: "Соперник бьёт случайно (без мозгов)" },
+  { name: "Быки", emoji: "🐂", color: "#7c2d12",
+    ability: "Стальной удар", abilityDesc: "Вратарь хуже угадывает твой удар" },
+  { name: "Кобры", emoji: "🐍", color: "#16a34a",
+    ability: "Гипноз", abilityDesc: "20% шанс — вратарь прыгнет не туда" },
+  { name: "Молнии", emoji: "⚡", color: "#fde047",
+    ability: "Молниеносный", abilityDesc: "Видишь, в какую сторону соперник бьёт" },
 ];
 
 function TeamsPage() {
@@ -86,6 +96,12 @@ function TeamsPage() {
               <span className="text-4xl">{team.emoji}</span>
               <span className="text-sm font-black tracking-wider uppercase">
                 {team.name}
+              </span>
+              <span className="text-[10px] font-bold leading-tight tracking-wide text-white/80">
+                {team.ability}
+              </span>
+              <span className="text-[9px] font-medium leading-tight text-white/55">
+                {team.abilityDesc}
               </span>
             </button>
           ))}
