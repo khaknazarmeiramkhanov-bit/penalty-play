@@ -737,7 +737,7 @@ function ResultBlock({
 }) {
   const isOpp = last.shooter === "opponent";
   // Suspense phase: while striker winds up (~1.5s), hide result and show hype phrases
-  const HYPE = ["Момент истины!!!", "Иииииии!!!", "Замах...", "Сейчас будет!!!"];
+  const HYPE = ["Момент!", "И-и-и!", "Замах!", "Бум!"];
   const [suspense, setSuspense] = useState(true);
   const [hypeIdx, setHypeIdx] = useState(0);
   useEffect(() => {
