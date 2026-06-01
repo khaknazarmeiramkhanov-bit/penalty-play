@@ -588,14 +588,14 @@ function GoalScene({
   const finalBallPos = offBallPos ?? ballPos;
 
   return (
-    <div className="relative w-full max-w-md">
-      {/* Crowd */}
+    <div className="relative w-full max-w-lg">
+      {/* Crowd stand behind the goal */}
       <Crowd playerColor={playerColor} oppColor={oppColor} />
       {/* Goal frame */}
       <div
-        className="relative w-full overflow-hidden rounded-lg bg-white/5"
+        className="relative z-10 w-full overflow-hidden rounded-lg bg-white/5"
         style={{
-          aspectRatio: "16 / 10",
+          aspectRatio: "16 / 9",
           border: "4px solid white",
           backgroundImage:
             "repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px), repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px)",
@@ -610,7 +610,7 @@ function GoalScene({
           className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
           style={{ left: keeperPos.left, top: keeperPos.top }}
         >
-          <PlayerFigure color={keeperColor} pose="keeper" size={64} emotion={keeperEmotion} />
+          <PlayerFigure color={keeperColor} pose="keeper" size={104} emotion={keeperEmotion} />
         </div>
 
         {/* Ball */}
@@ -646,11 +646,11 @@ function GoalScene({
 
       {/* Striker outside the goal */}
       <div className="mt-2 flex items-center justify-between px-2">
-        <PlayerFigure color={strikerColor} pose="striker" size={64} emotion={strikerEmotion} />
+        <PlayerFigure color={strikerColor} pose="striker" size={110} emotion={strikerEmotion} />
         <span className="text-[10px] tracking-[0.25em] text-white/70 uppercase">
           {activeShooter === "player" ? "Бьёшь ты" : "Бьёт соперник"}
         </span>
-        <div className="h-14 w-14" />
+        <div className="h-20 w-20" />
       </div>
 
       <style>{`
