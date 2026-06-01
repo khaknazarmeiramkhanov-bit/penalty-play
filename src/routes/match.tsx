@@ -1019,24 +1019,7 @@ function PlayerFigure({
               strokeWidth="0.7"
             />
             {/* Brand stripes */}
-            <path
-              d="M-8 0 L11 0"
-              stroke={gear.gloveAccent}
-              strokeWidth="1.6"
-              strokeLinecap="round"
-            />
-            <path
-              d="M-7 4 Q2 5 10 4"
-              stroke={gear.gloveAccent}
-              strokeWidth="1.1"
-              fill="none"
-              strokeLinecap="round"
-            />
-            {/* Grip dots */}
-            <circle cx="-5" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
-            <circle cx="-1" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
-            <circle cx="3" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
-            <circle cx="7" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
+            <GloveDecor style={gear.gloveStyle} accent={gear.gloveAccent} />
             {/* Cuff at bottom */}
             <rect x="-10" y="10" width="22" height="5" rx="1.2" fill="#0a0a0a" />
             <rect x="-10" y="11" width="22" height="1.5" fill={gear.gloveAccent} opacity="0.9" />
@@ -1120,23 +1103,7 @@ function PlayerFigure({
               stroke="#0a0a0a"
               strokeWidth="0.7"
             />
-            <path
-              d="M-8 0 L11 0"
-              stroke={gear.gloveAccent}
-              strokeWidth="1.6"
-              strokeLinecap="round"
-            />
-            <path
-              d="M-7 4 Q2 5 10 4"
-              stroke={gear.gloveAccent}
-              strokeWidth="1.1"
-              fill="none"
-              strokeLinecap="round"
-            />
-            <circle cx="-5" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
-            <circle cx="-1" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
-            <circle cx="3" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
-            <circle cx="7" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
+            <GloveDecor style={gear.gloveStyle} accent={gear.gloveAccent} />
             <rect x="-10" y="10" width="22" height="5" rx="1.2" fill="#0a0a0a" />
             <rect x="-10" y="11" width="22" height="1.5" fill={gear.gloveAccent} opacity="0.9" />
           </g>
