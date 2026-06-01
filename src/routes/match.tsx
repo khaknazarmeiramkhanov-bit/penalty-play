@@ -709,6 +709,105 @@ function Fan({
 }
 
 function GloveDecor({ style, accent }: { style: GloveStyle; accent: string }) {
+  return GloveDecorInner({ style, accent });
+}
+
+function GloveBaseDetails() {
+  // Realistic seams, stitches, knuckle creases, palm wrinkles and a soft
+  // highlight. Drawn in glove-local coordinates so it sits under the
+  // style-specific GloveDecor overlay.
+  const stitch = "rgba(245,235,210,0.85)";
+  const seamShadow = "rgba(0,0,0,0.55)";
+  const crease = "rgba(0,0,0,0.35)";
+  const highlight = "rgba(255,255,255,0.18)";
+  // Finger seam helper: a dark seam + dashed stitch overlay along the finger's center.
+  const fingerSeam = (x: number, y1: number, y2: number) => (
+    <g key={`fs-${x}-${y1}`}>
+      <line x1={x} y1={y1} x2={x} y2={y2} stroke={seamShadow} strokeWidth="0.35" />
+      <line
+        x1={x}
+        y1={y1}
+        x2={x}
+        y2={y2}
+        stroke={stitch}
+        strokeWidth="0.25"
+        strokeDasharray="0.7 0.6"
+      />
+    </g>
+  );
+  return (
+    <>
+      {/* Soft highlight on upper-left of palm for leather sheen */}
+      <path
+        d="M-9 -3 Q-9 -10 -2 -11 L4 -11 Q-2 -8 -5 -3 Z"
+        fill={highlight}
+      />
+      {/* Palm perimeter stitch — runs just inside the palm outline */}
+      <path
+        d="M-8.5 -3 Q-9 -10.5 -1.5 -11 L7.5 -11 Q11 -11 11 -6.5 L11 7.5 Q11 12 5.5 12 L-3.5 12 Q-9 12 -9 6.5 Z"
+        fill="none"
+        stroke={stitch}
+        strokeWidth="0.32"
+        strokeDasharray="0.9 0.7"
+      />
+      {/* Thumb seam */}
+      <path
+        d="M-9.5 -2 Q-13 -9.5 -7.5 -13"
+        fill="none"
+        stroke={stitch}
+        strokeWidth="0.3"
+        strokeDasharray="0.8 0.6"
+      />
+      {/* Thumb crease */}
+      <path d="M-7 -8 Q-5 -6 -4 -3" stroke={crease} strokeWidth="0.35" fill="none" />
+      {/* Knuckle creases — short arcs where fingers meet palm */}
+      <path d="M-4.5 -10 Q-3.3 -8.8 -2 -10" stroke={crease} strokeWidth="0.35" fill="none" />
+      <path d="M-0.5 -10 Q0.7 -8.6 2 -10" stroke={crease} strokeWidth="0.35" fill="none" />
+      <path d="M3.5 -10 Q4.7 -8.8 6 -10" stroke={crease} strokeWidth="0.35" fill="none" />
+      <path d="M7.5 -10 Q8.5 -8.8 10 -10" stroke={crease} strokeWidth="0.35" fill="none" />
+      {/* Palm wrinkles — curved creases across the palm */}
+      <path d="M-7 -4 Q1 -2 10 -4" stroke={crease} strokeWidth="0.3" fill="none" opacity="0.7" />
+      <path d="M-7 7 Q1 9 10 7" stroke={crease} strokeWidth="0.3" fill="none" opacity="0.7" />
+      {/* Finger center seams with stitches */}
+      {fingerSeam(-3.3, -22.5, -10.5)}
+      {fingerSeam(0.7, -25.5, -10.5)}
+      {fingerSeam(4.7, -23.5, -10.5)}
+      {fingerSeam(8.7, -19.5, -10.5)}
+      {/* Finger pad creases (knuckle joints on each finger) */}
+      <line x1="-4.7" y1="-16" x2="-1.9" y2="-16" stroke={crease} strokeWidth="0.3" />
+      <line x1="-0.7" y1="-19" x2="2.1" y2="-19" stroke={crease} strokeWidth="0.3" />
+      <line x1="3.3" y1="-17" x2="6.1" y2="-17" stroke={crease} strokeWidth="0.3" />
+      <line x1="7.3" y1="-14" x2="10.1" y2="-14" stroke={crease} strokeWidth="0.3" />
+      {/* Cuff top stitch line (just above the dark cuff bar) */}
+      <line
+        x1="-9.5"
+        y1="9.2"
+        x2="10.5"
+        y2="9.2"
+        stroke={stitch}
+        strokeWidth="0.3"
+        strokeDasharray="0.9 0.7"
+      />
+      {/* Subtle leather grain dots scattered on palm */}
+      {[
+        [-6, 0],
+        [-3, 6],
+        [2, -5],
+        [5, 3],
+        [8, -2],
+        [0, 0],
+        [-5, -6],
+        [7, 8],
+      ].map(([cx, cy]) => (
+        <circle key={`gr-${cx}-${cy}`} cx={cx} cy={cy} r="0.18" fill={crease} opacity="0.6" />
+      ))}
+    </>
+  );
+}
+
+function GloveDecorInner({ style, accent }: { style: GloveStyle; accent: string }) {
+  // Style-specific top-layer decorations. Realistic seams/textures are rendered
+  // separately by <GloveBaseDetails /> beneath this layer.
   // Local glove coords: palm spans roughly x ∈ [-10, 12], y ∈ [-12, 13].
   switch (style) {
     case "striped":
@@ -1019,6 +1118,7 @@ function PlayerFigure({
               strokeWidth="0.7"
             />
             {/* Brand stripes */}
+            <GloveBaseDetails />
             <GloveDecor style={gear.gloveStyle} accent={gear.gloveAccent} />
             {/* Cuff at bottom */}
             <rect x="-10" y="10" width="22" height="5" rx="1.2" fill="#0a0a0a" />
@@ -1103,6 +1203,7 @@ function PlayerFigure({
               stroke="#0a0a0a"
               strokeWidth="0.7"
             />
+            <GloveBaseDetails />
             <GloveDecor style={gear.gloveStyle} accent={gear.gloveAccent} />
             <rect x="-10" y="10" width="22" height="5" rx="1.2" fill="#0a0a0a" />
             <rect x="-10" y="11" width="22" height="1.5" fill={gear.gloveAccent} opacity="0.9" />
