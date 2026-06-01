@@ -849,8 +849,8 @@ function PlayerFigure({
             strokeWidth="0.4"
             transform="rotate(-25 16 56)"
           />
-          {/* LEFT GLOVE — compact realistic keeper glove, under 50% of the old size */}
-          <g transform="translate(16 62) scale(0.48)">
+          {/* LEFT GLOVE — bigger realistic keeper glove */}
+          <g transform="translate(16 62) scale(0.75)">
             {/* Palm */}
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
@@ -954,8 +954,8 @@ function PlayerFigure({
             strokeWidth="0.4"
             transform="rotate(25 74 56)"
           />
-          {/* RIGHT GLOVE — compact mirrored keeper glove, under 50% of the old size */}
-          <g transform="translate(74 62) scale(-0.48 0.48)">
+          {/* RIGHT GLOVE — bigger mirrored keeper glove */}
+          <g transform="translate(74 62) scale(-0.75 0.75)">
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
               fill={`url(#${gloveGradId})`}
