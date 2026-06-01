@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useInventory } from "@/lib/shop";
 
 export const Route = createFileRoute("/teams")({
   head: () => ({
