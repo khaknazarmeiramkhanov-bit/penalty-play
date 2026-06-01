@@ -1335,16 +1335,22 @@ function GoalScene({
   // Animation: ball travels from striker spot to its zone after picking
   const [tick, setTick] = useState(0);
   // Kick animation: idle → wind-up → strike
-  const [kickStage, setKickStage] = useState<"idle" | "kick">("idle");
+  const [kickStage, setKickStage] = useState<"idle" | "windup" | "kick">("idle");
+  const [ballFly, setBallFly] = useState(false);
   useEffect(() => {
     if (phase === "result") {
       setTick((t) => t + 1);
-      // Show wind-up for at least 3 seconds, then strike
-      setKickStage("idle");
-      const t1 = window.setTimeout(() => setKickStage("kick"), 3000);
+      setBallFly(false);
+      // Visible wind-up for 3 seconds, then strike + ball fly together
+      setKickStage("windup");
+      const t1 = window.setTimeout(() => {
+        setKickStage("kick");
+        setBallFly(true);
+      }, 3000);
       return () => window.clearTimeout(t1);
     } else {
       setKickStage("idle");
+      setBallFly(false);
     }
   }, [phase, last]);
 
@@ -1423,8 +1429,8 @@ function GoalScene({
           />
         </div>
 
-        {/* Ball */}
-        {finalBallPos && (
+        {/* Ball — flies only after the wind-up completes */}
+        {finalBallPos && ballFly && (
           <div
             key={`ball-${tick}`}
             className="absolute -translate-x-1/2 -translate-y-1/2 text-3xl"
@@ -1464,8 +1470,15 @@ function GoalScene({
           className="absolute bottom-2"
           style={{
             left: "50%",
-            transform: `translateX(-50%) ${kickStage === "kick" ? "translateX(6px)" : ""}`,
+            transform:
+              kickStage === "kick"
+                ? "translateX(-50%) translateX(6px)"
+                : "translateX(-50%)",
             transition: "transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+            animation:
+              kickStage === "windup"
+                ? "strikerWindup 3s ease-in-out infinite"
+                : "none",
           }}
         >
           <PlayerFigure
@@ -1496,6 +1509,13 @@ function GoalScene({
         @keyframes fanCheer {
           0%, 100% { transform: translateY(0) scaleY(1); }
           50% { transform: translateY(-6px) scaleY(1.05); }
+        }
+        @keyframes strikerWindup {
+          0% { transform: translateX(-50%) rotate(0deg) scale(1); }
+          25% { transform: translateX(-50%) rotate(-3deg) scale(1.02) translateY(-2px); }
+          50% { transform: translateX(-50%) rotate(-6deg) scale(1.03) translateY(-3px); }
+          75% { transform: translateX(-50%) rotate(-3deg) scale(1.02) translateY(-2px); }
+          100% { transform: translateX(-50%) rotate(0deg) scale(1); }
         }
       `}</style>
     </div>
