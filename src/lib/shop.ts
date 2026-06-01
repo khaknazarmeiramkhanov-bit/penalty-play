@@ -481,6 +481,7 @@ export function useInventory() {
     if (next.owned.includes(id)) return true;
     if (next.coins < item.price) return false;
     next.coins -= item.price;
+    next.spentCoins = (next.spentCoins ?? 0) + item.price;
     next.owned = [...next.owned, id];
     next.equipped = { ...next.equipped, [item.kind]: id };
     write(next);
