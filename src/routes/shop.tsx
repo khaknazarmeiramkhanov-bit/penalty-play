@@ -1,5 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ITEMS, PERKS, useInventory, type ItemKind, type Perk, type ShopItem } from "@/lib/shop";
+import {
+  ITEMS,
+  PERKS,
+  SPONSORS,
+  useInventory,
+  type ItemKind,
+  type Perk,
+  type ShopItem,
+  type Sponsor,
+} from "@/lib/shop";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
@@ -67,6 +76,13 @@ function ShopPage() {
           levels={inv.perks}
           crystals={inv.crystals}
           onBuy={inv.buyPerk}
+        />
+
+        <SponsorsSection
+          sponsors={SPONSORS}
+          wins={inv.wins}
+          current={inv.sponsor}
+          onEquip={inv.equipSponsor}
         />
 
         {SECTIONS.map((s) => (
@@ -392,5 +408,85 @@ function Preview({ item }: { item: ShopItem }) {
         )}
       </svg>
     </div>
+  );
+}
+
+function SponsorsSection({
+  sponsors,
+  wins,
+  current,
+  onEquip,
+}: {
+  sponsors: Sponsor[];
+  wins: number;
+  current: string;
+  onEquip: (id: string) => void;
+}) {
+  return (
+    <section className="flex flex-col gap-3">
+      <h2 className="flex items-center justify-between text-xs font-black tracking-[0.3em] text-white/80 uppercase">
+        <span>🏆 Спонсоры на футболке</span>
+        <span className="text-white/60">побед: {wins}</span>
+      </h2>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {sponsors.map((s) => {
+          const unlocked = wins >= s.minWins;
+          const isEquipped = current === s.id;
+          return (
+            <div
+              key={s.id}
+              className="flex flex-col items-center gap-2 rounded-xl bg-black/40 p-3 backdrop-blur-sm"
+              style={{
+                border: isEquipped
+                  ? "2px solid #ccff00"
+                  : unlocked
+                    ? "2px solid rgba(255,255,255,0.18)"
+                    : "2px solid rgba(255,255,255,0.08)",
+                boxShadow: isEquipped ? "0 0 24px rgba(204,255,0,0.4)" : undefined,
+                opacity: unlocked ? 1 : 0.55,
+              }}
+            >
+              <div
+                className="flex h-10 w-full items-center justify-center rounded-md"
+                style={{
+                  backgroundColor: s.id === "none" ? "rgba(255,255,255,0.08)" : s.color,
+                  border: "1px solid rgba(0,0,0,0.4)",
+                }}
+              >
+                <span
+                  className="text-sm font-black tracking-widest"
+                  style={{ color: s.id === "none" ? "#fff8" : s.textColor }}
+                >
+                  {s.name}
+                </span>
+              </div>
+              <span className="text-[10px] tracking-[0.2em] text-white/60 uppercase">
+                {s.minWins === 0 ? "по умолчанию" : `от ${s.minWins} побед`}
+              </span>
+              <button
+                type="button"
+                disabled={!unlocked || isEquipped}
+                onClick={() => onEquip(s.id)}
+                className="w-full rounded-md px-3 py-2 text-xs font-black tracking-widest uppercase transition-all disabled:opacity-60"
+                style={{
+                  backgroundColor: isEquipped
+                    ? "#ccff00"
+                    : unlocked
+                      ? "rgba(255,255,255,0.1)"
+                      : "rgba(255,255,255,0.05)",
+                  color: isEquipped ? "#000" : "#fff",
+                }}
+              >
+                {isEquipped
+                  ? "Надето"
+                  : unlocked
+                    ? "Надеть"
+                    : `🔒 ${Math.max(0, s.minWins - wins)} побед`}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }

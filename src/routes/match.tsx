@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { TEAMS } from "./teams";
-import { useInventory, getItem, resolveColor } from "@/lib/shop";
+import { useInventory, getItem, resolveColor, getSponsor, type Sponsor } from "@/lib/shop";
 
 const searchSchema = z.object({ team: z.string().default("Команда") });
 
@@ -150,6 +150,7 @@ function MatchPage() {
   const { team } = Route.useSearch();
   const { ability, abilityDesc } = teamAbility(team);
   const inv = useInventory();
+  const playerSponsor = getSponsor(inv.sponsor);
   const tColor = teamColor(team);
   // Opponent: random team (different from player). Stable for the match;
   // reset() picks a new one.
@@ -548,6 +549,7 @@ function MatchPage() {
         // Кристаллы за победу: +1 за матч, +2 если соперник не забил (сухой матч)
         const crystals = oppScore === 0 ? 3 : 1;
         inv.addCrystals(crystals);
+        inv.addWin();
       }
       return;
     }
@@ -692,6 +694,7 @@ function MatchPage() {
           playerColor={teamColor(team)}
           oppColor={oppColor}
           gear={gear}
+          sponsor={playerSponsor}
         />
 
         {/* Zone controls */}
@@ -1229,6 +1232,7 @@ function PlayerFigure({
   emotion = "neutral",
   kicking = false,
   gear = DEFAULT_GEAR,
+  sponsor,
 }: {
   color: string;
   pose: "striker" | "keeper";
@@ -1236,6 +1240,7 @@ function PlayerFigure({
   emotion?: "neutral" | "happy" | "sad";
   kicking?: boolean;
   gear?: Gear;
+  sponsor?: Sponsor;
 }) {
   const isKeeper = pose === "keeper";
   // Modern flat-vector style — clean silhouette, no creepy face.
@@ -1374,6 +1379,33 @@ function PlayerFigure({
       >
         {isKeeper ? "01" : "10"}
       </text>
+      {/* Sponsor badge */}
+      {sponsor && sponsor.id !== "none" && (
+        <g>
+          <rect
+            x="32"
+            y="50"
+            width="26"
+            height="7"
+            rx="1.5"
+            fill={sponsor.color}
+            stroke="#0a0a0a"
+            strokeWidth="0.4"
+          />
+          <text
+            x="45"
+            y="55.6"
+            textAnchor="middle"
+            fontSize="5"
+            fontWeight="900"
+            fill={sponsor.textColor}
+            fontFamily="Kanit, sans-serif"
+            letterSpacing="0.4"
+          >
+            {sponsor.name}
+          </text>
+        </g>
+      )}
 
       {/* === ARMS === */}
       {isKeeper ? (
@@ -1768,12 +1800,14 @@ function GoalScene({
   playerColor,
   oppColor,
   gear,
+  sponsor,
 }: {
   phase: Phase;
   last: Last | null;
   playerColor: string;
   oppColor: string;
   gear: Gear;
+  sponsor: Sponsor;
 }) {
   // Animation: ball travels from striker spot to its zone after picking
   const [tick, setTick] = useState(0);
@@ -1869,6 +1903,7 @@ function GoalScene({
             size={104}
             emotion={keeperEmotion}
             gear={activeShooter === "player" ? DEFAULT_GEAR : gear}
+            sponsor={activeShooter === "player" ? undefined : sponsor}
           />
         </div>
 
@@ -1926,6 +1961,7 @@ function GoalScene({
             emotion={strikerEmotion}
             kicking={kickStage === "kick"}
             gear={activeShooter === "player" ? gear : DEFAULT_GEAR}
+            sponsor={activeShooter === "player" ? sponsor : undefined}
           />
         </div>
         {/* Label */}
