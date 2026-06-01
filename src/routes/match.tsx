@@ -533,52 +533,136 @@ function PlayerFigure({
   emotion?: "neutral" | "happy" | "sad";
 }) {
   const isKeeper = pose === "keeper";
+  // Derive a slightly darker shade of the team color for shading
+  const darkColor = "rgba(0,0,0,0.25)";
+  const skin = "#e8b48a";
+  const skinShade = "#c89070";
+  const hair = "#2a1810";
+  const cleat = "#0a0a0a";
+  const sock = "#111";
+
   return (
     <svg
       width={size}
-      height={size}
-      viewBox="0 0 48 64"
-      style={{ filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.45))" }}
+      height={(size * 120) / 80}
+      viewBox="0 0 80 120"
+      style={{ filter: "drop-shadow(0 4px 3px rgba(0,0,0,0.5))" }}
     >
-      {/* head */}
-      <circle cx="24" cy="10" r="7" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
-      {/* eyes */}
-      <circle cx="21.5" cy="9" r="0.9" fill="#000" />
-      <circle cx="26.5" cy="9" r="0.9" fill="#000" />
-      {/* mouth */}
-      {emotion === "sad" ? (
-        <path d="M21 13 Q24 11 27 13" stroke="#000" strokeWidth="1.2" fill="none" strokeLinecap="round" />
-      ) : emotion === "happy" ? (
-        <path d="M21 12 Q24 15 27 12" stroke="#000" strokeWidth="1.2" fill="none" strokeLinecap="round" />
-      ) : (
-        <path d="M22 13 L26 13" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
-      )}
-      {/* jersey / body */}
+      <defs>
+        <radialGradient id={`jersey-${pose}-${color.replace('#','')}`} cx="50%" cy="35%" r="70%">
+          <stop offset="0%" stopColor={color} stopOpacity="1" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.35" />
+        </radialGradient>
+        <radialGradient id={`skin-grad`} cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stopColor={skin} />
+          <stop offset="100%" stopColor={skinShade} />
+        </radialGradient>
+      </defs>
+
+      {/* ground shadow */}
+      <ellipse cx="40" cy="116" rx="22" ry="3" fill="rgba(0,0,0,0.35)" />
+
+      {/* Neck */}
+      <rect x="36" y="26" width="8" height="6" fill="url(#skin-grad)" />
+
+      {/* Head */}
+      <ellipse cx="40" cy="18" rx="9" ry="11" fill="url(#skin-grad)" stroke="#000" strokeWidth="0.8" />
+      {/* Hair */}
       <path
-        d={
-          isKeeper
-            ? // arms outstretched
-              "M4 26 L14 20 L20 24 L28 24 L34 20 L44 26 L40 32 L32 30 L32 46 L16 46 L16 30 L8 32 Z"
-            : // running striker, one arm forward
-              "M14 22 L20 19 L28 22 L34 19 L38 25 L32 28 L30 32 L30 46 L18 46 L18 30 Z"
-        }
-        fill={color}
+        d="M31 14 Q31 6 40 6 Q49 6 49 14 Q49 11 45 10 Q42 12 40 11 Q38 12 35 10 Q31 11 31 14 Z"
+        fill={hair}
+      />
+      {/* Ear */}
+      <ellipse cx="31" cy="18" rx="1.4" ry="2.2" fill={skinShade} />
+      <ellipse cx="49" cy="18" rx="1.4" ry="2.2" fill={skinShade} />
+      {/* Brows */}
+      <path d="M34 17 L37.5 16.5" stroke="#000" strokeWidth="1" strokeLinecap="round" />
+      <path d="M46 16.5 L42.5 17" stroke="#000" strokeWidth="1" strokeLinecap="round" />
+      {/* Eyes */}
+      <ellipse cx="36" cy="19" rx="1.3" ry="1.6" fill="#fff" stroke="#000" strokeWidth="0.4" />
+      <ellipse cx="44" cy="19" rx="1.3" ry="1.6" fill="#fff" stroke="#000" strokeWidth="0.4" />
+      <circle cx="36" cy="19.3" r="0.7" fill="#000" />
+      <circle cx="44" cy="19.3" r="0.7" fill="#000" />
+      {/* Nose */}
+      <path d="M40 19 L38.5 23 L41 23.4" stroke={skinShade} strokeWidth="0.8" fill="none" strokeLinecap="round" />
+      {/* Mouth */}
+      {emotion === "sad" ? (
+        <path d="M36 26 Q40 23 44 26" stroke="#000" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+      ) : emotion === "happy" ? (
+        <path d="M36 24.5 Q40 28 44 24.5" stroke="#7a2a1a" strokeWidth="1.5" fill="#ff6b8a" strokeLinecap="round" />
+      ) : (
+        <path d="M37 25 L43 25" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+      )}
+
+      {/* Jersey torso */}
+      <path
+        d="M22 38 Q24 32 30 32 L50 32 Q56 32 58 38 L60 60 L52 62 L52 72 L28 72 L28 62 L20 60 Z"
+        fill={`url(#jersey-${pose}-${color.replace('#','')})`}
         stroke="#000"
-        strokeWidth="1.5"
+        strokeWidth="1"
         strokeLinejoin="round"
       />
-      {/* shorts */}
-      <rect x="16" y="46" width="16" height="8" fill="#111" stroke="#000" strokeWidth="1.5" />
-      {/* legs */}
+      {/* Jersey collar */}
+      <path d="M34 32 Q40 36 46 32" stroke="#000" strokeWidth="1" fill={darkColor} />
+      {/* Jersey number */}
+      <text x="40" y="56" textAnchor="middle" fontSize="14" fontWeight="900" fill="#fff" stroke="#000" strokeWidth="0.6" fontFamily="Kanit, sans-serif">
+        {isKeeper ? "1" : "9"}
+      </text>
+
+      {/* Arms */}
       {isKeeper ? (
         <>
-          <rect x="17" y="54" width="6" height="9" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
-          <rect x="25" y="54" width="6" height="9" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+          {/* Outstretched arms with gloves */}
+          <path d="M22 38 L8 30 L4 34 L18 44 Z" fill={`url(#jersey-${pose}-${color.replace('#','')})`} stroke="#000" strokeWidth="1" strokeLinejoin="round" />
+          <path d="M58 38 L72 30 L76 34 L62 44 Z" fill={`url(#jersey-${pose}-${color.replace('#','')})`} stroke="#000" strokeWidth="1" strokeLinejoin="round" />
+          {/* Gloves (forearms in skin + glove tip) */}
+          <ellipse cx="6" cy="32" rx="5" ry="4" fill="#ff9d2a" stroke="#000" strokeWidth="1" />
+          <ellipse cx="74" cy="32" rx="5" ry="4" fill="#ff9d2a" stroke="#000" strokeWidth="1" />
         </>
       ) : (
         <>
-          <path d="M17 54 L19 63 L24 63 L24 54 Z" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
-          <path d="M28 54 L34 60 L31 63 L25 57 Z" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+          {/* One arm back, one forward */}
+          <path d="M22 38 L14 50 L18 54 L26 44 Z" fill={`url(#jersey-${pose}-${color.replace('#','')})`} stroke="#000" strokeWidth="1" strokeLinejoin="round" />
+          <path d="M58 38 L68 48 L64 52 L54 44 Z" fill={`url(#jersey-${pose}-${color.replace('#','')})`} stroke="#000" strokeWidth="1" strokeLinejoin="round" />
+          {/* Hands */}
+          <circle cx="16" cy="52" r="3" fill="url(#skin-grad)" stroke="#000" strokeWidth="0.8" />
+          <circle cx="66" cy="50" r="3" fill="url(#skin-grad)" stroke="#000" strokeWidth="0.8" />
+        </>
+      )}
+
+      {/* Shorts */}
+      <path
+        d="M28 72 L52 72 L54 88 L44 88 L42 78 L38 78 L36 88 L26 88 Z"
+        fill="#0d0d0d"
+        stroke="#000"
+        strokeWidth="1"
+      />
+      {/* Shorts stripe */}
+      <rect x="28" y="74" width="24" height="2" fill={color} opacity="0.8" />
+
+      {/* Legs (socks) */}
+      {isKeeper ? (
+        <>
+          <rect x="30" y="88" width="8" height="16" rx="2" fill={sock} stroke="#000" strokeWidth="1" />
+          <rect x="42" y="88" width="8" height="16" rx="2" fill={sock} stroke="#000" strokeWidth="1" />
+          {/* Sock band */}
+          <rect x="30" y="100" width="8" height="2" fill={color} />
+          <rect x="42" y="100" width="8" height="2" fill={color} />
+          {/* Cleats */}
+          <ellipse cx="34" cy="108" rx="6" ry="4" fill={cleat} stroke="#000" strokeWidth="1" />
+          <ellipse cx="46" cy="108" rx="6" ry="4" fill={cleat} stroke="#000" strokeWidth="1" />
+        </>
+      ) : (
+        <>
+          {/* Planted leg */}
+          <path d="M30 88 L32 104 L40 104 L40 88 Z" fill={sock} stroke="#000" strokeWidth="1" />
+          {/* Kicking leg, swung forward */}
+          <path d="M42 88 L58 96 L56 102 L40 96 Z" fill={sock} stroke="#000" strokeWidth="1" />
+          {/* Sock bands */}
+          <rect x="31" y="100" width="9" height="2" fill={color} />
+          {/* Cleats */}
+          <ellipse cx="35" cy="108" rx="7" ry="4" fill={cleat} stroke="#000" strokeWidth="1" />
+          <ellipse cx="60" cy="100" rx="7" ry="4" fill={cleat} stroke="#000" strokeWidth="1" transform="rotate(20 60 100)" />
         </>
       )}
     </svg>
