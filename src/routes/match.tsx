@@ -1470,8 +1470,15 @@ function GoalScene({
           className="absolute bottom-2"
           style={{
             left: "50%",
-            transform: `translateX(-50%) ${kickStage === "kick" ? "translateX(6px)" : ""}`,
+            transform:
+              kickStage === "kick"
+                ? "translateX(-50%) translateX(6px)"
+                : "translateX(-50%)",
             transition: "transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+            animation:
+              kickStage === "windup"
+                ? "strikerWindup 3s ease-in-out infinite"
+                : "none",
           }}
         >
           <PlayerFigure
