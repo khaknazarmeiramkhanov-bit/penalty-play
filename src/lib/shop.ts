@@ -208,6 +208,30 @@ export const ITEMS: ShopItem[] = [
     color: "#7dd3fc",
     accent: "#000",
   },
+  {
+    id: "band_legend",
+    kind: "wristband",
+    name: "Легенда",
+    price: 900,
+    color: "#b45309",
+    accent: "#facc15",
+  },
+  {
+    id: "band_void",
+    kind: "wristband",
+    name: "Пустота",
+    price: 1100,
+    color: "#1e1b4b",
+    accent: "#c084fc",
+  },
+  {
+    id: "band_crown",
+    kind: "wristband",
+    name: "Корона",
+    price: 800,
+    color: "#fef08a",
+    accent: "#ca8a04",
+  },
 
   // Socks
   { id: "sock_black", kind: "sock", name: "Чёрные", price: 0, color: "#0c0c10", accent: "TEAM" },
