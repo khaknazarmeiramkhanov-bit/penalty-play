@@ -321,13 +321,18 @@ function MatchPage() {
     const iguanaHit = iguanaShot && Math.random() < 0.5;
     // Лисы: после промаха соперника — 50% обмануть вратаря
     const foxHit = foxFint && Math.random() < 0.5;
-    if (condorHit || iguanaHit || foxHit) {
+    // Перк "Удар по углам" — общий шанс что вратарь прыгнет не туда
+    const perkGoalChance = (inv.perks.goalBoost ?? 0) * 0.05;
+    const perkGoalHit = perkGoalChance > 0 && Math.random() < perkGoalChance;
+    if (condorHit || iguanaHit || foxHit || perkGoalHit) {
       const others = ALL_ZONES.filter((z) => z !== playerShot);
       keeper = others[Math.floor(Math.random() * others.length)];
     }
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
-    const offTarget = dragons || condorHit || iguanaHit || foxHit ? false : Math.random() < 0.1;
+    const baseOff = Math.max(0, 0.1 - (inv.perks.accuracy ?? 0) * 0.02);
+    const offTarget =
+      dragons || condorHit || iguanaHit || foxHit || perkGoalHit ? false : Math.random() < baseOff;
     let scored = !offTarget && playerShot !== keeper;
     if (
       !scored &&
