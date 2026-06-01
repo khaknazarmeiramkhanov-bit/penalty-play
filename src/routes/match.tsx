@@ -174,7 +174,7 @@ function MatchPage() {
     setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
     setPhase("result");
     setResultLocked(true);
-    window.setTimeout(() => setResultLocked(false), 3000);
+    window.setTimeout(() => setResultLocked(false), 4000);
     if (scored) setOppScore((s) => s + 1);
     if (!scored) inv.addCoins(15); // save reward
     pendingOppShot.current = null;
@@ -215,7 +215,7 @@ function MatchPage() {
     setLast({ shooter: "player", shot: playerShot, keeper, scored, offTarget });
     setPhase("result");
     setResultLocked(true);
-    window.setTimeout(() => setResultLocked(false), 3000);
+    window.setTimeout(() => setResultLocked(false), 4000);
     if (scored) setPlayerScore((s) => s + 1);
     if (scored) inv.addCoins(20); // goal reward
     window.setTimeout(() => setAnimating(false), 700);
@@ -1265,9 +1265,9 @@ function GoalScene({
   useEffect(() => {
     if (phase === "result") {
       setTick((t) => t + 1);
-      // Show wind-up, then kick after small delay; reset to idle after the ball arrives
+      // Show wind-up for at least 3 seconds, then strike
       setKickStage("idle");
-      const t1 = window.setTimeout(() => setKickStage("kick"), 80);
+      const t1 = window.setTimeout(() => setKickStage("kick"), 3000);
       return () => window.clearTimeout(t1);
     } else {
       setKickStage("idle");
