@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 
 const searchSchema = z.object({ team: z.string().default("Команда") });
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/match")({
   head: () => ({
     meta: [
       { title: "Пенальти — Серия пенальти" },
-      { name: "description", content: "Серия пенальти: угадайте удар соперника." },
+      { name: "description", content: "Угадайте удар и забейте сами." },
     ],
     links: [
       {
@@ -21,19 +21,49 @@ export const Route = createFileRoute("/match")({
   component: MatchPage,
 });
 
-type Side = "left" | "center" | "right";
-const SIDES: { id: Side; label: string }[] = [
-  { id: "left", label: "Лево" },
-  { id: "center", label: "Центр" },
-  { id: "right", label: "Право" },
+type Zone = "TL" | "TC" | "TR" | "BL" | "BC" | "BR";
+const ZONES: { id: Zone; label: string; col: 0 | 1 | 2; row: 0 | 1 }[] = [
+  { id: "TL", label: "↖", col: 0, row: 0 },
+  { id: "TC", label: "↑", col: 1, row: 0 },
+  { id: "TR", label: "↗", col: 2, row: 0 },
+  { id: "BL", label: "↙", col: 0, row: 1 },
+  { id: "BC", label: "↓", col: 1, row: 1 },
+  { id: "BR", label: "↘", col: 2, row: 1 },
 ];
-const TOTAL_ROUNDS = 5;
+const ALL_ZONES: Zone[] = ZONES.map((z) => z.id);
+const MIN_ROUNDS = 5;
+const SUDDEN_TARGET = 5;
 
 type Phase = "opponent" | "player" | "result" | "over";
+type Shooter = "opponent" | "player";
+type Last = {
+  shooter: Shooter;
+  shot: Zone;
+  keeper: Zone;
+  scored: boolean;
+};
 
-function randomSide(): Side {
-  const arr: Side[] = ["left", "center", "right"];
-  return arr[Math.floor(Math.random() * 3)];
+function randomZone(): Zone {
+  return ALL_ZONES[Math.floor(Math.random() * ALL_ZONES.length)];
+}
+
+/** Pick the zone the player has chosen the LEAST (good for opponent shooting). */
+function leastUsed(history: Zone[]): Zone {
+  const counts = new Map<Zone, number>(ALL_ZONES.map((z) => [z, 0]));
+  for (const z of history) counts.set(z, (counts.get(z) ?? 0) + 1);
+  const min = Math.min(...counts.values());
+  const candidates = ALL_ZONES.filter((z) => counts.get(z) === min);
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
+/** Pick the zone the player has chosen the MOST (good for keeper diving). */
+function mostUsed(history: Zone[]): Zone {
+  if (history.length === 0) return randomZone();
+  const counts = new Map<Zone, number>(ALL_ZONES.map((z) => [z, 0]));
+  for (const z of history) counts.set(z, (counts.get(z) ?? 0) + 1);
+  const max = Math.max(...counts.values());
+  const candidates = ALL_ZONES.filter((z) => counts.get(z) === max);
+  return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
 function MatchPage() {
@@ -43,46 +73,67 @@ function MatchPage() {
   const [phase, setPhase] = useState<Phase>("opponent");
   const [playerScore, setPlayerScore] = useState(0);
   const [oppScore, setOppScore] = useState(0);
-  const [last, setLast] = useState<{
-    shooter: "opponent" | "player";
-    shot: Side;
-    pick: Side;
-    scored: boolean;
-  } | null>(null);
+  const [last, setLast] = useState<Last | null>(null);
+  const [animating, setAnimating] = useState(false);
+
+  // History of player choices to drive smarter AI
+  const playerGuessHistory = useRef<Zone[]>([]); // where player dives as keeper
+  const playerShotHistory = useRef<Zone[]>([]); // where player shoots
 
   const phaseLabel = useMemo(() => {
-    if (phase === "opponent") return "Бьёт соперник — угадай направление";
-    if (phase === "player") return `Бьёт ${team} — выбери направление удара`;
-    if (phase === "result") return "Результат раунда";
+    if (phase === "opponent") return "Бьёт соперник — выбери угол";
+    if (phase === "player") return `Бьёт ${team} — бей в угол`;
+    if (phase === "result") return "Раунд";
     return "Матч окончен";
   }, [phase, team]);
 
-  function handleOpponentGuess(pick: Side) {
-    const shot = randomSide();
-    const saved = pick === shot;
-    const scored = !saved;
-    if (scored) setOppScore((s) => s + 1);
-    else setOppScore((s) => s - 1);
-    setLast({ shooter: "opponent", shot, pick, scored });
+  function handleOpponentShot(playerKeeper: Zone) {
+    if (animating) return;
+    setAnimating(true);
+    // Smarter AI: 70% pick the zone player guesses least, 30% random
+    const smart = Math.random() < 0.7;
+    const shot: Zone = smart ? leastUsed(playerGuessHistory.current) : randomZone();
+    playerGuessHistory.current = [...playerGuessHistory.current, playerKeeper];
+
+    const scored = shot !== playerKeeper;
+    setLast({ shooter: "opponent", shot, keeper: playerKeeper, scored });
     setPhase("result");
+    setOppScore((s) => (scored ? s + 1 : s - 1));
+    window.setTimeout(() => setAnimating(false), 700);
   }
 
-  function handlePlayerShot(pick: Side) {
-    const dive = randomSide();
-    const scored = pick !== dive;
-    if (scored) setPlayerScore((s) => s + 1);
-    else setPlayerScore((s) => s - 1);
-    setLast({ shooter: "player", shot: pick, pick: dive, scored });
+  function handlePlayerShot(playerShot: Zone) {
+    if (animating) return;
+    setAnimating(true);
+    // Smarter AI keeper: 70% dive to player's most-used shot zone, 30% random
+    const smart = Math.random() < 0.7;
+    const keeper: Zone = smart ? mostUsed(playerShotHistory.current) : randomZone();
+    playerShotHistory.current = [...playerShotHistory.current, playerShot];
+
+    const scored = playerShot !== keeper;
+    setLast({ shooter: "player", shot: playerShot, keeper, scored });
     setPhase("result");
+    setPlayerScore((s) => (scored ? s + 1 : s - 1));
+    window.setTimeout(() => setAnimating(false), 700);
   }
 
   function next() {
     if (!last) return;
+    // After opponent shot → player shoots in same round
     if (last.shooter === "opponent") {
       setPhase("player");
       return;
     }
-    if (round >= TOTAL_ROUNDS) {
+    // Round completed
+    const completed = round;
+    const playerWinsOutright =
+      completed >= MIN_ROUNDS && playerScore !== oppScore;
+    const reachedSuddenTarget =
+      completed >= MIN_ROUNDS &&
+      (playerScore >= SUDDEN_TARGET || oppScore >= SUDDEN_TARGET) &&
+      playerScore !== oppScore;
+
+    if (playerWinsOutright || reachedSuddenTarget) {
       setPhase("over");
       return;
     }
@@ -96,14 +147,17 @@ function MatchPage() {
     setPlayerScore(0);
     setOppScore(0);
     setLast(null);
+    playerGuessHistory.current = [];
+    playerShotHistory.current = [];
   }
+
+  const isSudden = round > MIN_ROUNDS;
 
   return (
     <main
-      className="relative flex min-h-screen w-full flex-col items-center overflow-hidden px-6 py-8"
+      className="relative flex min-h-screen w-full flex-col items-center overflow-hidden px-4 py-6"
       style={{ backgroundColor: "#0d5c2a", fontFamily: "'Kanit', sans-serif" }}
     >
-      {/* Vignette */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -112,155 +166,62 @@ function MatchPage() {
         }}
       />
 
-      <div className="relative z-10 flex w-full max-w-2xl flex-col items-center gap-6">
+      <div className="relative z-10 flex w-full max-w-2xl flex-col items-center gap-5">
         {/* Scoreboard */}
         <div
-          className="flex w-full items-stretch justify-between rounded-xl bg-black/40 p-4 text-white backdrop-blur-sm"
+          className="flex w-full items-stretch justify-between rounded-xl bg-black/40 p-3 text-white backdrop-blur-sm"
           style={{ border: "2px solid #ccff00" }}
         >
-          <div className="flex flex-1 flex-col items-center">
-            <span className="text-[10px] tracking-[0.2em] text-white/60 uppercase">
-              Ты
-            </span>
-            <span className="text-sm font-black tracking-wider uppercase">
-              {team}
-            </span>
-            <span className="mt-1 text-3xl font-black" style={{ color: "#ccff00" }}>
-              {playerScore}
-            </span>
-          </div>
+          <ScorePane label="Ты" name={team} score={playerScore} />
           <div className="flex flex-col items-center justify-center px-2 text-white/60">
-            <span className="text-xs tracking-[0.2em] uppercase">Раунд</span>
+            <span className="text-[10px] tracking-[0.2em] uppercase">
+              {isSudden ? "Сэрия" : "Раунд"}
+            </span>
             <span className="text-2xl font-black text-white">
-              {Math.min(round, TOTAL_ROUNDS)}/{TOTAL_ROUNDS}
+              {isSudden ? `+${round - MIN_ROUNDS}` : `${round}/${MIN_ROUNDS}`}
             </span>
           </div>
-          <div className="flex flex-1 flex-col items-center">
-            <span className="text-[10px] tracking-[0.2em] text-white/60 uppercase">
-              Соперник
-            </span>
-            <span className="text-sm font-black tracking-wider uppercase">
-              Враги
-            </span>
-            <span className="mt-1 text-3xl font-black" style={{ color: "#ccff00" }}>
-              {oppScore}
-            </span>
-          </div>
+          <ScorePane label="Соперник" name="Враги" score={oppScore} />
         </div>
 
         {/* Phase title */}
         <h2
-          className="text-center text-2xl font-black italic tracking-tight text-white uppercase sm:text-3xl"
+          className="text-center text-xl font-black italic tracking-tight text-white uppercase sm:text-2xl"
           style={{ textShadow: "0 3px 0 rgba(0,0,0,0.3)" }}
         >
           {phaseLabel}
         </h2>
 
-        {/* Goal */}
-        <Goal phase={phase} last={last} />
+        {/* Goal scene */}
+        <GoalScene phase={phase} last={last} />
 
-        {/* Controls */}
+        {/* Zone controls */}
         {(phase === "opponent" || phase === "player") && (
-          <div className="grid w-full grid-cols-3 gap-3">
-            {SIDES.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() =>
-                  phase === "opponent"
-                    ? handleOpponentGuess(s.id)
-                    : handlePlayerShot(s.id)
-                }
-                className="rounded-xl px-4 py-5 text-lg font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
-                style={{
-                  backgroundColor: "#ccff00",
-                  boxShadow: "0 6px 0 rgb(132,163,0)",
-                }}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
+          <ZonePad
+            onPick={(z) =>
+              phase === "opponent" ? handleOpponentShot(z) : handlePlayerShot(z)
+            }
+            disabled={animating}
+            actionLabel={phase === "opponent" ? "Защищай" : "Бей"}
+          />
         )}
 
         {phase === "result" && last && (
-          <div className="flex flex-col items-center gap-4">
-            <p
-              className="text-center text-xl font-black uppercase"
-              style={{
-                color: last.scored ? "#ff4d4d" : "#ccff00",
-              }}
-            >
-              {last.shooter === "opponent"
-                ? last.scored
-                  ? "Соперник забил! +1 сопернику"
-                  : "Отбил! −1 сопернику"
-                : last.scored
-                  ? "Гол! +1 тебе"
-                  : "Мимо / отбито! −1 тебе"}
-            </p>
-            <p className="text-xs tracking-[0.2em] text-white/70 uppercase">
-              {last.shooter === "opponent"
-                ? `Удар: ${labelOf(last.shot)} · Твой выбор: ${labelOf(last.pick)}`
-                : `Твой удар: ${labelOf(last.shot)} · Вратарь: ${labelOf(last.pick)}`}
-            </p>
-            <button
-              type="button"
-              onClick={next}
-              className="rounded-xl px-10 py-4 text-lg font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
-              style={{
-                backgroundColor: "#ccff00",
-                boxShadow: "0 8px 0 rgb(132,163,0)",
-              }}
-            >
-              Дальше →
-            </button>
-          </div>
+          <ResultBlock last={last} onNext={next} />
         )}
 
         {phase === "over" && (
-          <div className="flex flex-col items-center gap-4">
-            <p
-              className="text-center text-3xl font-black italic uppercase"
-              style={{
-                color: playerScore > oppScore ? "#ccff00" : "#ff4d4d",
-                textShadow: "0 3px 0 rgba(0,0,0,0.3)",
-              }}
-            >
-              {playerScore > oppScore
-                ? "Победа!"
-                : playerScore < oppScore
-                  ? "Поражение"
-                  : "Ничья"}
-            </p>
-            <p className="text-sm tracking-widest text-white/80 uppercase">
-              {team} {playerScore} : {oppScore} Враги
-            </p>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={reset}
-                className="rounded-xl px-6 py-3 text-base font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
-                style={{
-                  backgroundColor: "#ccff00",
-                  boxShadow: "0 6px 0 rgb(132,163,0)",
-                }}
-              >
-                Ещё раз
-              </button>
-              <Link
-                to="/"
-                className="rounded-xl border-2 border-white/40 px-6 py-3 text-base font-black tracking-widest text-white uppercase transition-all duration-200 hover:scale-105 active:scale-95"
-              >
-                В меню
-              </Link>
-            </div>
-          </div>
+          <OverBlock
+            team={team}
+            playerScore={playerScore}
+            oppScore={oppScore}
+            onReset={reset}
+          />
         )}
 
         <Link
           to="/teams"
-          className="mt-2 text-xs font-bold tracking-[0.2em] text-white/60 uppercase transition-colors hover:text-white"
+          className="mt-1 text-xs font-bold tracking-[0.2em] text-white/60 uppercase transition-colors hover:text-white"
         >
           ← Сменить команду
         </Link>
@@ -269,66 +230,274 @@ function MatchPage() {
   );
 }
 
-function labelOf(s: Side) {
-  return s === "left" ? "Лево" : s === "center" ? "Центр" : "Право";
+function ScorePane({
+  label,
+  name,
+  score,
+}: {
+  label: string;
+  name: string;
+  score: number;
+}) {
+  return (
+    <div className="flex flex-1 flex-col items-center">
+      <span className="text-[10px] tracking-[0.2em] text-white/60 uppercase">
+        {label}
+      </span>
+      <span className="max-w-[110px] truncate text-sm font-black tracking-wider uppercase">
+        {name}
+      </span>
+      <span className="mt-1 text-3xl font-black" style={{ color: "#ccff00" }}>
+        {score}
+      </span>
+    </div>
+  );
 }
 
-function Goal({
-  phase,
-  last,
+function ZonePad({
+  onPick,
+  disabled,
+  actionLabel,
 }: {
-  phase: Phase;
-  last: { shooter: "opponent" | "player"; shot: Side; pick: Side; scored: boolean } | null;
+  onPick: (z: Zone) => void;
+  disabled: boolean;
+  actionLabel: string;
 }) {
-  const showBall = phase === "result" && last;
-  const ballSide = last?.shot;
-  const keeperSide = last
-    ? last.shooter === "opponent"
-      ? last.pick
-      : last.pick
-    : null;
+  return (
+    <div className="flex w-full flex-col items-center gap-2">
+      <p className="text-[10px] tracking-[0.25em] text-white/70 uppercase">
+        {actionLabel}: выбери угол
+      </p>
+      <div className="grid w-full max-w-md grid-cols-3 gap-2">
+        {ZONES.map((z) => (
+          <button
+            key={z.id}
+            type="button"
+            disabled={disabled}
+            onClick={() => onPick(z.id)}
+            className="rounded-xl px-2 py-4 text-2xl font-black text-black transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50"
+            style={{
+              backgroundColor: "#ccff00",
+              boxShadow: "0 5px 0 rgb(132,163,0)",
+            }}
+          >
+            {z.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ResultBlock({ last, onNext }: { last: Last; onNext: () => void }) {
+  const isOpp = last.shooter === "opponent";
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <p
+        className="text-center text-xl font-black uppercase"
+        style={{ color: last.scored ? "#ff4d4d" : "#ccff00" }}
+      >
+        {isOpp
+          ? last.scored
+            ? "Соперник забил! +1 ему"
+            : "Ты отбил! −1 сопернику"
+          : last.scored
+            ? "ГОЛ! +1 тебе"
+            : "Вратарь отбил! −1 тебе"}
+      </p>
+      <p className="text-[10px] tracking-[0.25em] text-white/70 uppercase">
+        Удар: {zoneLabel(last.shot)} · Вратарь: {zoneLabel(last.keeper)}
+      </p>
+      <button
+        type="button"
+        onClick={onNext}
+        className="rounded-xl px-10 py-3 text-lg font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
+        style={{
+          backgroundColor: "#ccff00",
+          boxShadow: "0 8px 0 rgb(132,163,0)",
+        }}
+      >
+        Дальше →
+      </button>
+    </div>
+  );
+}
+
+function OverBlock({
+  team,
+  playerScore,
+  oppScore,
+  onReset,
+}: {
+  team: string;
+  playerScore: number;
+  oppScore: number;
+  onReset: () => void;
+}) {
+  const won = playerScore > oppScore;
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <p
+        className="text-center text-3xl font-black italic uppercase"
+        style={{
+          color: won ? "#ccff00" : "#ff4d4d",
+          textShadow: "0 3px 0 rgba(0,0,0,0.3)",
+        }}
+      >
+        {won ? "Победа!" : "Поражение"}
+      </p>
+      <p className="text-sm tracking-widest text-white/80 uppercase">
+        {team} {playerScore} : {oppScore} Враги
+      </p>
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={onReset}
+          className="rounded-xl px-6 py-3 text-base font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
+          style={{
+            backgroundColor: "#ccff00",
+            boxShadow: "0 6px 0 rgb(132,163,0)",
+          }}
+        >
+          Ещё раз
+        </button>
+        <Link
+          to="/"
+          className="rounded-xl border-2 border-white/40 px-6 py-3 text-base font-black tracking-widest text-white uppercase transition-all duration-200 hover:scale-105 active:scale-95"
+        >
+          В меню
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function zoneLabel(z: Zone) {
+  const map: Record<Zone, string> = {
+    TL: "Лево-верх",
+    TC: "Центр-верх",
+    TR: "Право-верх",
+    BL: "Лево-низ",
+    BC: "Центр-низ",
+    BR: "Право-низ",
+  };
+  return map[z];
+}
+
+/** Convert zone to percentage coordinates within the goal frame */
+function zoneCoords(z: Zone): { left: string; top: string } {
+  const meta = ZONES.find((x) => x.id === z)!;
+  const left = meta.col === 0 ? "18%" : meta.col === 1 ? "50%" : "82%";
+  const top = meta.row === 0 ? "30%" : "65%";
+  return { left, top };
+}
+
+function GoalScene({ phase, last }: { phase: Phase; last: Last | null }) {
+  // Animation: ball travels from striker spot to its zone after picking
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    if (phase === "result") setTick((t) => t + 1);
+  }, [phase, last]);
+
+  const showAction = phase === "result" && last;
+  const ballPos = showAction ? zoneCoords(last!.shot) : null;
+  const keeperPos = showAction
+    ? zoneCoords(last!.keeper)
+    : { left: "50%", top: "65%" };
+
+  const strikerIsPlayer = last?.shooter === "player";
 
   return (
-    <div
-      className="relative w-full max-w-md rounded-lg bg-white/5"
-      style={{
-        aspectRatio: "16 / 9",
-        border: "3px solid white",
-        backgroundImage:
-          "repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px), repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px)",
-      }}
-    >
-      {/* Keeper */}
-      {keeperSide && (
+    <div className="relative w-full max-w-md">
+      {/* Goal frame */}
+      <div
+        className="relative w-full overflow-hidden rounded-lg bg-white/5"
+        style={{
+          aspectRatio: "16 / 10",
+          border: "4px solid white",
+          backgroundImage:
+            "repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px), repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px)",
+        }}
+      >
+        {/* Goal line shadow */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-black/30" />
+
+        {/* Keeper */}
         <div
-          className="absolute bottom-2 h-12 w-10 rounded-md bg-yellow-300 transition-all duration-500"
+          key={`keeper-${tick}`}
+          className="absolute -translate-x-1/2 -translate-y-1/2 text-4xl transition-all duration-500 ease-out"
           style={{
-            left:
-              keeperSide === "left"
-                ? "12%"
-                : keeperSide === "center"
-                  ? "calc(50% - 20px)"
-                  : "calc(88% - 40px)",
-            boxShadow: "0 4px 0 rgba(0,0,0,0.4)",
+            left: keeperPos.left,
+            top: keeperPos.top,
+            filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))",
           }}
-        />
-      )}
-      {/* Ball */}
-      {showBall && ballSide && (
-        <div
-          className="absolute h-6 w-6 rounded-full bg-white transition-all duration-500"
-          style={{
-            top: "30%",
-            left:
-              ballSide === "left"
-                ? "18%"
-                : ballSide === "center"
-                  ? "calc(50% - 12px)"
-                  : "calc(82% - 24px)",
-            boxShadow: "0 3px 0 rgba(0,0,0,0.4)",
-          }}
-        />
-      )}
+        >
+          🧤
+        </div>
+
+        {/* Ball */}
+        {ballPos && (
+          <div
+            key={`ball-${tick}`}
+            className="absolute -translate-x-1/2 -translate-y-1/2 text-3xl"
+            style={{
+              left: ballPos.left,
+              top: ballPos.top,
+              filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))",
+              animation: "ballFly 0.55s ease-out",
+            }}
+          >
+            ⚽
+          </div>
+        )}
+
+        {/* Zone grid hint */}
+        {(phase === "opponent" || phase === "player") && (
+          <div className="pointer-events-none absolute inset-0 grid grid-cols-3 grid-rows-2 opacity-30">
+            {ZONES.map((z) => (
+              <div
+                key={z.id}
+                className="flex items-center justify-center border border-white/30 text-2xl text-white/70"
+              >
+                {z.label}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Striker outside the goal */}
+      <div className="mt-2 flex items-end justify-between px-2">
+        <span
+          className="text-4xl"
+          style={{ filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))" }}
+        >
+          {strikerIsPlayer || phase === "player" ? "🏃" : "🦹"}
+        </span>
+        <span className="text-xs tracking-[0.2em] text-white/70 uppercase">
+          {phase === "player"
+            ? "Бьёшь ты"
+            : phase === "opponent"
+              ? "Бьёт соперник"
+              : last?.shooter === "player"
+                ? "Бьёшь ты"
+                : "Бьёт соперник"}
+        </span>
+        <span
+          className="text-4xl"
+          style={{ filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))" }}
+        >
+          {phase === "player" ? "🥅" : "🥅"}
+        </span>
+      </div>
+
+      <style>{`
+        @keyframes ballFly {
+          0% { transform: translate(-50%, 80px) scale(0.4); opacity: 0.4; }
+          60% { opacity: 1; }
+          100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }
