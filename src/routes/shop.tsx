@@ -1,5 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ITEMS, useInventory, type ItemKind, type ShopItem } from "@/lib/shop";
+import {
+  ITEMS,
+  PERKS,
+  useInventory,
+  type ItemKind,
+  type Perk,
+  type ShopItem,
+} from "@/lib/shop";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
@@ -53,12 +60,21 @@ function ShopPage() {
           >
             <span className="text-xl">🪙</span>
             <span className="text-lg">{inv.coins}</span>
+            <span className="ml-2 text-xl">💎</span>
+            <span className="text-lg">{inv.crystals}</span>
           </div>
         </div>
 
         <p className="text-center text-[11px] tracking-[0.25em] text-white/60 uppercase">
-          Зарабатывай монеты в матчах · 1 гол = +20 · сейв = +15 · победа = +100
+          🪙 гол +20 · сейв +15 · победа +100 &nbsp;·&nbsp; 💎 победа +1 · сухой матч +3
         </p>
+
+        <PerksSection
+          perks={PERKS}
+          levels={inv.perks}
+          crystals={inv.crystals}
+          onBuy={inv.buyPerk}
+        />
 
         {SECTIONS.map((s) => (
           <Section
