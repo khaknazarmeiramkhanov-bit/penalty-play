@@ -344,6 +344,8 @@ function MatchPage() {
       setAbilityFlash("👑 Корона! Гол отменён");
     } else if (frostHit) {
       setAbilityFlash("🦌 Северное сияние! Соперник замёрз и бьёт мимо");
+    } else if (ghostFearForce) {
+      setAbilityFlash("👻 Страх! Соперник испугался и бьёт мимо");
     } else if (butterflyFlip) {
       setAbilityFlash("🦋 Эффект бабочки! Исход перевёрнут");
     } else if (oppButterflyFlip) {
@@ -360,11 +362,7 @@ function MatchPage() {
                 ? `${oppEmoji} ${oppTeam}: силовой удар!`
                 : oppCheetahHit
                   ? `${oppEmoji} ${oppTeam}: скорость!`
-                  : oppKrakenHit
-                    ? `${oppEmoji} ${oppTeam}: щупальца!`
-                    : oppVikingHit
-                      ? `${oppEmoji} ${oppTeam}: берсерк!`
-                      : `${oppEmoji} ${oppTeam}: фантом!`,
+                  : "",
       );
     } else if (autoSave) {
       setAbilityFlash(
@@ -384,15 +382,19 @@ function MatchPage() {
     if (oppIguanaArmed.current) oppIguanaArmed.current = false;
     if (oppPhoenixSafe) oppPhoenixRebornArmed.current = false;
     if (offTarget && oppTeam === "Фениксы") oppPhoenixRebornArmed.current = true;
-    if (oppVikingsArmed.current) oppVikingsArmed.current = false;
-    if (offTarget && oppTeam === "Викинги") oppVikingsArmed.current = true;
+    if (ghostFearForce) ghostFearUsed.current = true;
 
     setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
     setPhase("result");
     setResultLocked(true);
     window.setTimeout(() => setResultLocked(false), 4000);
     if (scored) {
-      setOppScore((s) => s + 1);
+      // Опп-Викинги: первый гол приносит +2
+      const oppVikingDouble =
+        oppTeam === "Викинги" && !oppVikingsDoubleUsed.current;
+      if (oppVikingDouble) oppVikingsDoubleUsed.current = true;
+      setOppScore((s) => s + (oppVikingDouble ? 2 : 1));
+      if (oppVikingDouble) setAbilityFlash(`${oppEmoji} ${oppTeam}: двойной гол!`);
       // Опп-Олени: после своего гола замораживают наш следующий удар
       if (oppTeam === "Олени") oppReindeerFrostArmed.current = true;
     }
