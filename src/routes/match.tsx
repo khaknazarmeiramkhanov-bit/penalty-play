@@ -372,7 +372,7 @@ function MatchPage() {
     setResultLocked(true);
     window.setTimeout(() => setResultLocked(false), 4000);
     if (scored) setPlayerScore((s) => s + 1);
-    if (scored) inv.addCoins(20); // goal reward
+    if (scored) inv.addCoins(20 + (inv.perks.coinBoost ?? 0) * 5); // goal reward + perk
     window.setTimeout(() => setAnimating(false), 700);
   }
 
