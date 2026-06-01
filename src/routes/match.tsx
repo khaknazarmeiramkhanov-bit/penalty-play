@@ -179,7 +179,7 @@ function MatchPage() {
       <div className="relative z-10 flex w-full max-w-2xl flex-col items-center gap-5">
         {/* Scoreboard */}
         <div
-          className="flex w-full items-stretch justify-between rounded-xl bg-black/40 p-3 text-white backdrop-blur-sm"
+          className="relative z-20 flex w-full items-stretch justify-between rounded-xl bg-black/40 p-3 text-white backdrop-blur-sm"
           style={{ border: "2px solid #ccff00" }}
         >
           <ScorePane label="Ты" name={team} score={playerScore} />
@@ -196,7 +196,7 @@ function MatchPage() {
 
         {/* Phase title */}
         <h2
-          className="text-center text-xl font-black italic tracking-tight text-white uppercase sm:text-2xl"
+          className="relative z-20 text-center text-xl font-black italic tracking-tight text-white uppercase sm:text-2xl"
           style={{ textShadow: "0 3px 0 rgba(0,0,0,0.3)" }}
         >
           {phaseLabel}
