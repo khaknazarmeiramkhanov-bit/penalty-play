@@ -708,6 +708,79 @@ function Fan({
   );
 }
 
+function GloveDecor({ style, accent }: { style: GloveStyle; accent: string }) {
+  // Local glove coords: palm spans roughly x ∈ [-10, 12], y ∈ [-12, 13].
+  switch (style) {
+    case "striped":
+      return (
+        <>
+          {/* Bold horizontal bands across palm — tiger-stripe feel */}
+          <rect x="-9" y="-7" width="20" height="2" fill={accent} opacity="0.95" />
+          <rect x="-9" y="-2" width="20" height="2" fill={accent} opacity="0.95" />
+          <rect x="-9" y="3" width="20" height="2" fill={accent} opacity="0.95" />
+          <rect x="-9" y="8" width="20" height="2" fill={accent} opacity="0.95" />
+          {/* Fingertip caps */}
+          <rect x="-5" y="-23" width="3.4" height="2.5" rx="1" fill={accent} />
+          <rect x="-1" y="-26" width="3.4" height="2.5" rx="1" fill={accent} />
+          <rect x="3" y="-24" width="3.4" height="2.5" rx="1" fill={accent} />
+          <rect x="7" y="-20" width="3.4" height="2.5" rx="1" fill={accent} />
+        </>
+      );
+    case "tech":
+      return (
+        <>
+          {/* Diagonal slash + chevron — futuristic tech look */}
+          <path d="M-9 8 L11 -6" stroke={accent} strokeWidth="2.2" strokeLinecap="round" />
+          <path
+            d="M-7 -5 L1 -9 L9 -5"
+            stroke={accent}
+            strokeWidth="1.6"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx="6" cy="6" r="1.6" fill={accent} />
+          {/* Knuckle dots */}
+          <circle cx="-3" cy="-10" r="0.7" fill={accent} />
+          <circle cx="1" cy="-11" r="0.7" fill={accent} />
+          <circle cx="5" cy="-10" r="0.7" fill={accent} />
+        </>
+      );
+    case "carbon":
+      return (
+        <>
+          {/* Dense grid of dots — carbon/grip pattern */}
+          {[-7, -3, 1, 5, 9].map((cx) =>
+            [-6, -2, 2, 6, 10].map((cy) => (
+              <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="0.6" fill={accent} opacity="0.85" />
+            )),
+          )}
+          {/* Single bold edge stripe */}
+          <rect x="-9" y="11" width="20" height="1.2" fill={accent} opacity="0.95" />
+        </>
+      );
+    case "classic":
+    default:
+      return (
+        <>
+          {/* Two clean brand stripes + grip dots */}
+          <path d="M-8 0 L11 0" stroke={accent} strokeWidth="1.6" strokeLinecap="round" />
+          <path
+            d="M-7 4 Q2 5 10 4"
+            stroke={accent}
+            strokeWidth="1.1"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <circle cx="-5" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
+          <circle cx="-1" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
+          <circle cx="3" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
+          <circle cx="7" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
+        </>
+      );
+  }
+}
+
 function PlayerFigure({
   color,
   pose,
