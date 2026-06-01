@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TeamsRouteImport } from './routes/teams'
+import { Route as MatchRouteImport } from './routes/match'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TeamsRoute = TeamsRouteImport.update({
   id: '/teams',
   path: '/teams',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatchRoute = MatchRouteImport.update({
+  id: '/match',
+  path: '/match',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,27 +31,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/match': typeof MatchRoute
   '/teams': typeof TeamsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/match': typeof MatchRoute
   '/teams': typeof TeamsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/match': typeof MatchRoute
   '/teams': typeof TeamsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/teams'
+  fullPaths: '/' | '/match' | '/teams'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/teams'
-  id: '__root__' | '/' | '/teams'
+  to: '/' | '/match' | '/teams'
+  id: '__root__' | '/' | '/match' | '/teams'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MatchRoute: typeof MatchRoute
   TeamsRoute: typeof TeamsRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/teams'
       fullPath: '/teams'
       preLoaderRoute: typeof TeamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/match': {
+      id: '/match'
+      path: '/match'
+      fullPath: '/match'
+      preLoaderRoute: typeof MatchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MatchRoute: MatchRoute,
   TeamsRoute: TeamsRoute,
 }
 export const routeTree = rootRouteImport
