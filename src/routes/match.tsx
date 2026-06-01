@@ -76,6 +76,16 @@ function teamGlove(name: string): { color: string; accent: string; style: GloveS
       return { color: tc, accent: "#1a1208", style: "carbon" };
     case "Призраки":
       return { color: "#1a1a1a", accent: tc, style: "tech" };
+    case "Черепахи":
+      return { color: tc, accent: "#bbf7d0", style: "classic" };
+    case "Зебры":
+      return { color: "#1a1a1a", accent: "#fafafa", style: "striped" };
+    case "Соколы":
+      return { color: tc, accent: "#fde68a", style: "tech" };
+    case "Скорпионы":
+      return { color: tc, accent: "#1a1a1a", style: "carbon" };
+    case "Барсуки":
+      return { color: tc, accent: "#fafafa", style: "striped" };
     default:
       return { color: "#ff7a1a", accent: "#ffb066", style: "classic" };
   }
