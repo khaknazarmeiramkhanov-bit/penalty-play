@@ -242,7 +242,9 @@ function MatchPage() {
     const offTarget = frostHit || Math.random() < offChance;
     const crocSave = crocodiles && shotMeta.row === 1 && Math.random() < 0.5;
     const bearSave = bears && shotMeta.col === 1 && Math.random() < 0.5;
-    const autoSave = (tigers && Math.random() < 0.2) || crocSave || bearSave;
+    const perkSaveChance = (inv.perks.saveBoost ?? 0) * 0.05;
+    const perkSave = perkSaveChance > 0 && Math.random() < perkSaveChance;
+    const autoSave = (tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave;
     const effectiveKeeper: Zone = autoSave ? shot : playerKeeper;
     let scored = !offTarget && shot !== effectiveKeeper;
     let butterflyFlip = false;
