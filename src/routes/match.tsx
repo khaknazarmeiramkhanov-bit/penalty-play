@@ -200,7 +200,12 @@ function MatchPage() {
         </h2>
 
         {/* Goal scene */}
-        <GoalScene phase={phase} last={last} />
+        <GoalScene
+          phase={phase}
+          last={last}
+          playerColor={teamColor(team)}
+          oppColor={OPPONENT_COLOR}
+        />
 
         {/* Zone controls */}
         {(phase === "opponent" || phase === "player") && (
@@ -399,7 +404,17 @@ function zoneCoords(z: Zone): { left: string; top: string } {
   return { left, top };
 }
 
-function GoalScene({ phase, last }: { phase: Phase; last: Last | null }) {
+function GoalScene({
+  phase,
+  last,
+  playerColor,
+  oppColor,
+}: {
+  phase: Phase;
+  last: Last | null;
+  playerColor: string;
+  oppColor: string;
+}) {
   // Animation: ball travels from striker spot to its zone after picking
   const [tick, setTick] = useState(0);
   useEffect(() => {
@@ -413,6 +428,17 @@ function GoalScene({ phase, last }: { phase: Phase; last: Last | null }) {
     : { left: "50%", top: "65%" };
 
   const strikerIsPlayer = last?.shooter === "player";
+  // During action phases, striker color matches the active shooter
+  const activeShooter: Shooter =
+    phase === "player"
+      ? "player"
+      : phase === "opponent"
+        ? "opponent"
+        : (last?.shooter ?? "opponent");
+  const strikerColor =
+    activeShooter === "player" ? playerColor : oppColor;
+  // Keeper is the OTHER team
+  const keeperColor = activeShooter === "player" ? oppColor : playerColor;
 
   return (
     <div className="relative w-full max-w-md">
@@ -432,14 +458,10 @@ function GoalScene({ phase, last }: { phase: Phase; last: Last | null }) {
         {/* Keeper */}
         <div
           key={`keeper-${tick}`}
-          className="absolute -translate-x-1/2 -translate-y-1/2 text-4xl transition-all duration-500 ease-out"
-          style={{
-            left: keeperPos.left,
-            top: keeperPos.top,
-            filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))",
-          }}
+          className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
+          style={{ left: keeperPos.left, top: keeperPos.top }}
         >
-          🧤
+          <PlayerFigure color={keeperColor} pose="keeper" size={46} />
         </div>
 
         {/* Ball */}
@@ -474,28 +496,12 @@ function GoalScene({ phase, last }: { phase: Phase; last: Last | null }) {
       </div>
 
       {/* Striker outside the goal */}
-      <div className="mt-2 flex items-end justify-between px-2">
-        <span
-          className="text-4xl"
-          style={{ filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))" }}
-        >
-          {strikerIsPlayer || phase === "player" ? "🏃" : "🦹"}
+      <div className="mt-2 flex items-center justify-between px-2">
+        <PlayerFigure color={strikerColor} pose="striker" size={44} />
+        <span className="text-[10px] tracking-[0.25em] text-white/70 uppercase">
+          {activeShooter === "player" ? "Бьёшь ты" : "Бьёт соперник"}
         </span>
-        <span className="text-xs tracking-[0.2em] text-white/70 uppercase">
-          {phase === "player"
-            ? "Бьёшь ты"
-            : phase === "opponent"
-              ? "Бьёт соперник"
-              : last?.shooter === "player"
-                ? "Бьёшь ты"
-                : "Бьёт соперник"}
-        </span>
-        <span
-          className="text-4xl"
-          style={{ filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))" }}
-        >
-          {phase === "player" ? "🥅" : "🥅"}
-        </span>
+        <div className="h-10 w-10" />
       </div>
 
       <style>{`
