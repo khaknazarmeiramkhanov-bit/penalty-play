@@ -214,6 +214,7 @@ function read(): Store {
       owned: Array.from(new Set([...initial.owned, ...(parsed.owned ?? [])])),
       equipped: { ...DEFAULT_EQUIPPED, ...(parsed.equipped ?? {}) },
       perks: { ...initial.perks, ...(parsed.perks ?? {}) },
+      ownedTeams: parsed.ownedTeams ?? initial.ownedTeams,
     };
   } catch {
     return initial;
