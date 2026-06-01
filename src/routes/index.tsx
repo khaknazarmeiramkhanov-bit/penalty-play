@@ -88,10 +88,14 @@ function Index() {
             <button
               onClick={handleSaveName}
               disabled={!nameInput.trim()}
-              className="w-full rounded-xl px-6 py-3 text-lg font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
+              className="w-full rounded-xl px-6 py-3 text-lg font-black tracking-widest uppercase transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
               style={{
-                backgroundColor: "#ccff00",
-                boxShadow: "0 6px 0 rgb(132,163,0)",
+                backgroundColor: "#000",
+                color: "#ccff00",
+                border: "2px solid #ccff00",
+                boxShadow: "0 0 8px #ccff00, 0 0 16px #ccff00, 0 0 24px #ccff00",
+                animation: "neonPulse 2s ease-in-out infinite",
+                textShadow: "0 0 4px #ccff00, 0 0 8px #ccff00",
               }}
             >
               Играть
@@ -140,28 +144,27 @@ function Index() {
         <div className="flex flex-col items-center gap-4">
           <Link
             to="/teams"
-            className="group relative inline-flex items-center justify-center rounded-xl px-10 py-5 text-xl font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
+            className="group relative inline-flex items-center justify-center rounded-xl px-10 py-5 text-xl font-black tracking-widest uppercase transition-all duration-200 hover:scale-105 active:scale-95"
             style={{
-              backgroundColor: "#ccff00",
-              boxShadow: "0 8px 0 rgb(132,163,0)",
+              backgroundColor: "#000",
+              color: "#ccff00",
+              border: "2px solid #ccff00",
+              boxShadow: "0 0 8px #ccff00, 0 0 16px #ccff00, 0 0 24px #ccff00",
+              animation: "neonPulse 2s ease-in-out infinite",
+              textShadow: "0 0 4px #ccff00, 0 0 8px #ccff00",
             }}
           >
             <span className="relative">Начать</span>
-            {/* Shine Effect */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
-              <div
-                className="absolute inset-0 -translate-x-full transition-transform duration-700 group-hover:translate-x-full"
-                style={{
-                  background:
-                    "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
-                }}
-              />
-            </div>
           </Link>
 
           <Link
             to="/rating"
-            className="inline-flex items-center justify-center rounded-xl border-2 border-white/20 bg-white/10 px-8 py-3 text-sm font-black tracking-widest text-white uppercase backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:bg-white/20 active:scale-95"
+            className="inline-flex items-center justify-center rounded-xl border-2 border-[#ccff00]/50 bg-black/40 px-8 py-3 text-sm font-black tracking-widest uppercase backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:border-[#ccff00] active:scale-95"
+            style={{
+              color: "#ccff00",
+              boxShadow: "0 0 6px rgba(204,255,0,0.3)",
+              textShadow: "0 0 4px rgba(204,255,0,0.5)",
+            }}
           >
             📊 Рейтинг
           </Link>
