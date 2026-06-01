@@ -124,9 +124,11 @@ function MatchPage() {
   const equippedBoot = getItem(inv.equipped.boot);
   const equippedBand = getItem(inv.equipped.wristband);
   const equippedSock = getItem(inv.equipped.sock);
+  const tGlove = teamGlove(team);
   const gear = {
-    gloveColor: resolveColor(equippedGlove?.color ?? "#ff7a1a", tColor),
-    gloveAccent: equippedGlove?.accent ?? "#ffb066",
+    gloveColor: resolveColor(equippedGlove?.color ?? tGlove.color, tColor),
+    gloveAccent: equippedGlove?.accent ?? tGlove.accent,
+    gloveStyle: tGlove.style,
     bootColor: resolveColor(equippedBoot?.color ?? "#0a0a0a", tColor),
     bootAccent: resolveColor(equippedBoot?.accent ?? "#fff", tColor),
     bandColor: resolveColor(equippedBand?.color ?? "#fff", tColor),
