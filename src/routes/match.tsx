@@ -150,6 +150,7 @@ function MatchPage() {
   const { team } = Route.useSearch();
   const { ability, abilityDesc } = teamAbility(team);
   const inv = useInventory();
+  const playerSponsor = getSponsor(inv.sponsor);
   const tColor = teamColor(team);
   // Opponent: random team (different from player). Stable for the match;
   // reset() picks a new one.
