@@ -403,6 +403,8 @@ function zoneLabel(z: Zone) {
   return map[z];
 }
 
+const SKIN_TONES = ["#f5d6b1", "#e0b48a", "#c98e62", "#8b5a3c", "#5a3a26"];
+
 function Crowd({
   playerColor,
   oppColor,
@@ -410,44 +412,113 @@ function Crowd({
   playerColor: string;
   oppColor: string;
 }) {
-  // Two stands behind the goal: left supports player team, right supports opponent
-  const fans = Array.from({ length: 30 });
+  // Three rows of seats, getting smaller toward the back for depth
+  const rows = [
+    { count: 22, size: 14, opacity: 1, yOffset: 0 },
+    { count: 26, size: 12, opacity: 0.9, yOffset: -4 },
+    { count: 30, size: 10, opacity: 0.75, yOffset: -8 },
+  ];
   return (
     <div
-      className="pointer-events-none absolute -top-6 left-0 right-0 -z-0 flex justify-between gap-1 px-1"
+      className="pointer-events-none absolute -top-24 left-0 right-0 z-0"
       aria-hidden
     >
-      <div className="flex flex-1 flex-wrap items-end gap-0.5">
-        {fans.map((_, i) => (
-          <FanHead key={`l-${i}`} color={playerColor} delay={i * 80} />
-        ))}
-      </div>
-      <div className="flex flex-1 flex-wrap items-end justify-end gap-0.5">
-        {fans.map((_, i) => (
-          <FanHead key={`r-${i}`} color={oppColor} delay={i * 90 + 40} />
+      {/* Stand backdrop */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-24 rounded-t-lg"
+        style={{
+          background:
+            "linear-gradient(180deg, #1a1a1a 0%, #2a2a2a 50%, #0d0d0d 100%)",
+        }}
+      />
+      <div className="relative flex flex-col items-stretch justify-end gap-0.5 pb-1">
+        {rows.map((row, rowIdx) => (
+          <div
+            key={rowIdx}
+            className="flex w-full items-end justify-between px-1"
+            style={{
+              transform: `translateY(${row.yOffset}px)`,
+              opacity: row.opacity,
+            }}
+          >
+            {Array.from({ length: row.count }).map((_, i) => {
+              const isLeft = i < row.count / 2;
+              const color = isLeft ? playerColor : oppColor;
+              const skin = SKIN_TONES[(i * 7 + rowIdx * 3) % SKIN_TONES.length];
+              const armsUp = (i + rowIdx) % 3 === 0;
+              return (
+                <Fan
+                  key={i}
+                  color={color}
+                  skin={skin}
+                  size={row.size}
+                  armsUp={armsUp}
+                  delay={(i * 60 + rowIdx * 120) % 900}
+                />
+              );
+            })}
+          </div>
         ))}
       </div>
     </div>
   );
 }
 
-function FanHead({ color, delay }: { color: string; delay: number }) {
+function Fan({
+  color,
+  skin,
+  size,
+  armsUp,
+  delay,
+}: {
+  color: string;
+  skin: string;
+  size: number;
+  armsUp: boolean;
+  delay: number;
+}) {
   return (
     <div
-      className="flex flex-col items-center"
       style={{
-        animation: "fanBob 1.2s ease-in-out infinite",
+        width: size,
+        height: size * 1.6,
+        animation: armsUp
+          ? "fanCheer 0.9s ease-in-out infinite"
+          : "fanBob 1.4s ease-in-out infinite",
         animationDelay: `${delay}ms`,
+        flex: "0 0 auto",
       }}
     >
-      <div
-        className="h-2 w-2 rounded-full border border-black/50"
-        style={{ backgroundColor: color }}
-      />
-      <div
-        className="h-3 w-3 rounded-sm border border-black/50"
-        style={{ backgroundColor: color, opacity: 0.85 }}
-      />
+      <svg viewBox="0 0 16 26" width="100%" height="100%">
+        {/* arms */}
+        {armsUp ? (
+          <>
+            <line x1="3" y1="14" x2="1" y2="6" stroke={skin} strokeWidth="2" strokeLinecap="round" />
+            <line x1="13" y1="14" x2="15" y2="6" stroke={skin} strokeWidth="2" strokeLinecap="round" />
+          </>
+        ) : (
+          <>
+            <line x1="3" y1="14" x2="2" y2="20" stroke={skin} strokeWidth="2" strokeLinecap="round" />
+            <line x1="13" y1="14" x2="14" y2="20" stroke={skin} strokeWidth="2" strokeLinecap="round" />
+          </>
+        )}
+        {/* body (jersey) */}
+        <path
+          d="M3 13 Q3 11 5 11 L11 11 Q13 11 13 13 L13 22 L3 22 Z"
+          fill={color}
+          stroke="rgba(0,0,0,0.5)"
+          strokeWidth="0.5"
+        />
+        {/* head */}
+        <circle cx="8" cy="6" r="4" fill={skin} stroke="rgba(0,0,0,0.4)" strokeWidth="0.5" />
+        {/* cap stripe in team color */}
+        <path
+          d="M4.2 4 Q8 1.5 11.8 4 L11.5 5 L4.5 5 Z"
+          fill={color}
+          stroke="rgba(0,0,0,0.4)"
+          strokeWidth="0.5"
+        />
+      </svg>
     </div>
   );
 }
@@ -588,14 +659,14 @@ function GoalScene({
   const finalBallPos = offBallPos ?? ballPos;
 
   return (
-    <div className="relative w-full max-w-md">
-      {/* Crowd */}
+    <div className="relative w-full max-w-lg">
+      {/* Crowd stand behind the goal */}
       <Crowd playerColor={playerColor} oppColor={oppColor} />
       {/* Goal frame */}
       <div
-        className="relative w-full overflow-hidden rounded-lg bg-white/5"
+        className="relative z-10 w-full overflow-hidden rounded-lg bg-white/5"
         style={{
-          aspectRatio: "16 / 10",
+          aspectRatio: "16 / 9",
           border: "4px solid white",
           backgroundImage:
             "repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px), repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px)",
@@ -610,7 +681,7 @@ function GoalScene({
           className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
           style={{ left: keeperPos.left, top: keeperPos.top }}
         >
-          <PlayerFigure color={keeperColor} pose="keeper" size={64} emotion={keeperEmotion} />
+          <PlayerFigure color={keeperColor} pose="keeper" size={104} emotion={keeperEmotion} />
         </div>
 
         {/* Ball */}
@@ -646,11 +717,11 @@ function GoalScene({
 
       {/* Striker outside the goal */}
       <div className="mt-2 flex items-center justify-between px-2">
-        <PlayerFigure color={strikerColor} pose="striker" size={64} emotion={strikerEmotion} />
+        <PlayerFigure color={strikerColor} pose="striker" size={110} emotion={strikerEmotion} />
         <span className="text-[10px] tracking-[0.25em] text-white/70 uppercase">
           {activeShooter === "player" ? "Бьёшь ты" : "Бьёт соперник"}
         </span>
-        <div className="h-14 w-14" />
+        <div className="h-20 w-20" />
       </div>
 
       <style>{`
@@ -662,6 +733,10 @@ function GoalScene({
         @keyframes fanBob {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-4px); }
+        }
+        @keyframes fanCheer {
+          0%, 100% { transform: translateY(0) scaleY(1); }
+          50% { transform: translateY(-6px) scaleY(1.05); }
         }
       `}</style>
     </div>
