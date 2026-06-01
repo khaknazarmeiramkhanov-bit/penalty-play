@@ -1645,16 +1645,16 @@ function PlayerFigure({
             <rect x="-10" y="11" width="22" height="1.5" fill={gear.gloveAccent} opacity="0.9" />
           </g>
 
-          {/* RIGHT arm — hanging at side */}
-          <path d="M64 46 L68 70 L62 72 L58 48 Z" fill={`url(#${jerseyId})`} />
+          {/* RIGHT arm — slightly away from body */}
+          <path d="M64 46 L74 68 L68 70 L58 48 Z" fill={`url(#${jerseyId})`} />
           <path
-            d="M68 70 L70 86 L64 88 L62 72 Z"
+            d="M74 68 L78 86 L72 88 L68 70 Z"
             fill={`url(#${skinId})`}
             stroke="#1a1208"
             strokeWidth="0.4"
           />
           <rect
-            x="64"
+            x="72"
             y="83"
             width="6"
             height="3"
@@ -1663,8 +1663,8 @@ function PlayerFigure({
             stroke="#0a0a0a"
             strokeWidth="0.3"
           />
-          {/* RIGHT GLOVE — at right side, fingers down */}
-          <g transform="translate(67 92) scale(0.6 -0.6)">
+          {/* RIGHT GLOVE — slightly away from body, fingers down */}
+          <g transform="translate(75 92) scale(0.6 -0.6)">
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
               fill={`url(#${gloveGradId})`}
