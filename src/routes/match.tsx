@@ -279,7 +279,7 @@ function MatchPage() {
     window.setTimeout(() => setResultLocked(false), 4000);
     if (scored) setOppScore((s) => s + 1);
     if (!scored) {
-      inv.addCoins(15); // save reward
+      inv.addCoins(15 + (inv.perks.coinBoost ?? 0) * 5); // save reward + perk
       // Игуаны: после сейва — следующий удар гарантированный гол
       if (team === "Игуаны") iguanaArmed.current = true;
     }
