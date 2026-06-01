@@ -131,7 +131,7 @@ function RatingPage() {
                   >
                     {medal ?? `#${p.rank}`}
                   </span>
-                  <span className="text-base">{p.country}</span>
+                  <span className="text-base">⚽</span>
                   <span
                     className="flex-1 truncate text-sm font-bold tracking-wide text-white"
                   >
