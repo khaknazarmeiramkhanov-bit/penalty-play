@@ -596,30 +596,50 @@ function MatchPage() {
         </h2>
 
         {/* Ability badge */}
-        <div
-          className="relative z-20 flex w-full flex-col items-center gap-1 rounded-lg bg-black/40 px-3 py-2 text-center"
-          style={{ border: `2px solid ${teamColor(team)}` }}
-        >
-          <span className="text-[10px] tracking-[0.25em] text-white/60 uppercase">Способность</span>
-          <span className="text-sm font-black tracking-wider text-white uppercase">{ability}</span>
-          <span className="text-[10px] font-medium text-white/70">{abilityDesc}</span>
-          {oppHint && (
-            <span
-              className="mt-1 rounded px-2 py-0.5 text-[11px] font-black uppercase text-black"
-              style={{ backgroundColor: "#ccff00" }}
-            >
-              {oppHint}
+        <div className="relative z-20 grid w-full grid-cols-2 gap-2">
+          <div
+            className="flex flex-col items-center gap-1 rounded-lg bg-black/40 px-2 py-2 text-center"
+            style={{ border: `2px solid ${teamColor(team)}` }}
+          >
+            <span className="text-[9px] tracking-[0.2em] text-white/60 uppercase">Ты</span>
+            <span className="text-xs font-black tracking-wider text-white uppercase">
+              {ability}
             </span>
-          )}
-          {abilityFlash && phase === "result" && (
-            <span
-              className="mt-1 rounded px-2 py-0.5 text-[11px] font-black uppercase text-black"
-              style={{ backgroundColor: "#ccff00" }}
-            >
-              {abilityFlash}
+            <span className="text-[9px] font-medium text-white/70">{abilityDesc}</span>
+          </div>
+          <div
+            className="flex flex-col items-center gap-1 rounded-lg bg-black/40 px-2 py-2 text-center"
+            style={{ border: `2px solid ${oppColor}` }}
+          >
+            <span className="text-[9px] tracking-[0.2em] text-white/60 uppercase">
+              {oppEmoji} Соперник
             </span>
-          )}
+            <span className="text-xs font-black tracking-wider text-white uppercase">
+              {oppMeta.ability}
+            </span>
+            <span className="text-[9px] font-medium text-white/70">{oppMeta.abilityDesc}</span>
+          </div>
         </div>
+        {(oppHint || (abilityFlash && phase === "result")) && (
+          <div className="relative z-20 flex w-full flex-col items-center gap-1 text-center">
+            {oppHint && (
+              <span
+                className="rounded px-2 py-0.5 text-[11px] font-black uppercase text-black"
+                style={{ backgroundColor: "#ccff00" }}
+              >
+                {oppHint}
+              </span>
+            )}
+            {abilityFlash && phase === "result" && (
+              <span
+                className="rounded px-2 py-0.5 text-[11px] font-black uppercase text-black"
+                style={{ backgroundColor: "#ccff00" }}
+              >
+                {abilityFlash}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Goal scene */}
         <GoalScene
