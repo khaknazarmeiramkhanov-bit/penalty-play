@@ -362,7 +362,7 @@ function MatchPage() {
     // Соперник-Снежные барсы / Носороги: пробивают сквозь нашего вратаря
     if (
       !scored &&
-      !offTarget &&
+      !oppOffTargetFinal &&
       ((oppTeam === "Снежные барсы" && Math.random() < 0.2) ||
         (oppTeam === "Носороги" && Math.random() < 0.2))
     ) {
@@ -383,6 +383,10 @@ function MatchPage() {
       setAbilityFlash("🦌 Северное сияние! Соперник замёрз и бьёт мимо");
     } else if (ghostFearForce) {
       setAbilityFlash("👻 Страх! Соперник испугался и бьёт мимо");
+    } else if (turtleForce) {
+      setAbilityFlash("🐢 Панцирь! Соперник промахнулся после гола");
+    } else if (oppScorpionRecover) {
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: жало — мяч закрутился в створ`);
     } else if (butterflyFlip) {
       setAbilityFlash("🦋 Эффект бабочки! Исход перевёрнут");
     } else if (oppButterflyFlip) {
@@ -399,7 +403,11 @@ function MatchPage() {
                 ? `${oppEmoji} ${oppTeam}: силовой удар!`
                 : oppCheetahHit
                   ? `${oppEmoji} ${oppTeam}: скорость!`
-                  : "",
+                  : oppZebraHit
+                    ? `${oppEmoji} ${oppTeam}: стадо — гарантия!`
+                    : oppFalconHit
+                      ? `${oppEmoji} ${oppTeam}: точность сокола`
+                      : "",
       );
     } else if (autoSave) {
       setAbilityFlash(
@@ -409,7 +417,9 @@ function MatchPage() {
             ? "🐻 Медвежья хватка! Ловишь в центре"
             : tigers
               ? "🐯 Прыжок тигра! Автосейв"
-              : "🧤 Реакция вратаря! Автосейв",
+              : badgerSave
+                ? "🦡 Цепкая лапа! Автосейв"
+                : "🧤 Реакция вратаря! Автосейв",
       );
     } else {
       setAbilityFlash(null);
@@ -418,10 +428,11 @@ function MatchPage() {
     if (oppFoxFintArmed.current) oppFoxFintArmed.current = false;
     if (oppIguanaArmed.current) oppIguanaArmed.current = false;
     if (oppPhoenixSafe) oppPhoenixRebornArmed.current = false;
-    if (offTarget && oppTeam === "Фениксы") oppPhoenixRebornArmed.current = true;
+    if (oppOffTargetFinal && oppTeam === "Фениксы") oppPhoenixRebornArmed.current = true;
     if (ghostFearForce) ghostFearUsed.current = true;
+    if (turtleForce) turtleArmed.current = false;
 
-    setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
+    setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget: oppOffTargetFinal });
     setPhase("result");
     setResultLocked(true);
     window.setTimeout(() => setResultLocked(false), 4000);
@@ -434,6 +445,8 @@ function MatchPage() {
       if (oppVikingDouble) setAbilityFlash(`${oppEmoji} ${oppTeam}: двойной гол!`);
       // Опп-Олени: после своего гола замораживают наш следующий удар
       if (oppTeam === "Олени") oppReindeerFrostArmed.current = true;
+      // Черепахи (у игрока): после гола соперника взводим панцирь
+      if (team === "Черепахи") turtleArmed.current = true;
     }
     if (!scored) {
       inv.addCoins(15 + (inv.perks.coinBoost ?? 0) * 5); // save reward + perk
