@@ -2129,17 +2129,20 @@ function GoalScene({
 
         {/* Click target overlay — player picks WHERE to shoot */}
         {onPickShot && (
-          <div className="absolute inset-0 z-20 grid grid-cols-3 grid-rows-2">
-            {ZONES.map((z) => (
-              <button
-                key={z.id}
-                type="button"
-                onClick={() => onPickShot(z.id)}
-                aria-label={`Бей в зону ${z.label}`}
-                className="cursor-crosshair bg-transparent"
-              />
-            ))}
-          </div>
+          <button
+            type="button"
+            aria-label="Бей в ворота"
+            className="absolute inset-0 z-20 cursor-crosshair bg-transparent"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const x = (e.clientX - rect.left) / rect.width;
+              const y = (e.clientY - rect.top) / rect.height;
+              const col: 0 | 1 | 2 = x < 1 / 3 ? 0 : x < 2 / 3 ? 1 : 2;
+              const row: 0 | 1 = y < 0.5 ? 0 : 1;
+              const zone = ZONES.find((z) => z.col === col && z.row === row)!;
+              onPickShot(zone.id);
+            }}
+          />
         )}
       </div>
 
