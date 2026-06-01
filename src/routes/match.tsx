@@ -1,8 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
+import { TEAMS } from "./teams";
 
 const searchSchema = z.object({ team: z.string().default("Команда") });
+
+const OPPONENT_COLOR = "#dc2626";
+
+function teamColor(name: string): string {
+  return TEAMS.find((t) => t.name === name)?.color ?? "#ccff00";
+}
 
 export const Route = createFileRoute("/match")({
   validateSearch: searchSchema,
@@ -98,7 +105,7 @@ function MatchPage() {
     const scored = shot !== playerKeeper;
     setLast({ shooter: "opponent", shot, keeper: playerKeeper, scored });
     setPhase("result");
-    setOppScore((s) => (scored ? s + 1 : s - 1));
+    if (scored) setOppScore((s) => s + 1);
     window.setTimeout(() => setAnimating(false), 700);
   }
 
@@ -113,7 +120,7 @@ function MatchPage() {
     const scored = playerShot !== keeper;
     setLast({ shooter: "player", shot: playerShot, keeper, scored });
     setPhase("result");
-    setPlayerScore((s) => (scored ? s + 1 : s - 1));
+    if (scored) setPlayerScore((s) => s + 1);
     window.setTimeout(() => setAnimating(false), 700);
   }
 
