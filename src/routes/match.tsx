@@ -396,6 +396,57 @@ function zoneLabel(z: Zone) {
   return map[z];
 }
 
+function PlayerFigure({
+  color,
+  pose,
+  size = 44,
+}: {
+  color: string;
+  pose: "striker" | "keeper";
+  size?: number;
+}) {
+  const isKeeper = pose === "keeper";
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 64"
+      style={{ filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.45))" }}
+    >
+      {/* head */}
+      <circle cx="24" cy="10" r="7" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+      {/* jersey / body */}
+      <path
+        d={
+          isKeeper
+            ? // arms outstretched
+              "M4 26 L14 20 L20 24 L28 24 L34 20 L44 26 L40 32 L32 30 L32 46 L16 46 L16 30 L8 32 Z"
+            : // running striker, one arm forward
+              "M14 22 L20 19 L28 22 L34 19 L38 25 L32 28 L30 32 L30 46 L18 46 L18 30 Z"
+        }
+        fill={color}
+        stroke="#000"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      {/* shorts */}
+      <rect x="16" y="46" width="16" height="8" fill="#111" stroke="#000" strokeWidth="1.5" />
+      {/* legs */}
+      {isKeeper ? (
+        <>
+          <rect x="17" y="54" width="6" height="9" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+          <rect x="25" y="54" width="6" height="9" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+        </>
+      ) : (
+        <>
+          <path d="M17 54 L19 63 L24 63 L24 54 Z" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+          <path d="M28 54 L34 60 L31 63 L25 57 Z" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 /** Convert zone to percentage coordinates within the goal frame */
 function zoneCoords(z: Zone): { left: string; top: string } {
   const meta = ZONES.find((x) => x.id === z)!;
