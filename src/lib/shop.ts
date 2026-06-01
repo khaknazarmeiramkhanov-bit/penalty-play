@@ -48,18 +48,79 @@ export const DEFAULT_EQUIPPED: Record<ItemKind, string> = {
   sock: "sock_black",
 };
 
-const STORAGE_KEY = "penalty-shop-v1";
+// ---------------- Perks (бонусы за кристаллы) ----------------
+export type PerkId = "saveBoost" | "goalBoost" | "coinBoost" | "accuracy";
+
+export type Perk = {
+  id: PerkId;
+  name: string;
+  desc: string;
+  icon: string;
+  pricePerLevel: number; // в кристаллах
+  maxLevel: number;
+  /** Численный эффект одного уровня (для отображения) */
+  step: string;
+};
+
+export const PERKS: Perk[] = [
+  {
+    id: "saveBoost",
+    name: "Реакция вратаря",
+    desc: "Шанс автосейва на любом ударе соперника",
+    icon: "🧤",
+    pricePerLevel: 3,
+    maxLevel: 4,
+    step: "+5% за уровень",
+  },
+  {
+    id: "goalBoost",
+    name: "Удар по углам",
+    desc: "Шанс что вратарь соперника прыгнет не туда",
+    icon: "🎯",
+    pricePerLevel: 3,
+    maxLevel: 4,
+    step: "+5% за уровень",
+  },
+  {
+    id: "coinBoost",
+    name: "Спонсорский контракт",
+    desc: "Бонусные монеты за гол и сейв",
+    icon: "💼",
+    pricePerLevel: 2,
+    maxLevel: 3,
+    step: "+5 монет за уровень",
+  },
+  {
+    id: "accuracy",
+    name: "Точность",
+    desc: "Уменьшает шанс пробить мимо ворот",
+    icon: "📏",
+    pricePerLevel: 2,
+    maxLevel: 5,
+    step: "−2% за уровень",
+  },
+];
+
+export function getPerk(id: PerkId): Perk {
+  return PERKS.find((p) => p.id === id)!;
+}
+
+const STORAGE_KEY = "penalty-shop-v2";
 
 type Store = {
   coins: number;
+  crystals: number;
   owned: string[];
   equipped: Record<ItemKind, string>;
+  perks: Record<PerkId, number>;
 };
 
 const initial: Store = {
   coins: 50,
+  crystals: 0,
   owned: ITEMS.filter((i) => i.price === 0).map((i) => i.id),
   equipped: { ...DEFAULT_EQUIPPED },
+  perks: { saveBoost: 0, goalBoost: 0, coinBoost: 0, accuracy: 0 },
 };
 
 function read(): Store {
@@ -67,11 +128,13 @@ function read(): Store {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return initial;
-    const parsed = JSON.parse(raw) as Store;
+    const parsed = JSON.parse(raw) as Partial<Store>;
     return {
       coins: parsed.coins ?? initial.coins,
+      crystals: parsed.crystals ?? initial.crystals,
       owned: Array.from(new Set([...initial.owned, ...(parsed.owned ?? [])])),
       equipped: { ...DEFAULT_EQUIPPED, ...(parsed.equipped ?? {}) },
+      perks: { ...initial.perks, ...(parsed.perks ?? {}) },
     };
   } catch {
     return initial;
@@ -108,6 +171,24 @@ export function useInventory() {
     write(next);
   }, []);
 
+  const addCrystals = useCallback((n: number) => {
+    const next = read();
+    next.crystals = Math.max(0, next.crystals + n);
+    write(next);
+  }, []);
+
+  const buyPerk = useCallback((id: PerkId) => {
+    const perk = getPerk(id);
+    const next = read();
+    const cur = next.perks[id] ?? 0;
+    if (cur >= perk.maxLevel) return false;
+    if (next.crystals < perk.pricePerLevel) return false;
+    next.crystals -= perk.pricePerLevel;
+    next.perks = { ...next.perks, [id]: cur + 1 };
+    write(next);
+    return true;
+  }, []);
+
   const buy = useCallback((id: string) => {
     const item = getItem(id);
     if (!item) return false;
@@ -132,7 +213,7 @@ export function useInventory() {
 
   const reset = useCallback(() => write(initial), []);
 
-  return { ...store, addCoins, buy, equip, reset };
+  return { ...store, addCoins, addCrystals, buy, buyPerk, equip, reset };
 }
 
 export function resolveColor(raw: string, teamColor: string): string {
