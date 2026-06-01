@@ -253,6 +253,13 @@ function MatchPage() {
     const butterflies = team === "Бабочки"; // 15% invert outcome
     const shotMeta = ZONES.find((z) => z.id === shot)!;
     const frostForceOff = reindeerFrostArmed.current; // Олени: после твоего гола
+    // ---- OPPONENT shooter abilities ----
+    const oppDragons = oppTeam === "Драконы";
+    const oppCondors = oppTeam === "Кондоры" && shotMeta.row === 0;
+    const oppCondorHit = oppCondors && Math.random() < 0.4;
+    const oppFoxHit = oppFoxFintArmed.current && Math.random() < 0.5;
+    const oppIguanaHit = oppIguanaArmed.current && Math.random() < 0.5;
+    const oppKeeperBypass = oppCondorHit || oppFoxHit || oppIguanaHit;
     const offChance = wolves ? 0.25 : 0.1;
     const frostHit = frostForceOff && Math.random() < 0.4;
     const offTarget = frostHit || Math.random() < offChance;
