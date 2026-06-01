@@ -1,8 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
+import { TEAMS } from "./teams";
 
 const searchSchema = z.object({ team: z.string().default("Команда") });
+
+const OPPONENT_COLOR = "#dc2626";
+
+function teamColor(name: string): string {
+  return TEAMS.find((t) => t.name === name)?.color ?? "#ccff00";
+}
 
 export const Route = createFileRoute("/match")({
   validateSearch: searchSchema,
@@ -98,7 +105,7 @@ function MatchPage() {
     const scored = shot !== playerKeeper;
     setLast({ shooter: "opponent", shot, keeper: playerKeeper, scored });
     setPhase("result");
-    setOppScore((s) => (scored ? s + 1 : s - 1));
+    if (scored) setOppScore((s) => s + 1);
     window.setTimeout(() => setAnimating(false), 700);
   }
 
@@ -113,7 +120,7 @@ function MatchPage() {
     const scored = playerShot !== keeper;
     setLast({ shooter: "player", shot: playerShot, keeper, scored });
     setPhase("result");
-    setPlayerScore((s) => (scored ? s + 1 : s - 1));
+    if (scored) setPlayerScore((s) => s + 1);
     window.setTimeout(() => setAnimating(false), 700);
   }
 
@@ -193,7 +200,12 @@ function MatchPage() {
         </h2>
 
         {/* Goal scene */}
-        <GoalScene phase={phase} last={last} />
+        <GoalScene
+          phase={phase}
+          last={last}
+          playerColor={teamColor(team)}
+          oppColor={OPPONENT_COLOR}
+        />
 
         {/* Zone controls */}
         {(phase === "opponent" || phase === "player") && (
@@ -275,10 +287,10 @@ function ZonePad({
             type="button"
             disabled={disabled}
             onClick={() => onPick(z.id)}
-            className="rounded-xl px-2 py-4 text-2xl font-black text-black transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50"
+            className="rounded-lg px-2 py-2 text-base font-black text-black transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50"
             style={{
               backgroundColor: "#ccff00",
-              boxShadow: "0 5px 0 rgb(132,163,0)",
+              boxShadow: "0 3px 0 rgb(132,163,0)",
             }}
           >
             {z.label}
@@ -300,10 +312,10 @@ function ResultBlock({ last, onNext }: { last: Last; onNext: () => void }) {
         {isOpp
           ? last.scored
             ? "Соперник забил! +1 ему"
-            : "Ты отбил! −1 сопернику"
+            : "Ты отбил!"
           : last.scored
             ? "ГОЛ! +1 тебе"
-            : "Вратарь отбил! −1 тебе"}
+            : "Вратарь отбил!"}
       </p>
       <p className="text-[10px] tracking-[0.25em] text-white/70 uppercase">
         Удар: {zoneLabel(last.shot)} · Вратарь: {zoneLabel(last.keeper)}
@@ -384,6 +396,57 @@ function zoneLabel(z: Zone) {
   return map[z];
 }
 
+function PlayerFigure({
+  color,
+  pose,
+  size = 44,
+}: {
+  color: string;
+  pose: "striker" | "keeper";
+  size?: number;
+}) {
+  const isKeeper = pose === "keeper";
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 64"
+      style={{ filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.45))" }}
+    >
+      {/* head */}
+      <circle cx="24" cy="10" r="7" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+      {/* jersey / body */}
+      <path
+        d={
+          isKeeper
+            ? // arms outstretched
+              "M4 26 L14 20 L20 24 L28 24 L34 20 L44 26 L40 32 L32 30 L32 46 L16 46 L16 30 L8 32 Z"
+            : // running striker, one arm forward
+              "M14 22 L20 19 L28 22 L34 19 L38 25 L32 28 L30 32 L30 46 L18 46 L18 30 Z"
+        }
+        fill={color}
+        stroke="#000"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      {/* shorts */}
+      <rect x="16" y="46" width="16" height="8" fill="#111" stroke="#000" strokeWidth="1.5" />
+      {/* legs */}
+      {isKeeper ? (
+        <>
+          <rect x="17" y="54" width="6" height="9" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+          <rect x="25" y="54" width="6" height="9" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+        </>
+      ) : (
+        <>
+          <path d="M17 54 L19 63 L24 63 L24 54 Z" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+          <path d="M28 54 L34 60 L31 63 L25 57 Z" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 /** Convert zone to percentage coordinates within the goal frame */
 function zoneCoords(z: Zone): { left: string; top: string } {
   const meta = ZONES.find((x) => x.id === z)!;
@@ -392,7 +455,17 @@ function zoneCoords(z: Zone): { left: string; top: string } {
   return { left, top };
 }
 
-function GoalScene({ phase, last }: { phase: Phase; last: Last | null }) {
+function GoalScene({
+  phase,
+  last,
+  playerColor,
+  oppColor,
+}: {
+  phase: Phase;
+  last: Last | null;
+  playerColor: string;
+  oppColor: string;
+}) {
   // Animation: ball travels from striker spot to its zone after picking
   const [tick, setTick] = useState(0);
   useEffect(() => {
@@ -406,6 +479,17 @@ function GoalScene({ phase, last }: { phase: Phase; last: Last | null }) {
     : { left: "50%", top: "65%" };
 
   const strikerIsPlayer = last?.shooter === "player";
+  // During action phases, striker color matches the active shooter
+  const activeShooter: Shooter =
+    phase === "player"
+      ? "player"
+      : phase === "opponent"
+        ? "opponent"
+        : (last?.shooter ?? "opponent");
+  const strikerColor =
+    activeShooter === "player" ? playerColor : oppColor;
+  // Keeper is the OTHER team
+  const keeperColor = activeShooter === "player" ? oppColor : playerColor;
 
   return (
     <div className="relative w-full max-w-md">
@@ -425,14 +509,10 @@ function GoalScene({ phase, last }: { phase: Phase; last: Last | null }) {
         {/* Keeper */}
         <div
           key={`keeper-${tick}`}
-          className="absolute -translate-x-1/2 -translate-y-1/2 text-4xl transition-all duration-500 ease-out"
-          style={{
-            left: keeperPos.left,
-            top: keeperPos.top,
-            filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))",
-          }}
+          className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
+          style={{ left: keeperPos.left, top: keeperPos.top }}
         >
-          🧤
+          <PlayerFigure color={keeperColor} pose="keeper" size={46} />
         </div>
 
         {/* Ball */}
@@ -467,28 +547,12 @@ function GoalScene({ phase, last }: { phase: Phase; last: Last | null }) {
       </div>
 
       {/* Striker outside the goal */}
-      <div className="mt-2 flex items-end justify-between px-2">
-        <span
-          className="text-4xl"
-          style={{ filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))" }}
-        >
-          {strikerIsPlayer || phase === "player" ? "🏃" : "🦹"}
+      <div className="mt-2 flex items-center justify-between px-2">
+        <PlayerFigure color={strikerColor} pose="striker" size={44} />
+        <span className="text-[10px] tracking-[0.25em] text-white/70 uppercase">
+          {activeShooter === "player" ? "Бьёшь ты" : "Бьёт соперник"}
         </span>
-        <span className="text-xs tracking-[0.2em] text-white/70 uppercase">
-          {phase === "player"
-            ? "Бьёшь ты"
-            : phase === "opponent"
-              ? "Бьёт соперник"
-              : last?.shooter === "player"
-                ? "Бьёшь ты"
-                : "Бьёт соперник"}
-        </span>
-        <span
-          className="text-4xl"
-          style={{ filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))" }}
-        >
-          {phase === "player" ? "🥅" : "🥅"}
-        </span>
+        <div className="h-10 w-10" />
       </div>
 
       <style>{`
