@@ -474,8 +474,8 @@ function ResultBlock({ last, onNext, locked }: { last: Last; onNext: () => void;
   useEffect(() => {
     setSuspense(true);
     setHypeIdx(0);
-    const rot = window.setInterval(() => setHypeIdx((i) => (i + 1) % HYPE.length), 700);
-    const end = window.setTimeout(() => setSuspense(false), 3000);
+    const rot = window.setInterval(() => setHypeIdx((i) => (i + 1) % HYPE.length), 500);
+    const end = window.setTimeout(() => setSuspense(false), 2000);
     return () => {
       window.clearInterval(rot);
       window.clearTimeout(end);
