@@ -1944,6 +1944,7 @@ function GoalScene({
   oppColor,
   gear,
   sponsor,
+  onPickShot,
 }: {
   phase: Phase;
   last: Last | null;
@@ -1951,6 +1952,7 @@ function GoalScene({
   oppColor: string;
   gear: Gear;
   sponsor: Sponsor;
+  onPickShot?: (z: Zone) => void;
 }) {
   // Animation: ball travels from striker spot to its zone after picking
   const [tick, setTick] = useState(0);
