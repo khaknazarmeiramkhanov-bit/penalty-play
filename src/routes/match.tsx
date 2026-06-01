@@ -2136,7 +2136,7 @@ function GoalScene({
                 type="button"
                 onClick={() => onPickShot(z.id)}
                 aria-label={`Бей в зону ${z.label}`}
-                className="cursor-crosshair bg-transparent transition-colors duration-150 hover:bg-[#ccff00]/15"
+                className="cursor-crosshair bg-transparent"
               />
             ))}
           </div>
