@@ -124,9 +124,7 @@ function MatchPage() {
     if (phase !== "opponent") return;
     const lionsDumb = team === "Львы";
     const smart = !lionsDumb && Math.random() < 0.7;
-    pendingOppShot.current = smart
-      ? leastUsed(playerGuessHistory.current)
-      : randomZone();
+    pendingOppShot.current = smart ? leastUsed(playerGuessHistory.current) : randomZone();
   }, [phase, team, round]);
 
   const oppHint = useMemo(() => {
@@ -153,8 +151,8 @@ function MatchPage() {
     playerGuessHistory.current = [...playerGuessHistory.current, playerKeeper];
 
     // ABILITIES affecting opponent shot:
-    const wolves = team === "Волки";       // opp off-target chance up to 25%
-    const tigers = team === "Тигры";       // 20% auto-save
+    const wolves = team === "Волки"; // opp off-target chance up to 25%
+    const tigers = team === "Тигры"; // 20% auto-save
     const offChance = wolves ? 0.25 : 0.1;
     const offTarget = Math.random() < offChance;
     const autoSave = tigers && Math.random() < 0.2;
@@ -184,10 +182,10 @@ function MatchPage() {
     if (animating) return;
     setAnimating(true);
     // ABILITIES affecting player shot:
-    const bulls = team === "Быки";       // weaker keeper guess
-    const cobras = team === "Кобры";     // 20% keeper jumps wrong
-    const dragons = team === "Драконы";  // never off-target
-    const sharks = team === "Акулы";     // 20% score-through
+    const bulls = team === "Быки"; // weaker keeper guess
+    const cobras = team === "Кобры"; // 20% keeper jumps wrong
+    const dragons = team === "Драконы"; // never off-target
+    const sharks = team === "Акулы"; // 20% score-through
 
     const smartChance = bulls ? 0.3 : 0.7;
     const smart = Math.random() < smartChance;
@@ -227,8 +225,7 @@ function MatchPage() {
     }
     // Round completed
     const completed = round;
-    const playerWinsOutright =
-      completed >= MIN_ROUNDS && playerScore !== oppScore;
+    const playerWinsOutright = completed >= MIN_ROUNDS && playerScore !== oppScore;
     const reachedSuddenTarget =
       completed >= MIN_ROUNDS &&
       (playerScore >= SUDDEN_TARGET || oppScore >= SUDDEN_TARGET) &&
@@ -323,15 +320,9 @@ function MatchPage() {
           className="relative z-20 flex w-full flex-col items-center gap-1 rounded-lg bg-black/40 px-3 py-2 text-center"
           style={{ border: `2px solid ${teamColor(team)}` }}
         >
-          <span className="text-[10px] tracking-[0.25em] text-white/60 uppercase">
-            Способность
-          </span>
-          <span className="text-sm font-black tracking-wider text-white uppercase">
-            {ability}
-          </span>
-          <span className="text-[10px] font-medium text-white/70">
-            {abilityDesc}
-          </span>
+          <span className="text-[10px] tracking-[0.25em] text-white/60 uppercase">Способность</span>
+          <span className="text-sm font-black tracking-wider text-white uppercase">{ability}</span>
+          <span className="text-[10px] font-medium text-white/70">{abilityDesc}</span>
           {oppHint && (
             <span
               className="mt-1 rounded px-2 py-0.5 text-[11px] font-black uppercase text-black"
@@ -362,25 +353,16 @@ function MatchPage() {
         {/* Zone controls */}
         {(phase === "opponent" || phase === "player") && (
           <ZonePad
-            onPick={(z) =>
-              phase === "opponent" ? handleOpponentShot(z) : handlePlayerShot(z)
-            }
+            onPick={(z) => (phase === "opponent" ? handleOpponentShot(z) : handlePlayerShot(z))}
             disabled={animating}
             actionLabel={phase === "opponent" ? "Защищай" : "Бей"}
           />
         )}
 
-        {phase === "result" && last && (
-          <ResultBlock last={last} onNext={next} />
-        )}
+        {phase === "result" && last && <ResultBlock last={last} onNext={next} />}
 
         {phase === "over" && (
-          <OverBlock
-            team={team}
-            playerScore={playerScore}
-            oppScore={oppScore}
-            onReset={reset}
-          />
+          <OverBlock team={team} playerScore={playerScore} oppScore={oppScore} onReset={reset} />
         )}
 
         <Link
@@ -394,20 +376,10 @@ function MatchPage() {
   );
 }
 
-function ScorePane({
-  label,
-  name,
-  score,
-}: {
-  label: string;
-  name: string;
-  score: number;
-}) {
+function ScorePane({ label, name, score }: { label: string; name: string; score: number }) {
   return (
     <div className="flex flex-1 flex-col items-center">
-      <span className="text-[10px] tracking-[0.2em] text-white/60 uppercase">
-        {label}
-      </span>
+      <span className="text-[10px] tracking-[0.2em] text-white/60 uppercase">{label}</span>
       <span className="max-w-[110px] truncate text-sm font-black tracking-wider uppercase">
         {name}
       </span>
@@ -554,13 +526,7 @@ function zoneLabel(z: Zone) {
 
 const SKIN_TONES = ["#f5d6b1", "#e0b48a", "#c98e62", "#8b5a3c", "#5a3a26"];
 
-function Crowd({
-  playerColor,
-  oppColor,
-}: {
-  playerColor: string;
-  oppColor: string;
-}) {
+function Crowd({ playerColor, oppColor }: { playerColor: string; oppColor: string }) {
   // Three rows of seats, getting smaller toward the back for depth
   const rows = [
     { count: 30, size: 10, opacity: 0.7, yOffset: 0 },
@@ -573,8 +539,7 @@ function Crowd({
       aria-hidden
       style={{
         height: 96,
-        background:
-          "linear-gradient(180deg, #0a0a0a 0%, #1f1f1f 60%, #2a2a2a 100%)",
+        background: "linear-gradient(180deg, #0a0a0a 0%, #1f1f1f 60%, #2a2a2a 100%)",
         boxShadow: "inset 0 -6px 12px rgba(0,0,0,0.5)",
       }}
     >
@@ -640,13 +605,45 @@ function Fan({
         {/* arms */}
         {armsUp ? (
           <>
-            <line x1="3" y1="14" x2="1" y2="6" stroke={skin} strokeWidth="2" strokeLinecap="round" />
-            <line x1="13" y1="14" x2="15" y2="6" stroke={skin} strokeWidth="2" strokeLinecap="round" />
+            <line
+              x1="3"
+              y1="14"
+              x2="1"
+              y2="6"
+              stroke={skin}
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <line
+              x1="13"
+              y1="14"
+              x2="15"
+              y2="6"
+              stroke={skin}
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           </>
         ) : (
           <>
-            <line x1="3" y1="14" x2="2" y2="20" stroke={skin} strokeWidth="2" strokeLinecap="round" />
-            <line x1="13" y1="14" x2="14" y2="20" stroke={skin} strokeWidth="2" strokeLinecap="round" />
+            <line
+              x1="3"
+              y1="14"
+              x2="2"
+              y2="20"
+              stroke={skin}
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <line
+              x1="13"
+              y1="14"
+              x2="14"
+              y2="20"
+              stroke={skin}
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           </>
         )}
         {/* body (jersey) */}
@@ -740,10 +737,7 @@ function PlayerFigure({
 
       {/* === HEAD === */}
       {/* Hair back layer */}
-      <path
-        d="M32 18 Q32 7 45 7 Q58 7 58 18 L58 24 L32 24 Z"
-        fill={hair}
-      />
+      <path d="M32 18 Q32 7 45 7 Q58 7 58 18 L58 24 L32 24 Z" fill={hair} />
       {/* Face */}
       <path
         d="M34 18 Q34 11 45 11 Q56 11 56 18 L56 26 Q56 33 45 33 Q34 33 34 26 Z"
@@ -752,10 +746,7 @@ function PlayerFigure({
       {/* Jaw shade */}
       <path d="M37 28 Q45 32 53 28 L53 30 Q45 33.5 37 30 Z" fill={skinShade} opacity="0.5" />
       {/* Hair fringe over forehead */}
-      <path
-        d="M33 18 Q40 12 47 16 Q52 14 57 18 L56 21 Q50 18 46 20 Q40 17 34 22 Z"
-        fill={hair}
-      />
+      <path d="M33 18 Q40 12 47 16 Q52 14 57 18 L56 21 Q50 18 46 20 Q40 17 34 22 Z" fill={hair} />
       {/* Ears */}
       <ellipse cx="33.5" cy="22" rx="1.4" ry="2.4" fill={skinShade} />
       <ellipse cx="56.5" cy="22" rx="1.4" ry="2.4" fill={skinShade} />
@@ -771,11 +762,31 @@ function PlayerFigure({
       <circle cx="49" cy="24" r="0.9" fill="#1a1208" />
       {/* Mouth */}
       {emotion === "happy" ? (
-        <path d="M41 29 Q45 32 49 29" stroke="#1a1208" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+        <path
+          d="M41 29 Q45 32 49 29"
+          stroke="#1a1208"
+          strokeWidth="1.2"
+          fill="none"
+          strokeLinecap="round"
+        />
       ) : emotion === "sad" ? (
-        <path d="M41 30 Q45 28 49 30" stroke="#1a1208" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+        <path
+          d="M41 30 Q45 28 49 30"
+          stroke="#1a1208"
+          strokeWidth="1.2"
+          fill="none"
+          strokeLinecap="round"
+        />
       ) : (
-        <line x1="42" y1="29.5" x2="48" y2="29.5" stroke="#1a1208" strokeWidth="1.2" strokeLinecap="round" />
+        <line
+          x1="42"
+          y1="29.5"
+          x2="48"
+          y2="29.5"
+          stroke="#1a1208"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+        />
       )}
 
       {/* === NECK === */}
@@ -813,29 +824,102 @@ function PlayerFigure({
       {isKeeper ? (
         <>
           {/* LEFT arm — shoulder (28,46) → wrist (16,52) */}
-          <path d="M28 44 L30 48 L18 56 L14 52 Z" fill={`url(#${jerseyId})`} stroke="#0a0a0a" strokeWidth="0.4" />
+          <path
+            d="M28 44 L30 48 L18 56 L14 52 Z"
+            fill={`url(#${jerseyId})`}
+            stroke="#0a0a0a"
+            strokeWidth="0.4"
+          />
           {/* Forearm skin between sleeve and glove cuff */}
-          <path d="M18 54 L20 58 L16 60 L14 56 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          <path
+            d="M18 54 L20 58 L16 60 L14 56 Z"
+            fill={`url(#${skinId})`}
+            stroke="#1a1208"
+            strokeWidth="0.4"
+          />
           {/* Wristband */}
-          <rect x="13" y="55" width="7" height="3" rx="1" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.4" transform="rotate(-25 16 56)" />
-          {/* LEFT GLOVE — big, anchored at (16,62), entirely inside viewBox */}
-          <g transform="translate(16 62)">
+          <rect
+            x="13"
+            y="55"
+            width="7"
+            height="3"
+            rx="1"
+            fill={resolvedBand}
+            stroke="#0a0a0a"
+            strokeWidth="0.4"
+            transform="rotate(-25 16 56)"
+          />
+          {/* LEFT GLOVE — compact realistic keeper glove, under 50% of the old size */}
+          <g transform="translate(16 62) scale(0.48)">
             {/* Palm */}
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
-              fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.8"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.8"
             />
             {/* Thumb */}
-            <path d="M-10 -2 Q-14 -10 -8 -14 Q-3 -14 -3 -8 Z"
-              fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.7" />
+            <path
+              d="M-10 -2 Q-14 -10 -8 -14 Q-3 -14 -3 -8 Z"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.7"
+            />
             {/* 4 Fingers */}
-            <rect x="-5" y="-23" width="3.4" height="13" rx="1.6" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.7" />
-            <rect x="-1" y="-26" width="3.4" height="16" rx="1.6" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.7" />
-            <rect x="3" y="-24" width="3.4" height="14" rx="1.6" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.7" />
-            <rect x="7" y="-20" width="3.4" height="10" rx="1.6" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.7" />
+            <rect
+              x="-5"
+              y="-23"
+              width="3.4"
+              height="13"
+              rx="1.6"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.7"
+            />
+            <rect
+              x="-1"
+              y="-26"
+              width="3.4"
+              height="16"
+              rx="1.6"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.7"
+            />
+            <rect
+              x="3"
+              y="-24"
+              width="3.4"
+              height="14"
+              rx="1.6"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.7"
+            />
+            <rect
+              x="7"
+              y="-20"
+              width="3.4"
+              height="10"
+              rx="1.6"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.7"
+            />
             {/* Brand stripes */}
-            <path d="M-8 0 L11 0" stroke={gear.gloveAccent} strokeWidth="1.6" strokeLinecap="round" />
-            <path d="M-7 4 Q2 5 10 4" stroke={gear.gloveAccent} strokeWidth="1.1" fill="none" strokeLinecap="round" />
+            <path
+              d="M-8 0 L11 0"
+              stroke={gear.gloveAccent}
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+            <path
+              d="M-7 4 Q2 5 10 4"
+              stroke={gear.gloveAccent}
+              strokeWidth="1.1"
+              fill="none"
+              strokeLinecap="round"
+            />
             {/* Grip dots */}
             <circle cx="-5" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
             <circle cx="-1" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
@@ -847,23 +931,96 @@ function PlayerFigure({
           </g>
 
           {/* RIGHT arm — shoulder (62,46) → wrist (74,52), mirrored */}
-          <path d="M62 44 L60 48 L72 56 L76 52 Z" fill={`url(#${jerseyId})`} stroke="#0a0a0a" strokeWidth="0.4" />
-          <path d="M72 54 L70 58 L74 60 L76 56 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
-          <rect x="70" y="55" width="7" height="3" rx="1" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.4" transform="rotate(25 74 56)" />
-          {/* RIGHT GLOVE — anchored at (74,62), mirrored */}
-          <g transform="translate(74 62) scale(-1 1)">
+          <path
+            d="M62 44 L60 48 L72 56 L76 52 Z"
+            fill={`url(#${jerseyId})`}
+            stroke="#0a0a0a"
+            strokeWidth="0.4"
+          />
+          <path
+            d="M72 54 L70 58 L74 60 L76 56 Z"
+            fill={`url(#${skinId})`}
+            stroke="#1a1208"
+            strokeWidth="0.4"
+          />
+          <rect
+            x="70"
+            y="55"
+            width="7"
+            height="3"
+            rx="1"
+            fill={resolvedBand}
+            stroke="#0a0a0a"
+            strokeWidth="0.4"
+            transform="rotate(25 74 56)"
+          />
+          {/* RIGHT GLOVE — compact mirrored keeper glove, under 50% of the old size */}
+          <g transform="translate(74 62) scale(-0.48 0.48)">
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
-              fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.8"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.8"
             />
-            <path d="M-10 -2 Q-14 -10 -8 -14 Q-3 -14 -3 -8 Z"
-              fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.7" />
-            <rect x="-5" y="-23" width="3.4" height="13" rx="1.6" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.7" />
-            <rect x="-1" y="-26" width="3.4" height="16" rx="1.6" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.7" />
-            <rect x="3" y="-24" width="3.4" height="14" rx="1.6" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.7" />
-            <rect x="7" y="-20" width="3.4" height="10" rx="1.6" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.7" />
-            <path d="M-8 0 L11 0" stroke={gear.gloveAccent} strokeWidth="1.6" strokeLinecap="round" />
-            <path d="M-7 4 Q2 5 10 4" stroke={gear.gloveAccent} strokeWidth="1.1" fill="none" strokeLinecap="round" />
+            <path
+              d="M-10 -2 Q-14 -10 -8 -14 Q-3 -14 -3 -8 Z"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.7"
+            />
+            <rect
+              x="-5"
+              y="-23"
+              width="3.4"
+              height="13"
+              rx="1.6"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.7"
+            />
+            <rect
+              x="-1"
+              y="-26"
+              width="3.4"
+              height="16"
+              rx="1.6"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.7"
+            />
+            <rect
+              x="3"
+              y="-24"
+              width="3.4"
+              height="14"
+              rx="1.6"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.7"
+            />
+            <rect
+              x="7"
+              y="-20"
+              width="3.4"
+              height="10"
+              rx="1.6"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.7"
+            />
+            <path
+              d="M-8 0 L11 0"
+              stroke={gear.gloveAccent}
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+            <path
+              d="M-7 4 Q2 5 10 4"
+              stroke={gear.gloveAccent}
+              strokeWidth="1.1"
+              fill="none"
+              strokeLinecap="round"
+            />
             <circle cx="-5" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
             <circle cx="-1" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
             <circle cx="3" cy="2" r="0.7" fill="#0a0a0a" opacity="0.6" />
@@ -878,38 +1035,119 @@ function PlayerFigure({
           {/* Upper arm (jersey) */}
           <path d="M26 46 L18 60 L22 64 L30 50 Z" fill={`url(#${jerseyId})`} />
           {/* Forearm (skin) */}
-          <path d="M18 60 L8 74 L12 78 L22 64 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          <path
+            d="M18 60 L8 74 L12 78 L22 64 Z"
+            fill={`url(#${skinId})`}
+            stroke="#1a1208"
+            strokeWidth="0.4"
+          />
           {/* Wrist band */}
-          <rect x="9" y="73" width="6" height="2.5" fill={resolvedBand} transform="rotate(55 12 74)" />
+          <rect
+            x="9"
+            y="73"
+            width="6"
+            height="2.5"
+            fill={resolvedBand}
+            transform="rotate(55 12 74)"
+          />
           {/* Hand */}
-          <ellipse cx="9" cy="78" rx="3.4" ry="3.8" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          <ellipse
+            cx="9"
+            cy="78"
+            rx="3.4"
+            ry="3.8"
+            fill={`url(#${skinId})`}
+            stroke="#1a1208"
+            strokeWidth="0.4"
+          />
 
           {/* RIGHT arm — forward swing */}
           <path d="M64 46 L72 60 L68 64 L60 50 Z" fill={`url(#${jerseyId})`} />
-          <path d="M72 60 L82 74 L78 78 L68 64 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
-          <rect x="75" y="73" width="6" height="2.5" fill={resolvedBand} transform="rotate(-55 78 74)" />
-          <ellipse cx="81" cy="78" rx="3.4" ry="3.8" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          <path
+            d="M72 60 L82 74 L78 78 L68 64 Z"
+            fill={`url(#${skinId})`}
+            stroke="#1a1208"
+            strokeWidth="0.4"
+          />
+          <rect
+            x="75"
+            y="73"
+            width="6"
+            height="2.5"
+            fill={resolvedBand}
+            transform="rotate(-55 78 74)"
+          />
+          <ellipse
+            cx="81"
+            cy="78"
+            rx="3.4"
+            ry="3.8"
+            fill={`url(#${skinId})`}
+            stroke="#1a1208"
+            strokeWidth="0.4"
+          />
         </>
       ) : (
         <>
           {/* IDLE arms — hanging at sides */}
           <path d="M26 46 L22 70 L28 72 L32 48 Z" fill={`url(#${jerseyId})`} />
-          <path d="M22 70 L20 86 L26 88 L28 72 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
-          <rect x="20" y="83" width="6" height="3" rx="1" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.3" />
-          <ellipse cx="23" cy="90" rx="3.2" ry="3.6" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          <path
+            d="M22 70 L20 86 L26 88 L28 72 Z"
+            fill={`url(#${skinId})`}
+            stroke="#1a1208"
+            strokeWidth="0.4"
+          />
+          <rect
+            x="20"
+            y="83"
+            width="6"
+            height="3"
+            rx="1"
+            fill={resolvedBand}
+            stroke="#0a0a0a"
+            strokeWidth="0.3"
+          />
+          <ellipse
+            cx="23"
+            cy="90"
+            rx="3.2"
+            ry="3.6"
+            fill={`url(#${skinId})`}
+            stroke="#1a1208"
+            strokeWidth="0.4"
+          />
 
           <path d="M64 46 L68 70 L62 72 L58 48 Z" fill={`url(#${jerseyId})`} />
-          <path d="M68 70 L70 86 L64 88 L62 72 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
-          <rect x="64" y="83" width="6" height="3" rx="1" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.3" />
-          <ellipse cx="67" cy="90" rx="3.2" ry="3.6" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          <path
+            d="M68 70 L70 86 L64 88 L62 72 Z"
+            fill={`url(#${skinId})`}
+            stroke="#1a1208"
+            strokeWidth="0.4"
+          />
+          <rect
+            x="64"
+            y="83"
+            width="6"
+            height="3"
+            rx="1"
+            fill={resolvedBand}
+            stroke="#0a0a0a"
+            strokeWidth="0.3"
+          />
+          <ellipse
+            cx="67"
+            cy="90"
+            rx="3.2"
+            ry="3.6"
+            fill={`url(#${skinId})`}
+            stroke="#1a1208"
+            strokeWidth="0.4"
+          />
         </>
       )}
 
       {/* === SHORTS === */}
-      <path
-        d="M34 82 L56 82 L58 100 L48 100 L46 88 L44 88 L42 100 L32 100 Z"
-        fill="#111114"
-      />
+      <path d="M34 82 L56 82 L58 100 L48 100 L46 88 L44 88 L42 100 L32 100 Z" fill="#111114" />
       {/* Shorts highlight */}
       <path d="M34 83 L56 83 L57 86 L34 86 Z" fill={color} opacity="0.85" />
       <path d="M44 88 L46 88 L46 100 L44 100 Z" fill="#000" opacity="0.4" />
@@ -938,7 +1176,14 @@ function PlayerFigure({
           <path d="M46 100 L62 110 L60 116 L44 106 Z" fill={sockDark} />
           {/* Sock bands */}
           <rect x="35" y="112" width="9" height="2.5" fill={sockAccent} />
-          <rect x="50" y="105" width="9" height="2.5" fill={sockAccent} transform="rotate(30 54 106)" />
+          <rect
+            x="50"
+            y="105"
+            width="9"
+            height="2.5"
+            fill={sockAccent}
+            transform="rotate(30 54 106)"
+          />
           {/* Planted cleat */}
           <path d="M30 118 Q34 116 44 118 L44 122 Q37 124 30 122 Z" fill={cleat} />
           <rect x="30" y="121" width="14" height="1.5" fill={cleatAccent} />
@@ -1024,9 +1269,7 @@ function GoalScene({
 
   const showAction = phase === "result" && last;
   const ballPos = showAction ? zoneCoords(last!.shot) : null;
-  const keeperPos = showAction
-    ? zoneCoords(last!.keeper)
-    : { left: "50%", top: "65%" };
+  const keeperPos = showAction ? zoneCoords(last!.keeper) : { left: "50%", top: "65%" };
 
   const strikerIsPlayer = last?.shooter === "player";
   // During action phases, striker color matches the active shooter
@@ -1036,8 +1279,7 @@ function GoalScene({
       : phase === "opponent"
         ? "opponent"
         : (last?.shooter ?? "opponent");
-  const strikerColor =
-    activeShooter === "player" ? playerColor : oppColor;
+  const strikerColor = activeShooter === "player" ? playerColor : oppColor;
   // Keeper is the OTHER team
   const keeperColor = activeShooter === "player" ? oppColor : playerColor;
 
@@ -1187,8 +1429,7 @@ function PitchLines() {
       preserveAspectRatio="none"
       className="absolute inset-0 h-full w-full"
       style={{
-        background:
-          "linear-gradient(180deg, #0e6a30 0%, #0d5c2a 60%, #0a4a22 100%)",
+        background: "linear-gradient(180deg, #0e6a30 0%, #0d5c2a 60%, #0a4a22 100%)",
       }}
     >
       {/* Mowed stripes */}
