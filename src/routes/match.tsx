@@ -676,24 +676,33 @@ function PlayerFigure({
   size = 44,
   emotion = "neutral",
   kicking = false,
+  gear = DEFAULT_GEAR,
 }: {
   color: string;
   pose: "striker" | "keeper";
   size?: number;
   emotion?: "neutral" | "happy" | "sad";
   kicking?: boolean;
+  gear?: Gear;
 }) {
   const isKeeper = pose === "keeper";
   // Modern flat-vector style — clean silhouette, no creepy face.
   const skin = "#e8b894";
   const skinShade = "#b9805c";
   const hair = "#1a1208";
-  const sockDark = "#0c0c10";
-  const cleat = "#0a0a0a";
+  const sockDark = gear.sockColor;
+  const sockAccent = gear.sockAccent;
+  const cleat = gear.bootColor;
+  const cleatAccent = gear.bootAccent;
+  const bandColor = gear.bandColor;
   const accent = "#ffffff";
   const safeId = color.replace(/[^a-zA-Z0-9]/g, "");
   const jerseyId = `jersey-${pose}-${safeId}`;
   const skinId = `skin-${pose}-${safeId}`;
+  const gloveGradId = `glove-grad-${pose}-${safeId}`;
+  const rainbowId = `rainbow-${pose}-${safeId}`;
+  const usesRainbowBand = bandColor.includes("rainbowGrad");
+  const resolvedBand = usesRainbowBand ? `url(#${rainbowId})` : bandColor;
   const browTilt = emotion === "sad" ? -10 : emotion === "happy" ? 8 : 0;
 
   return (
@@ -711,6 +720,17 @@ function PlayerFigure({
         <linearGradient id={skinId} x1="50%" y1="0%" x2="50%" y2="100%">
           <stop offset="0%" stopColor={skin} />
           <stop offset="100%" stopColor={skinShade} />
+        </linearGradient>
+        <linearGradient id={gloveGradId} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={gear.gloveColor} />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.55" />
+        </linearGradient>
+        <linearGradient id={rainbowId} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#ef4444" />
+          <stop offset="0.25" stopColor="#facc15" />
+          <stop offset="0.5" stopColor="#22c55e" />
+          <stop offset="0.75" stopColor="#3b82f6" />
+          <stop offset="1" stopColor="#a855f7" />
         </linearGradient>
       </defs>
 
