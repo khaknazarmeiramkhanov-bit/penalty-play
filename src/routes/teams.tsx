@@ -18,7 +18,7 @@ export const Route = createFileRoute("/teams")({
 });
 
 export const TEAMS = [
-  { name: "Акулы", emoji: "🦈", color: "#1e90ff", country: "Австралия", flag: "🇦🇺",
+  { name: "Акулы", emoji: "🦈", color: "#1e90ff", country: "Казахстан", flag: "🇰🇿",
     ability: "Хищный удар", abilityDesc: "+20% шанс гола даже если вратарь угадал" },
   { name: "Короли", emoji: "👑", color: "#ffd700", country: "Англия", flag: "🇬🇧",
     ability: "Корона", abilityDesc: "Первый гол соперника отменяется" },
