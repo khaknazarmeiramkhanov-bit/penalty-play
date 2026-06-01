@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ITEMS, useInventory, type ItemKind, type ShopItem } from "@/lib/shop";
+import { ITEMS, PERKS, useInventory, type ItemKind, type Perk, type ShopItem } from "@/lib/shop";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
@@ -53,12 +53,21 @@ function ShopPage() {
           >
             <span className="text-xl">🪙</span>
             <span className="text-lg">{inv.coins}</span>
+            <span className="ml-2 text-xl">💎</span>
+            <span className="text-lg">{inv.crystals}</span>
           </div>
         </div>
 
         <p className="text-center text-[11px] tracking-[0.25em] text-white/60 uppercase">
-          Зарабатывай монеты в матчах · 1 гол = +20 · сейв = +15 · победа = +100
+          🪙 гол +20 · сейв +15 · победа +100 &nbsp;·&nbsp; 💎 победа +1 · сухой матч +3
         </p>
+
+        <PerksSection
+          perks={PERKS}
+          levels={inv.perks}
+          crystals={inv.crystals}
+          onBuy={inv.buyPerk}
+        />
 
         {SECTIONS.map((s) => (
           <Section
@@ -104,9 +113,7 @@ function Section({
 }) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-xs font-black tracking-[0.3em] text-white/80 uppercase">
-        {title}
-      </h2>
+      <h2 className="text-xs font-black tracking-[0.3em] text-white/80 uppercase">{title}</h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {items.map((item) => {
           const isOwned = owned.includes(item.id);
@@ -160,10 +167,82 @@ function Section({
   );
 }
 
+function PerksSection({
+  perks,
+  levels,
+  crystals,
+  onBuy,
+}: {
+  perks: Perk[];
+  levels: Record<string, number>;
+  crystals: number;
+  onBuy: (id: Perk["id"]) => void;
+}) {
+  return (
+    <section className="flex flex-col gap-3">
+      <h2 className="flex items-center gap-2 text-xs font-black tracking-[0.3em] text-white/80 uppercase">
+        <span>💎</span> Способности
+      </h2>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {perks.map((p) => {
+          const lvl = levels[p.id] ?? 0;
+          const maxed = lvl >= p.maxLevel;
+          const canAfford = !maxed && crystals >= p.pricePerLevel;
+          return (
+            <div
+              key={p.id}
+              className="flex flex-col gap-2 rounded-xl bg-black/40 p-3 backdrop-blur-sm"
+              style={{ border: "2px solid rgba(255,255,255,0.15)" }}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{p.icon}</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-black tracking-wider text-white uppercase">
+                    {p.name}
+                  </span>
+                  <span className="text-[10px] tracking-widest text-white/60 uppercase">
+                    {p.step}
+                  </span>
+                </div>
+              </div>
+              <p className="text-xs text-white/70">{p.desc}</p>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: p.maxLevel }).map((_, i) => (
+                  <span
+                    key={i}
+                    className="h-2 flex-1 rounded-full"
+                    style={{ backgroundColor: i < lvl ? "#ccff00" : "rgba(255,255,255,0.15)" }}
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                disabled={!canAfford}
+                onClick={() => onBuy(p.id)}
+                className="flex w-full items-center justify-center gap-1 rounded-md px-3 py-2 text-xs font-black tracking-widest uppercase transition-all disabled:opacity-50"
+                style={{
+                  backgroundColor: maxed
+                    ? "rgba(204,255,0,0.25)"
+                    : canAfford
+                      ? "#ccff00"
+                      : "rgba(255,255,255,0.08)",
+                  color: maxed ? "#fff" : canAfford ? "#000" : "#fff",
+                }}
+              >
+                {maxed ? "Максимум" : `💎 ${p.pricePerLevel} · ур. ${lvl + 1}/${p.maxLevel}`}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function Preview({ item }: { item: ShopItem }) {
   const color =
     item.color === "TEAM" ? "#ccff00" : item.color === "RAINBOW" ? "url(#rg)" : item.color;
-  const accent = item.accent === "TEAM" ? "#ccff00" : item.accent ?? "#fff";
+  const accent = item.accent === "TEAM" ? "#ccff00" : (item.accent ?? "#fff");
   return (
     <div className="flex h-16 w-full items-center justify-center rounded-md bg-black/30">
       <svg viewBox="0 0 60 40" width="60" height="40">
@@ -184,10 +263,46 @@ function Preview({ item }: { item: ShopItem }) {
               stroke="#0a0a0a"
               strokeWidth="1"
             />
-            <rect x="18" y="6" width="3" height="14" rx="1.5" fill={color} stroke="#0a0a0a" strokeWidth="0.6" />
-            <rect x="24" y="4" width="3" height="16" rx="1.5" fill={color} stroke="#0a0a0a" strokeWidth="0.6" />
-            <rect x="30" y="5" width="3" height="15" rx="1.5" fill={color} stroke="#0a0a0a" strokeWidth="0.6" />
-            <rect x="36" y="8" width="3" height="12" rx="1.5" fill={color} stroke="#0a0a0a" strokeWidth="0.6" />
+            <rect
+              x="18"
+              y="6"
+              width="3"
+              height="14"
+              rx="1.5"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="0.6"
+            />
+            <rect
+              x="24"
+              y="4"
+              width="3"
+              height="16"
+              rx="1.5"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="0.6"
+            />
+            <rect
+              x="30"
+              y="5"
+              width="3"
+              height="15"
+              rx="1.5"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="0.6"
+            />
+            <rect
+              x="36"
+              y="8"
+              width="3"
+              height="12"
+              rx="1.5"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="0.6"
+            />
             <path d="M14 28 L40 28" stroke={accent} strokeWidth="1.5" />
             <rect x="12" y="32" width="30" height="4" fill="#0a0a0a" />
             <rect x="12" y="32" width="30" height="1.5" fill={accent} />
@@ -195,7 +310,12 @@ function Preview({ item }: { item: ShopItem }) {
         )}
         {item.kind === "boot" && (
           <g>
-            <path d="M6 24 Q6 18 14 18 L34 18 Q42 18 44 22 L52 28 L52 32 Q52 34 50 34 L8 34 Q6 34 6 32 Z" fill={color} stroke="#0a0a0a" strokeWidth="1" />
+            <path
+              d="M6 24 Q6 18 14 18 L34 18 Q42 18 44 22 L52 28 L52 32 Q52 34 50 34 L8 34 Q6 34 6 32 Z"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="1"
+            />
             <path d="M6 30 L52 30" stroke={accent} strokeWidth="1.2" />
             <circle cx="14" cy="34" r="1.2" fill="#0a0a0a" />
             <circle cx="20" cy="34" r="1.2" fill="#0a0a0a" />
@@ -206,14 +326,32 @@ function Preview({ item }: { item: ShopItem }) {
         )}
         {item.kind === "wristband" && (
           <g>
-            <rect x="10" y="14" width="40" height="14" rx="3" fill={color} stroke="#0a0a0a" strokeWidth="1" />
+            <rect
+              x="10"
+              y="14"
+              width="40"
+              height="14"
+              rx="3"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="1"
+            />
             <rect x="10" y="18" width="40" height="2" fill="rgba(255,255,255,0.4)" />
             <rect x="10" y="23" width="40" height="2" fill="rgba(0,0,0,0.25)" />
           </g>
         )}
         {item.kind === "sock" && (
           <g>
-            <rect x="22" y="4" width="16" height="32" rx="3" fill={color} stroke="#0a0a0a" strokeWidth="1" />
+            <rect
+              x="22"
+              y="4"
+              width="16"
+              height="32"
+              rx="3"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="1"
+            />
             <rect x="22" y="14" width="16" height="3" fill={accent} />
             <rect x="22" y="22" width="16" height="3" fill={accent} />
           </g>

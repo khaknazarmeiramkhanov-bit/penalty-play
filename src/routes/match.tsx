@@ -242,7 +242,9 @@ function MatchPage() {
     const offTarget = frostHit || Math.random() < offChance;
     const crocSave = crocodiles && shotMeta.row === 1 && Math.random() < 0.5;
     const bearSave = bears && shotMeta.col === 1 && Math.random() < 0.5;
-    const autoSave = (tigers && Math.random() < 0.2) || crocSave || bearSave;
+    const perkSaveChance = (inv.perks.saveBoost ?? 0) * 0.05;
+    const perkSave = perkSaveChance > 0 && Math.random() < perkSaveChance;
+    const autoSave = (tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave;
     const effectiveKeeper: Zone = autoSave ? shot : playerKeeper;
     let scored = !offTarget && shot !== effectiveKeeper;
     let butterflyFlip = false;
@@ -266,7 +268,9 @@ function MatchPage() {
           ? "🐊 Засада! Хватаешь снизу"
           : bearSave
             ? "🐻 Медвежья хватка! Ловишь в центре"
-            : "🐯 Прыжок тигра! Автосейв",
+            : tigers
+              ? "🐯 Прыжок тигра! Автосейв"
+              : "🧤 Реакция вратаря! Автосейв",
       );
     } else {
       setAbilityFlash(null);
@@ -279,7 +283,7 @@ function MatchPage() {
     window.setTimeout(() => setResultLocked(false), 4000);
     if (scored) setOppScore((s) => s + 1);
     if (!scored) {
-      inv.addCoins(15); // save reward
+      inv.addCoins(15 + (inv.perks.coinBoost ?? 0) * 5); // save reward + perk
       // Игуаны: после сейва — следующий удар гарантированный гол
       if (team === "Игуаны") iguanaArmed.current = true;
     }
@@ -317,13 +321,18 @@ function MatchPage() {
     const iguanaHit = iguanaShot && Math.random() < 0.5;
     // Лисы: после промаха соперника — 50% обмануть вратаря
     const foxHit = foxFint && Math.random() < 0.5;
-    if (condorHit || iguanaHit || foxHit) {
+    // Перк "Удар по углам" — общий шанс что вратарь прыгнет не туда
+    const perkGoalChance = (inv.perks.goalBoost ?? 0) * 0.05;
+    const perkGoalHit = perkGoalChance > 0 && Math.random() < perkGoalChance;
+    if (condorHit || iguanaHit || foxHit || perkGoalHit) {
       const others = ALL_ZONES.filter((z) => z !== playerShot);
       keeper = others[Math.floor(Math.random() * others.length)];
     }
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
-    const offTarget = dragons || condorHit || iguanaHit || foxHit ? false : Math.random() < 0.1;
+    const baseOff = Math.max(0, 0.1 - (inv.perks.accuracy ?? 0) * 0.02);
+    const offTarget =
+      dragons || condorHit || iguanaHit || foxHit || perkGoalHit ? false : Math.random() < baseOff;
     let scored = !offTarget && playerShot !== keeper;
     if (
       !scored &&
@@ -363,7 +372,7 @@ function MatchPage() {
     setResultLocked(true);
     window.setTimeout(() => setResultLocked(false), 4000);
     if (scored) setPlayerScore((s) => s + 1);
-    if (scored) inv.addCoins(20); // goal reward
+    if (scored) inv.addCoins(20 + (inv.perks.coinBoost ?? 0) * 5); // goal reward + perk
     window.setTimeout(() => setAnimating(false), 700);
   }
 
@@ -388,6 +397,9 @@ function MatchPage() {
       if (!winRewarded.current && playerScore > oppScore) {
         winRewarded.current = true;
         inv.addCoins(100);
+        // Кристаллы за победу: +1 за матч, +2 если соперник не забил (сухой матч)
+        const crystals = oppScore === 0 ? 3 : 1;
+        inv.addCrystals(crystals);
       }
       return;
     }
