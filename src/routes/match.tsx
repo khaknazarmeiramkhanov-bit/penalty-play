@@ -533,136 +533,183 @@ function PlayerFigure({
   emotion?: "neutral" | "happy" | "sad";
 }) {
   const isKeeper = pose === "keeper";
-  // Derive a slightly darker shade of the team color for shading
-  const darkColor = "rgba(0,0,0,0.25)";
-  const skin = "#e8b48a";
-  const skinShade = "#c89070";
-  const hair = "#2a1810";
+  // Modern flat-vector style — clean silhouette, no creepy face.
+  const skin = "#e8b894";
+  const skinShade = "#b9805c";
+  const hair = "#1a1208";
+  const sockDark = "#0c0c10";
   const cleat = "#0a0a0a";
-  const sock = "#111";
+  const accent = "#ffffff";
+  const safeId = color.replace(/[^a-zA-Z0-9]/g, "");
+  const jerseyId = `jersey-${pose}-${safeId}`;
+  const skinId = `skin-${pose}-${safeId}`;
+  const browTilt = emotion === "sad" ? -10 : emotion === "happy" ? 8 : 0;
 
   return (
     <svg
       width={size}
-      height={(size * 120) / 80}
-      viewBox="0 0 80 120"
-      style={{ filter: "drop-shadow(0 4px 3px rgba(0,0,0,0.5))" }}
+      height={(size * 130) / 90}
+      viewBox="0 0 90 130"
+      style={{ filter: "drop-shadow(0 6px 4px rgba(0,0,0,0.45))" }}
     >
       <defs>
-        <radialGradient id={`jersey-${pose}-${color.replace('#','')}`} cx="50%" cy="35%" r="70%">
-          <stop offset="0%" stopColor={color} stopOpacity="1" />
-          <stop offset="100%" stopColor="#000" stopOpacity="0.35" />
-        </radialGradient>
-        <radialGradient id={`skin-grad`} cx="50%" cy="40%" r="60%">
+        <linearGradient id={jerseyId} x1="50%" y1="0%" x2="50%" y2="100%">
+          <stop offset="0%" stopColor={color} />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.55" />
+        </linearGradient>
+        <linearGradient id={skinId} x1="50%" y1="0%" x2="50%" y2="100%">
           <stop offset="0%" stopColor={skin} />
           <stop offset="100%" stopColor={skinShade} />
-        </radialGradient>
+        </linearGradient>
       </defs>
 
       {/* ground shadow */}
-      <ellipse cx="40" cy="116" rx="22" ry="3" fill="rgba(0,0,0,0.35)" />
+      <ellipse cx="45" cy="126" rx="24" ry="3" fill="rgba(0,0,0,0.35)" />
 
-      {/* Neck */}
-      <rect x="36" y="26" width="8" height="6" fill="url(#skin-grad)" />
-
-      {/* Head */}
-      <ellipse cx="40" cy="18" rx="9" ry="11" fill="url(#skin-grad)" stroke="#000" strokeWidth="0.8" />
-      {/* Hair */}
+      {/* === HEAD === */}
+      {/* Hair back layer */}
       <path
-        d="M31 14 Q31 6 40 6 Q49 6 49 14 Q49 11 45 10 Q42 12 40 11 Q38 12 35 10 Q31 11 31 14 Z"
+        d="M32 18 Q32 7 45 7 Q58 7 58 18 L58 24 L32 24 Z"
         fill={hair}
       />
-      {/* Ear */}
-      <ellipse cx="31" cy="18" rx="1.4" ry="2.2" fill={skinShade} />
-      <ellipse cx="49" cy="18" rx="1.4" ry="2.2" fill={skinShade} />
-      {/* Brows */}
-      <path d="M34 17 L37.5 16.5" stroke="#000" strokeWidth="1" strokeLinecap="round" />
-      <path d="M46 16.5 L42.5 17" stroke="#000" strokeWidth="1" strokeLinecap="round" />
-      {/* Eyes */}
-      <ellipse cx="36" cy="19" rx="1.3" ry="1.6" fill="#fff" stroke="#000" strokeWidth="0.4" />
-      <ellipse cx="44" cy="19" rx="1.3" ry="1.6" fill="#fff" stroke="#000" strokeWidth="0.4" />
-      <circle cx="36" cy="19.3" r="0.7" fill="#000" />
-      <circle cx="44" cy="19.3" r="0.7" fill="#000" />
-      {/* Nose */}
-      <path d="M40 19 L38.5 23 L41 23.4" stroke={skinShade} strokeWidth="0.8" fill="none" strokeLinecap="round" />
+      {/* Face */}
+      <path
+        d="M34 18 Q34 11 45 11 Q56 11 56 18 L56 26 Q56 33 45 33 Q34 33 34 26 Z"
+        fill={`url(#${skinId})`}
+      />
+      {/* Jaw shade */}
+      <path d="M37 28 Q45 32 53 28 L53 30 Q45 33.5 37 30 Z" fill={skinShade} opacity="0.5" />
+      {/* Hair fringe over forehead */}
+      <path
+        d="M33 18 Q40 12 47 16 Q52 14 57 18 L56 21 Q50 18 46 20 Q40 17 34 22 Z"
+        fill={hair}
+      />
+      {/* Ears */}
+      <ellipse cx="33.5" cy="22" rx="1.4" ry="2.4" fill={skinShade} />
+      <ellipse cx="56.5" cy="22" rx="1.4" ry="2.4" fill={skinShade} />
+      {/* Brows — minimal angled strokes */}
+      <g transform={`rotate(${browTilt} 41 21)`}>
+        <rect x="38.5" y="20.5" width="4.5" height="1.4" rx="0.7" fill="#1a1208" />
+      </g>
+      <g transform={`rotate(${-browTilt} 49 21)`}>
+        <rect x="47" y="20.5" width="4.5" height="1.4" rx="0.7" fill="#1a1208" />
+      </g>
+      {/* Eyes — minimal dots */}
+      <circle cx="41" cy="24" r="0.9" fill="#1a1208" />
+      <circle cx="49" cy="24" r="0.9" fill="#1a1208" />
       {/* Mouth */}
-      {emotion === "sad" ? (
-        <path d="M36 26 Q40 23 44 26" stroke="#000" strokeWidth="1.2" fill="none" strokeLinecap="round" />
-      ) : emotion === "happy" ? (
-        <path d="M36 24.5 Q40 28 44 24.5" stroke="#7a2a1a" strokeWidth="1.5" fill="#ff6b8a" strokeLinecap="round" />
+      {emotion === "happy" ? (
+        <path d="M41 29 Q45 32 49 29" stroke="#1a1208" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+      ) : emotion === "sad" ? (
+        <path d="M41 30 Q45 28 49 30" stroke="#1a1208" strokeWidth="1.2" fill="none" strokeLinecap="round" />
       ) : (
-        <path d="M37 25 L43 25" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+        <line x1="42" y1="29.5" x2="48" y2="29.5" stroke="#1a1208" strokeWidth="1.2" strokeLinecap="round" />
       )}
 
-      {/* Jersey torso */}
+      {/* === NECK === */}
+      <path d="M40 33 L40 38 Q45 40 50 38 L50 33 Z" fill={`url(#${skinId})`} />
+      <path d="M40 36 Q45 39 50 36 L50 38 Q45 40 40 38 Z" fill={skinShade} opacity="0.4" />
+
+      {/* === TORSO (modern athletic jersey) === */}
       <path
-        d="M22 38 Q24 32 30 32 L50 32 Q56 32 58 38 L60 60 L52 62 L52 72 L28 72 L28 62 L20 60 Z"
-        fill={`url(#jersey-${pose}-${color.replace('#','')})`}
-        stroke="#000"
-        strokeWidth="1"
-        strokeLinejoin="round"
+        d="M24 46 Q26 40 34 38 Q40 41 45 41 Q50 41 56 38 Q64 40 66 46 L68 70 Q58 74 56 74 L56 82 L34 82 L34 74 Q32 74 22 70 Z"
+        fill={`url(#${jerseyId})`}
       />
-      {/* Jersey collar */}
-      <path d="M34 32 Q40 36 46 32" stroke="#000" strokeWidth="1" fill={darkColor} />
+      {/* Jersey side panel highlights */}
+      <path d="M26 46 L24 70 L30 72 L32 48 Z" fill="#fff" opacity="0.08" />
+      <path d="M64 46 L66 70 L60 72 L58 48 Z" fill="#000" opacity="0.18" />
+      {/* V-collar */}
+      <path d="M38 41 L45 49 L52 41 L50 41 L45 46 L40 41 Z" fill="#0d0d0d" />
+      {/* Shoulder accent stripes */}
+      <path d="M30 41 L34 38 L36 42 L32 45 Z" fill={accent} opacity="0.9" />
+      <path d="M60 41 L56 38 L54 42 L58 45 Z" fill={accent} opacity="0.9" />
       {/* Jersey number */}
-      <text x="40" y="56" textAnchor="middle" fontSize="14" fontWeight="900" fill="#fff" stroke="#000" strokeWidth="0.6" fontFamily="Kanit, sans-serif">
-        {isKeeper ? "1" : "9"}
+      <text
+        x="45"
+        y="64"
+        textAnchor="middle"
+        fontSize="16"
+        fontWeight="900"
+        fill={accent}
+        fontFamily="Kanit, sans-serif"
+        letterSpacing="-0.5"
+      >
+        {isKeeper ? "01" : "10"}
       </text>
 
-      {/* Arms */}
+      {/* === ARMS === */}
       {isKeeper ? (
         <>
-          {/* Outstretched arms with gloves */}
-          <path d="M22 38 L8 30 L4 34 L18 44 Z" fill={`url(#jersey-${pose}-${color.replace('#','')})`} stroke="#000" strokeWidth="1" strokeLinejoin="round" />
-          <path d="M58 38 L72 30 L76 34 L62 44 Z" fill={`url(#jersey-${pose}-${color.replace('#','')})`} stroke="#000" strokeWidth="1" strokeLinejoin="round" />
-          {/* Gloves (forearms in skin + glove tip) */}
-          <ellipse cx="6" cy="32" rx="5" ry="4" fill="#ff9d2a" stroke="#000" strokeWidth="1" />
-          <ellipse cx="74" cy="32" rx="5" ry="4" fill="#ff9d2a" stroke="#000" strokeWidth="1" />
+          {/* Outstretched diving arms */}
+          <path d="M24 46 L8 38 L4 44 L20 54 Z" fill={`url(#${jerseyId})`} />
+          <path d="M66 46 L82 38 L86 44 L70 54 Z" fill={`url(#${jerseyId})`} />
+          {/* Forearm bands */}
+          <rect x="14" y="46" width="6" height="3" fill={accent} transform="rotate(-30 17 47)" />
+          <rect x="70" y="46" width="6" height="3" fill={accent} transform="rotate(30 73 47)" />
+          {/* Gloves — bright pro-keeper style */}
+          <path d="M2 38 Q-2 42 2 47 Q8 50 12 46 Q14 42 10 38 Z" fill="#ff7a1a" stroke="#1a1208" strokeWidth="0.6" />
+          <path d="M88 38 Q92 42 88 47 Q82 50 78 46 Q76 42 80 38 Z" fill="#ff7a1a" stroke="#1a1208" strokeWidth="0.6" />
+          {/* Glove highlights */}
+          <path d="M4 41 L8 39 L9 42 L5 44 Z" fill="#ffb066" />
+          <path d="M86 41 L82 39 L81 42 L85 44 Z" fill="#ffb066" />
         </>
       ) : (
         <>
-          {/* One arm back, one forward */}
-          <path d="M22 38 L14 50 L18 54 L26 44 Z" fill={`url(#jersey-${pose}-${color.replace('#','')})`} stroke="#000" strokeWidth="1" strokeLinejoin="round" />
-          <path d="M58 38 L68 48 L64 52 L54 44 Z" fill={`url(#jersey-${pose}-${color.replace('#','')})`} stroke="#000" strokeWidth="1" strokeLinejoin="round" />
-          {/* Hands */}
-          <circle cx="16" cy="52" r="3" fill="url(#skin-grad)" stroke="#000" strokeWidth="0.8" />
-          <circle cx="66" cy="50" r="3" fill="url(#skin-grad)" stroke="#000" strokeWidth="0.8" />
+          {/* Back arm */}
+          <path d="M24 46 L14 58 L18 62 L28 50 Z" fill={`url(#${jerseyId})`} />
+          {/* Forward arm */}
+          <path d="M66 46 L74 56 L70 62 L60 50 Z" fill={`url(#${jerseyId})`} />
+          {/* Wrist bands */}
+          <rect x="14" y="56" width="5" height="2.5" fill={accent} transform="rotate(40 16 57)" />
+          <rect x="70" y="56" width="5" height="2.5" fill={accent} transform="rotate(-40 72 57)" />
+          {/* Hands as soft rounded blobs */}
+          <ellipse cx="16" cy="60" rx="3.2" ry="3.6" fill={`url(#${skinId})`} />
+          <ellipse cx="72" cy="60" rx="3.2" ry="3.6" fill={`url(#${skinId})`} />
         </>
       )}
 
-      {/* Shorts */}
+      {/* === SHORTS === */}
       <path
-        d="M28 72 L52 72 L54 88 L44 88 L42 78 L38 78 L36 88 L26 88 Z"
-        fill="#0d0d0d"
-        stroke="#000"
-        strokeWidth="1"
+        d="M34 82 L56 82 L58 100 L48 100 L46 88 L44 88 L42 100 L32 100 Z"
+        fill="#111114"
       />
-      {/* Shorts stripe */}
-      <rect x="28" y="74" width="24" height="2" fill={color} opacity="0.8" />
+      {/* Shorts highlight */}
+      <path d="M34 83 L56 83 L57 86 L34 86 Z" fill={color} opacity="0.85" />
+      <path d="M44 88 L46 88 L46 100 L44 100 Z" fill="#000" opacity="0.4" />
 
-      {/* Legs (socks) */}
+      {/* === LEGS === */}
       {isKeeper ? (
         <>
-          <rect x="30" y="88" width="8" height="16" rx="2" fill={sock} stroke="#000" strokeWidth="1" />
-          <rect x="42" y="88" width="8" height="16" rx="2" fill={sock} stroke="#000" strokeWidth="1" />
-          {/* Sock band */}
-          <rect x="30" y="100" width="8" height="2" fill={color} />
-          <rect x="42" y="100" width="8" height="2" fill={color} />
+          {/* Standing keeper stance */}
+          <path d="M34 100 L36 118 L44 118 L43 100 Z" fill={sockDark} />
+          <path d="M47 100 L46 118 L54 118 L56 100 Z" fill={sockDark} />
+          {/* Sock bands (team color) */}
+          <rect x="35" y="112" width="9" height="2.5" fill={color} />
+          <rect x="46" y="112" width="9" height="2.5" fill={color} />
           {/* Cleats */}
-          <ellipse cx="34" cy="108" rx="6" ry="4" fill={cleat} stroke="#000" strokeWidth="1" />
-          <ellipse cx="46" cy="108" rx="6" ry="4" fill={cleat} stroke="#000" strokeWidth="1" />
+          <path d="M30 118 Q34 116 44 118 L44 122 Q37 124 30 122 Z" fill={cleat} />
+          <path d="M46 118 Q56 116 60 118 L60 122 Q53 124 46 122 Z" fill={cleat} />
+          {/* Cleat sole stripe */}
+          <rect x="30" y="121" width="14" height="1.5" fill={color} />
+          <rect x="46" y="121" width="14" height="1.5" fill={color} />
         </>
       ) : (
         <>
           {/* Planted leg */}
-          <path d="M30 88 L32 104 L40 104 L40 88 Z" fill={sock} stroke="#000" strokeWidth="1" />
-          {/* Kicking leg, swung forward */}
-          <path d="M42 88 L58 96 L56 102 L40 96 Z" fill={sock} stroke="#000" strokeWidth="1" />
+          <path d="M34 100 L36 118 L44 118 L44 100 Z" fill={sockDark} />
+          {/* Kicking leg swung forward */}
+          <path d="M46 100 L62 110 L60 116 L44 106 Z" fill={sockDark} />
           {/* Sock bands */}
-          <rect x="31" y="100" width="9" height="2" fill={color} />
-          {/* Cleats */}
-          <ellipse cx="35" cy="108" rx="7" ry="4" fill={cleat} stroke="#000" strokeWidth="1" />
-          <ellipse cx="60" cy="100" rx="7" ry="4" fill={cleat} stroke="#000" strokeWidth="1" transform="rotate(20 60 100)" />
+          <rect x="35" y="112" width="9" height="2.5" fill={color} />
+          <rect x="50" y="105" width="9" height="2.5" fill={color} transform="rotate(30 54 106)" />
+          {/* Planted cleat */}
+          <path d="M30 118 Q34 116 44 118 L44 122 Q37 124 30 122 Z" fill={cleat} />
+          <rect x="30" y="121" width="14" height="1.5" fill={color} />
+          {/* Kicking cleat */}
+          <g transform="rotate(20 60 113)">
+            <path d="M54 110 Q60 108 68 110 L68 114 Q60 116 54 114 Z" fill={cleat} />
+            <rect x="54" y="113" width="14" height="1.5" fill={color} />
+          </g>
         </>
       )}
     </svg>
