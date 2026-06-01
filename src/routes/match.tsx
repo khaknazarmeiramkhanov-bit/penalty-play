@@ -19,8 +19,8 @@ type GloveStyle = "classic" | "striped" | "tech" | "carbon";
 function teamGlove(name: string): { color: string; accent: string; style: GloveStyle } {
   const tc = teamColor(name);
   switch (name) {
-    case "Акулы":
-      return { color: tc, accent: "#e0f2fe", style: "tech" };
+    case "Снежные барсы":
+      return { color: tc, accent: "#e2e8f0", style: "tech" };
     case "Молнии":
       return { color: "#1a1a1a", accent: tc, style: "tech" };
     case "Орлы":
@@ -222,7 +222,7 @@ function MatchPage() {
     const bulls = team === "Быки"; // weaker keeper guess
     const cobras = team === "Кобры"; // 20% keeper jumps wrong
     const dragons = team === "Драконы"; // never off-target
-    const sharks = team === "Акулы"; // 20% score-through
+    const snowLeopards = team === "Снежные барсы"; // 20% score-through
 
     const smartChance = bulls ? 0.3 : 0.7;
     const smart = Math.random() < smartChance;
@@ -235,9 +235,9 @@ function MatchPage() {
 
     const offTarget = dragons ? false : Math.random() < 0.1;
     let scored = !offTarget && playerShot !== keeper;
-    if (!scored && !offTarget && sharks && Math.random() < 0.2) {
+    if (!scored && !offTarget && snowLeopards && Math.random() < 0.2) {
       scored = true;
-      setAbilityFlash("🦈 Хищный удар! Гол сквозь вратаря");
+      setAbilityFlash("🐆 Горный хищник! Гол сквозь вратаря");
     } else if (cobras && keeper !== playerShot && scored) {
       setAbilityFlash("🐍 Гипноз сработал!");
     } else if (dragons && playerShot !== keeper) {
