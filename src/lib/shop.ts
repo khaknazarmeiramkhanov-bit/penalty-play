@@ -348,6 +348,30 @@ export function getPerk(id: PerkId): Perk {
   return PERKS.find((p) => p.id === id)!;
 }
 
+// ---------------- Sponsors (открываются за победы) ----------------
+export type Sponsor = {
+  id: string;
+  name: string; // короткое имя на футболке
+  minWins: number;
+  color: string; // фон бейджа
+  textColor: string;
+};
+
+export const SPONSORS: Sponsor[] = [
+  { id: "none", name: "—", minWins: 0, color: "transparent", textColor: "#fff" },
+  { id: "pizza", name: "PIZZA+", minWins: 3, color: "#dc2626", textColor: "#fff" },
+  { id: "turbo", name: "TURBO", minWins: 8, color: "#0f172a", textColor: "#fde047" },
+  { id: "neon", name: "NEON", minWins: 15, color: "#0a0a0a", textColor: "#ccff00" },
+  { id: "lava", name: "LAVA", minWins: 25, color: "#7c2d12", textColor: "#fdba74" },
+  { id: "gold", name: "GOLD CO", minWins: 40, color: "#facc15", textColor: "#0a0a0a" },
+  { id: "apex", name: "APEX", minWins: 60, color: "#020617", textColor: "#22d3ee" },
+  { id: "royal", name: "ROYAL", minWins: 90, color: "#581c87", textColor: "#fbbf24" },
+];
+
+export function getSponsor(id: string): Sponsor {
+  return SPONSORS.find((s) => s.id === id) ?? SPONSORS[0];
+}
+
 const STORAGE_KEY = "penalty-shop-v2";
 
 type Store = {
@@ -357,6 +381,8 @@ type Store = {
   equipped: Record<ItemKind, string>;
   perks: Record<PerkId, number>;
   ownedTeams: string[];
+  wins: number;
+  sponsor: string;
 };
 
 const initial: Store = {
@@ -366,6 +392,8 @@ const initial: Store = {
   equipped: { ...DEFAULT_EQUIPPED },
   perks: { saveBoost: 0, goalBoost: 0, coinBoost: 0, accuracy: 0 },
   ownedTeams: [],
+  wins: 0,
+  sponsor: "none",
 };
 
 function read(): Store {
@@ -381,6 +409,8 @@ function read(): Store {
       equipped: { ...DEFAULT_EQUIPPED, ...(parsed.equipped ?? {}) },
       perks: { ...initial.perks, ...(parsed.perks ?? {}) },
       ownedTeams: parsed.ownedTeams ?? initial.ownedTeams,
+      wins: parsed.wins ?? initial.wins,
+      sponsor: parsed.sponsor ?? initial.sponsor,
     };
   } catch {
     return initial;
@@ -467,9 +497,44 @@ export function useInventory() {
     return true;
   }, []);
 
+  const addWin = useCallback(() => {
+    const next = read();
+    next.wins = (next.wins ?? 0) + 1;
+    // Авто-апгрейд спонсора до лучшего доступного
+    const best = [...SPONSORS]
+      .filter((s) => next.wins >= s.minWins)
+      .sort((a, b) => b.minWins - a.minWins)[0];
+    if (best && best.id !== next.sponsor) {
+      const cur = getSponsor(next.sponsor);
+      // Поднимаем только если новый лучше текущего
+      if (best.minWins > cur.minWins) next.sponsor = best.id;
+    }
+    write(next);
+  }, []);
+
+  const equipSponsor = useCallback((id: string) => {
+    const sp = getSponsor(id);
+    const next = read();
+    if (next.wins < sp.minWins) return false;
+    next.sponsor = id;
+    write(next);
+    return true;
+  }, []);
+
   const reset = useCallback(() => write(initial), []);
 
-  return { ...store, addCoins, addCrystals, buy, buyPerk, buyTeam, equip, reset };
+  return {
+    ...store,
+    addCoins,
+    addCrystals,
+    buy,
+    buyPerk,
+    buyTeam,
+    equip,
+    addWin,
+    equipSponsor,
+    reset,
+  };
 }
 
 export function resolveColor(raw: string, teamColor: string): string {
