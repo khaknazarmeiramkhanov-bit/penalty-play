@@ -830,32 +830,32 @@ function PlayerFigure({
       {/* === ARMS === */}
       {isKeeper ? (
         <>
-          {/* LEFT arm — shoulder (28,46) → wrist (34,64), arms forward to chest */}
+          {/* LEFT arm — shoulder (28,46) → wrist (35,68), arms forward to chest */}
           <path
-            d="M28 44 L30 48 L36 62 L32 64 Z"
+            d="M28 44 L30 48 L37 64 L33 66 Z"
             fill={`url(#${jerseyId})`}
             stroke="#0a0a0a"
             strokeWidth="0.4"
           />
           <path
-            d="M32 60 L36 62 L34 66 L30 64 Z"
+            d="M33 64 L37 64 L36 69 L32 68 Z"
             fill={`url(#${skinId})`}
             stroke="#1a1208"
             strokeWidth="0.4"
           />
           <rect
-            x="31"
-            y="62"
+            x="32"
+            y="66"
             width="7"
             height="3"
             rx="1"
             fill={resolvedBand}
             stroke="#0a0a0a"
             strokeWidth="0.4"
-            transform="rotate(35 34 64)"
+            transform="rotate(38 35 68)"
           />
           {/* LEFT GLOVE — centered on chest */}
-          <g transform="translate(34 70) scale(0.7)">
+          <g transform="translate(35 72) scale(0.65)">
             {/* Palm */}
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
@@ -935,32 +935,32 @@ function PlayerFigure({
             <rect x="-10" y="11" width="22" height="1.5" fill={gear.gloveAccent} opacity="0.9" />
           </g>
 
-          {/* RIGHT arm — shoulder (62,46) → wrist (56,64), mirrored forward */}
+          {/* RIGHT arm — shoulder (62,46) → wrist (55,68), mirrored forward */}
           <path
-            d="M62 44 L60 48 L54 62 L58 64 Z"
+            d="M62 44 L60 48 L53 64 L57 66 Z"
             fill={`url(#${jerseyId})`}
             stroke="#0a0a0a"
             strokeWidth="0.4"
           />
           <path
-            d="M58 60 L54 62 L56 66 L60 64 Z"
+            d="M57 64 L53 64 L54 69 L58 68 Z"
             fill={`url(#${skinId})`}
             stroke="#1a1208"
             strokeWidth="0.4"
           />
           <rect
-            x="52"
-            y="62"
+            x="51"
+            y="66"
             width="7"
             height="3"
             rx="1"
             fill={resolvedBand}
             stroke="#0a0a0a"
             strokeWidth="0.4"
-            transform="rotate(-35 56 64)"
+            transform="rotate(-38 55 68)"
           />
           {/* RIGHT GLOVE — centered mirrored on chest */}
-          <g transform="translate(56 70) scale(-0.7 0.7)">
+          <g transform="translate(55 72) scale(-0.65 0.65)">
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
               fill={`url(#${gloveGradId})`}
