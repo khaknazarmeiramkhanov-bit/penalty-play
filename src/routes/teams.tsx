@@ -18,25 +18,25 @@ export const Route = createFileRoute("/teams")({
 });
 
 export const TEAMS = [
-  { name: "Акулы", emoji: "🦈", color: "#1e90ff",
+  { name: "Акулы", emoji: "🦈", color: "#1e90ff", country: "Австралия", flag: "🇦🇺",
     ability: "Хищный удар", abilityDesc: "+20% шанс гола даже если вратарь угадал" },
-  { name: "Короли", emoji: "👑", color: "#ffd700",
+  { name: "Короли", emoji: "👑", color: "#ffd700", country: "Англия", flag: "🇬🇧",
     ability: "Корона", abilityDesc: "Первый гол соперника отменяется" },
-  { name: "Драконы", emoji: "🐉", color: "#dc2626",
+  { name: "Драконы", emoji: "🐉", color: "#dc2626", country: "Китай", flag: "🇨🇳",
     ability: "Огненный удар", abilityDesc: "Никогда не бьёшь мимо" },
-  { name: "Орлы", emoji: "🦅", color: "#8b5cf6",
+  { name: "Орлы", emoji: "🦅", color: "#8b5cf6", country: "США", flag: "🇺🇸",
     ability: "Зоркий глаз", abilityDesc: "Видишь, верх или низ выберет соперник" },
-  { name: "Волки", emoji: "🐺", color: "#94a3b8",
+  { name: "Волки", emoji: "🐺", color: "#94a3b8", country: "Италия", flag: "🇮🇹",
     ability: "Стая", abilityDesc: "Соперник бьёт мимо на 25%" },
-  { name: "Тигры", emoji: "🐯", color: "#f97316",
+  { name: "Тигры", emoji: "🐯", color: "#f97316", country: "Индия", flag: "🇮🇳",
     ability: "Прыжок тигра", abilityDesc: "20% шанс автосейва" },
-  { name: "Львы", emoji: "🦁", color: "#eab308",
+  { name: "Львы", emoji: "🦁", color: "#eab308", country: "ЮАР", flag: "🇿🇦",
     ability: "Рык", abilityDesc: "Соперник бьёт случайно (без мозгов)" },
-  { name: "Быки", emoji: "🐂", color: "#7c2d12",
+  { name: "Быки", emoji: "🐂", color: "#7c2d12", country: "Испания", flag: "🇪🇸",
     ability: "Стальной удар", abilityDesc: "Вратарь хуже угадывает твой удар" },
-  { name: "Кобры", emoji: "🐍", color: "#16a34a",
+  { name: "Кобры", emoji: "🐍", color: "#16a34a", country: "Бразилия", flag: "🇧🇷",
     ability: "Гипноз", abilityDesc: "20% шанс — вратарь прыгнет не туда" },
-  { name: "Молнии", emoji: "⚡", color: "#fde047",
+  { name: "Молнии", emoji: "⚡", color: "#fde047", country: "Япония", flag: "🇯🇵",
     ability: "Молниеносный", abilityDesc: "Видишь, в какую сторону соперник бьёт" },
 ];
 
@@ -76,6 +76,21 @@ function TeamsPage() {
           Выберите свою команду
         </p>
 
+        {/* Big shop button */}
+        <Link
+          to="/shop"
+          className="group relative inline-flex w-full max-w-md items-center justify-center gap-3 rounded-2xl px-6 py-4 text-base font-black tracking-[0.2em] text-black uppercase transition-all duration-200 hover:scale-[1.02] active:scale-95"
+          style={{
+            background: "linear-gradient(180deg, #ffe34a 0%, #f5b400 100%)",
+            boxShadow: "0 6px 0 rgb(150,110,0), 0 0 28px rgba(255,210,60,0.45)",
+            border: "2px solid #fff",
+          }}
+        >
+          <span className="text-2xl">🪙</span>
+          <span>Магазин экипировки</span>
+          <span className="text-xl">→</span>
+        </Link>
+
         {/* Teams Grid */}
         <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
           {TEAMS.map((team) => (
@@ -96,6 +111,10 @@ function TeamsPage() {
               <span className="text-4xl">{team.emoji}</span>
               <span className="text-sm font-black tracking-wider uppercase">
                 {team.name}
+              </span>
+              <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white/70">
+                <span className="text-sm leading-none">{team.flag}</span>
+                {team.country}
               </span>
               <span className="text-[10px] font-bold leading-tight tracking-wide text-white/80">
                 {team.ability}
@@ -131,12 +150,6 @@ function TeamsPage() {
             className="text-xs font-bold tracking-[0.2em] text-white/70 uppercase transition-colors hover:text-white"
           >
             ← Назад
-          </Link>
-          <Link
-            to="/shop"
-            className="rounded-lg bg-white/10 px-4 py-2 text-xs font-black tracking-[0.2em] text-white uppercase transition-all hover:bg-white/20"
-          >
-            🪙 Магазин
           </Link>
         </div>
       </div>
