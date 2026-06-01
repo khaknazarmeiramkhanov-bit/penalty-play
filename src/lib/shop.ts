@@ -95,6 +95,30 @@ export const ITEMS: ShopItem[] = [
     color: "#020617",
     accent: "#a855f7",
   },
+  {
+    id: "glove_dragon",
+    kind: "glove",
+    name: "Дракон",
+    price: 1200,
+    color: "#7f1d1d",
+    accent: "#f59e0b",
+  },
+  {
+    id: "glove_void",
+    kind: "glove",
+    name: "Пустота",
+    price: 1500,
+    color: "#0f0f23",
+    accent: "#c084fc",
+  },
+  {
+    id: "glove_aurora",
+    kind: "glove",
+    name: "Полярное сияние",
+    price: 1050,
+    color: "#06b6d4",
+    accent: "#d946ef",
+  },
 
   // Boots
   { id: "boot_black", kind: "boot", name: "Чёрные", price: 0, color: "#0a0a0a", accent: "#ffffff" },
