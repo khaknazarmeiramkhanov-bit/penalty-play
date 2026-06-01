@@ -18,26 +18,96 @@ export const Route = createFileRoute("/teams")({
 });
 
 export const TEAMS = [
-  { name: "Снежные барсы", emoji: "🐆", color: "#b8c5d6", country: "Казахстан", flag: "🇰🇿",
-    ability: "Горный хищник", abilityDesc: "+20% шанс гола даже если вратарь угадал" },
-  { name: "Короли", emoji: "👑", color: "#ffd700", country: "Англия", flag: "🇬🇧",
-    ability: "Корона", abilityDesc: "Первый гол соперника отменяется" },
-  { name: "Драконы", emoji: "🐉", color: "#dc2626", country: "Китай", flag: "🇨🇳",
-    ability: "Огненный удар", abilityDesc: "Никогда не бьёшь мимо" },
-  { name: "Орлы", emoji: "🦅", color: "#8b5cf6", country: "США", flag: "🇺🇸",
-    ability: "Зоркий глаз", abilityDesc: "Видишь, верх или низ выберет соперник" },
-  { name: "Волки", emoji: "🐺", color: "#94a3b8", country: "Италия", flag: "🇮🇹",
-    ability: "Стая", abilityDesc: "Соперник бьёт мимо на 25%" },
-  { name: "Тигры", emoji: "🐯", color: "#f97316", country: "Индия", flag: "🇮🇳",
-    ability: "Прыжок тигра", abilityDesc: "20% шанс автосейва" },
-  { name: "Львы", emoji: "🦁", color: "#eab308", country: "ЮАР", flag: "🇿🇦",
-    ability: "Рык", abilityDesc: "Соперник бьёт случайно (без мозгов)" },
-  { name: "Быки", emoji: "🐂", color: "#7c2d12", country: "Испания", flag: "🇪🇸",
-    ability: "Стальной удар", abilityDesc: "Вратарь хуже угадывает твой удар" },
-  { name: "Кобры", emoji: "🐍", color: "#16a34a", country: "Бразилия", flag: "🇧🇷",
-    ability: "Гипноз", abilityDesc: "20% шанс — вратарь прыгнет не туда" },
-  { name: "Молнии", emoji: "⚡", color: "#fde047", country: "Япония", flag: "🇯🇵",
-    ability: "Молниеносный", abilityDesc: "Видишь, в какую сторону соперник бьёт" },
+  {
+    name: "Снежные барсы",
+    emoji: "🐆",
+    color: "#b8c5d6",
+    country: "Казахстан",
+    flag: "🇰🇿",
+    ability: "Горный хищник",
+    abilityDesc: "+20% шанс гола даже если вратарь угадал",
+  },
+  {
+    name: "Короли",
+    emoji: "👑",
+    color: "#ffd700",
+    country: "Англия",
+    flag: "🇬🇧",
+    ability: "Корона",
+    abilityDesc: "Первый гол соперника отменяется",
+  },
+  {
+    name: "Драконы",
+    emoji: "🐉",
+    color: "#dc2626",
+    country: "Китай",
+    flag: "🇨🇳",
+    ability: "Огненный удар",
+    abilityDesc: "Никогда не бьёшь мимо",
+  },
+  {
+    name: "Орлы",
+    emoji: "🦅",
+    color: "#8b5cf6",
+    country: "США",
+    flag: "🇺🇸",
+    ability: "Зоркий глаз",
+    abilityDesc: "Видишь, верх или низ выберет соперник",
+  },
+  {
+    name: "Волки",
+    emoji: "🐺",
+    color: "#94a3b8",
+    country: "Италия",
+    flag: "🇮🇹",
+    ability: "Стая",
+    abilityDesc: "Соперник бьёт мимо на 25%",
+  },
+  {
+    name: "Тигры",
+    emoji: "🐯",
+    color: "#f97316",
+    country: "Индия",
+    flag: "🇮🇳",
+    ability: "Прыжок тигра",
+    abilityDesc: "20% шанс автосейва",
+  },
+  {
+    name: "Львы",
+    emoji: "🦁",
+    color: "#eab308",
+    country: "ЮАР",
+    flag: "🇿🇦",
+    ability: "Рык",
+    abilityDesc: "Соперник бьёт случайно (без мозгов)",
+  },
+  {
+    name: "Быки",
+    emoji: "🐂",
+    color: "#7c2d12",
+    country: "Испания",
+    flag: "🇪🇸",
+    ability: "Стальной удар",
+    abilityDesc: "Вратарь хуже угадывает твой удар",
+  },
+  {
+    name: "Кобры",
+    emoji: "🐍",
+    color: "#16a34a",
+    country: "Бразилия",
+    flag: "🇧🇷",
+    ability: "Гипноз",
+    abilityDesc: "20% шанс — вратарь прыгнет не туда",
+  },
+  {
+    name: "Молнии",
+    emoji: "⚡",
+    color: "#fde047",
+    country: "Япония",
+    flag: "🇯🇵",
+    ability: "Молниеносный",
+    abilityDesc: "Видишь, в какую сторону соперник бьёт",
+  },
 ];
 
 function TeamsPage() {
@@ -109,9 +179,7 @@ function TeamsPage() {
               }}
             >
               <span className="text-4xl">{team.emoji}</span>
-              <span className="text-sm font-black tracking-wider uppercase">
-                {team.name}
-              </span>
+              <span className="text-sm font-black tracking-wider uppercase">{team.name}</span>
               <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white/70">
                 <span className="text-sm leading-none">{team.flag}</span>
                 {team.country}
@@ -130,9 +198,7 @@ function TeamsPage() {
         {selected && (
           <button
             type="button"
-            onClick={() =>
-              navigate({ to: "/match", search: { team: selected } })
-            }
+            onClick={() => navigate({ to: "/match", search: { team: selected } })}
             className="group relative inline-flex items-center justify-center rounded-xl px-10 py-4 text-lg font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
             style={{
               backgroundColor: "#ccff00",
