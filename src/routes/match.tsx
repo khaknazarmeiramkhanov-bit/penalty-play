@@ -694,6 +694,7 @@ function MatchPage() {
           playerColor={teamColor(team)}
           oppColor={oppColor}
           gear={gear}
+          sponsor={playerSponsor}
         />
 
         {/* Zone controls */}
@@ -1799,12 +1800,14 @@ function GoalScene({
   playerColor,
   oppColor,
   gear,
+  sponsor,
 }: {
   phase: Phase;
   last: Last | null;
   playerColor: string;
   oppColor: string;
   gear: Gear;
+  sponsor: Sponsor;
 }) {
   // Animation: ball travels from striker spot to its zone after picking
   const [tick, setTick] = useState(0);
