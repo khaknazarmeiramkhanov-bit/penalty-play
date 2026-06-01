@@ -422,6 +422,7 @@ function read(): Store {
       matches: parsed.matches ?? initial.matches,
       spentCoins: parsed.spentCoins ?? initial.spentCoins,
       sponsor: parsed.sponsor ?? initial.sponsor,
+      playerName: parsed.playerName ?? initial.playerName,
     };
   } catch {
     return initial;
