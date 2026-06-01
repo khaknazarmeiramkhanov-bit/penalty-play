@@ -222,6 +222,7 @@ function MatchPage() {
   }
 
   function next() {
+    if (resultLocked) return;
     if (!last) return;
     // After opponent shot → player shoots in same round
     if (last.shooter === "opponent") {
