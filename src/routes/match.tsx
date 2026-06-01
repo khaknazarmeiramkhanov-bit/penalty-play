@@ -250,25 +250,35 @@ function MatchPage() {
     const cobras = team === "Кобры"; // 20% keeper jumps wrong
     const dragons = team === "Драконы"; // never off-target
     const snowLeopards = team === "Снежные барсы"; // 20% score-through
+    const reindeers = team === "Олени"; // weaker opponent keeper
+    const iguanas = team === "Игуаны"; // 20% opp keeper wrong
+    const foxes = team === "Лисы"; // 15% score-through
+    const crocodiles = team === "Крокодилы"; // 20% score-through
+    const elephants = team === "Слоны"; // never off-target
 
-    const smartChance = bulls ? 0.3 : 0.7;
+    const smartChance = bulls ? 0.3 : reindeers ? 0.4 : 0.7;
     const smart = Math.random() < smartChance;
     let keeper: Zone = smart ? mostUsed(playerShotHistory.current) : randomZone();
-    if (cobras && Math.random() < 0.2) {
+    if ((cobras || iguanas) && Math.random() < 0.2) {
       const others = ALL_ZONES.filter((z) => z !== playerShot);
       keeper = others[Math.floor(Math.random() * others.length)];
     }
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
-    const offTarget = dragons ? false : Math.random() < 0.1;
+    const offTarget = dragons || elephants ? false : Math.random() < 0.1;
     let scored = !offTarget && playerShot !== keeper;
-    if (!scored && !offTarget && snowLeopards && Math.random() < 0.2) {
+    if (!scored && !offTarget && ((snowLeopards && Math.random() < 0.2) || (foxes && Math.random() < 0.15) || (crocodiles && Math.random() < 0.2))) {
       scored = true;
-      setAbilityFlash("🐆 Горный хищник! Гол сквозь вратаря");
-    } else if (cobras && keeper !== playerShot && scored) {
-      setAbilityFlash("🐍 Гипноз сработал!");
-    } else if (dragons && playerShot !== keeper) {
-      setAbilityFlash("🐉 Огненный удар!");
+      const flash = snowLeopards
+        ? "🐆 Горный хищник! Гол сквозь вратаря"
+        : foxes
+          ? "🦊 Хитрость! Гол сквозь вратаря"
+          : "🐊 Сжатие! Гол сквозь вратаря";
+      setAbilityFlash(flash);
+    } else if ((cobras || iguanas) && keeper !== playerShot && scored) {
+      setAbilityFlash(cobras ? "🐍 Гипноз сработал!" : "🦎 Обманка сработала!");
+    } else if ((dragons || elephants) && playerShot !== keeper) {
+      setAbilityFlash(dragons ? "🐉 Огненный удар!" : "🐘 Мощь! Удар точно в цель");
     } else {
       setAbilityFlash(null);
     }
