@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { TEAMS } from "./teams";
-import { useInventory, getItem, resolveColor } from "@/lib/shop";
+import { useInventory, getItem, resolveColor, getSponsor, type Sponsor } from "@/lib/shop";
 
 const searchSchema = z.object({ team: z.string().default("Команда") });
 
@@ -548,6 +548,7 @@ function MatchPage() {
         // Кристаллы за победу: +1 за матч, +2 если соперник не забил (сухой матч)
         const crystals = oppScore === 0 ? 3 : 1;
         inv.addCrystals(crystals);
+        inv.addWin();
       }
       return;
     }
