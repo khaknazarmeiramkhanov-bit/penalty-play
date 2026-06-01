@@ -312,13 +312,17 @@ function ResultBlock({ last, onNext }: { last: Last; onNext: () => void }) {
         className="text-center text-xl font-black uppercase"
         style={{ color: last.scored ? "#ff4d4d" : "#ccff00" }}
       >
-        {isOpp
-          ? last.scored
-            ? "Соперник забил! +1 ему"
-            : "Ты отбил!"
-          : last.scored
-            ? "ГОЛ! +1 тебе"
-            : "Вратарь отбил!"}
+        {last.offTarget
+          ? isOpp
+            ? "Соперник пробил мимо!"
+            : "Ты пробил мимо!"
+          : isOpp
+            ? last.scored
+              ? "Соперник забил! +1 ему"
+              : "Ты отбил!"
+            : last.scored
+              ? "ГОЛ! +1 тебе"
+              : "Вратарь отбил!"}
       </p>
       <p className="text-[10px] tracking-[0.25em] text-white/70 uppercase">
         Удар: {zoneLabel(last.shot)} · Вратарь: {zoneLabel(last.keeper)}
