@@ -12,6 +12,38 @@ function teamColor(name: string): string {
   return TEAMS.find((t) => t.name === name)?.color ?? "#ccff00";
 }
 
+type GloveStyle = "classic" | "striped" | "tech" | "carbon";
+
+// Per-team glove identity: color, accent, decoration style.
+// Each team gets a recognizable glove look tied to their brand color.
+function teamGlove(name: string): { color: string; accent: string; style: GloveStyle } {
+  const tc = teamColor(name);
+  switch (name) {
+    case "Акулы":
+      return { color: tc, accent: "#e0f2fe", style: "tech" };
+    case "Молнии":
+      return { color: "#1a1a1a", accent: tc, style: "tech" };
+    case "Орлы":
+      return { color: tc, accent: "#fde68a", style: "tech" };
+    case "Драконы":
+      return { color: tc, accent: "#fde047", style: "striped" };
+    case "Тигры":
+      return { color: tc, accent: "#0a0a0a", style: "striped" };
+    case "Львы":
+      return { color: tc, accent: "#7c2d12", style: "striped" };
+    case "Кобры":
+      return { color: tc, accent: "#ecfccb", style: "striped" };
+    case "Короли":
+      return { color: tc, accent: "#1a1208", style: "classic" };
+    case "Волки":
+      return { color: "#1a1a1a", accent: tc, style: "carbon" };
+    case "Быки":
+      return { color: tc, accent: "#fde68a", style: "classic" };
+    default:
+      return { color: "#ff7a1a", accent: "#ffb066", style: "classic" };
+  }
+}
+
 function teamAbility(name: string): { ability: string; abilityDesc: string } {
   const t = TEAMS.find((t) => t.name === name);
   return {
