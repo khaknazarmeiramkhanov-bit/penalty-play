@@ -214,6 +214,8 @@ function MatchPage() {
 
     setLast({ shooter: "player", shot: playerShot, keeper, scored, offTarget });
     setPhase("result");
+    setResultLocked(true);
+    window.setTimeout(() => setResultLocked(false), 3000);
     if (scored) setPlayerScore((s) => s + 1);
     if (scored) inv.addCoins(20); // goal reward
     window.setTimeout(() => setAnimating(false), 700);
