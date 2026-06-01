@@ -17,7 +17,7 @@ export const Route = createFileRoute("/teams")({
   component: TeamsPage,
 });
 
-const TEAMS = [
+export const TEAMS = [
   { name: "Акулы", emoji: "🦈", color: "#1e90ff" },
   { name: "Короли", emoji: "👑", color: "#ffd700" },
   { name: "Драконы", emoji: "🐉", color: "#dc2626" },
