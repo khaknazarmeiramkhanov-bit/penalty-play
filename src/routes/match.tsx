@@ -747,31 +747,41 @@ function PlayerFigure({
       {/* === ARMS === */}
       {isKeeper ? (
         <>
-          {/* Outstretched diving arms */}
-          <path d="M24 46 L8 38 L4 44 L20 54 Z" fill={`url(#${jerseyId})`} />
-          <path d="M66 46 L82 38 L86 44 L70 54 Z" fill={`url(#${jerseyId})`} />
-          {/* Forearm bands */}
-          <rect x="14" y="46" width="6" height="3" fill={accent} transform="rotate(-30 17 47)" />
-          <rect x="70" y="46" width="6" height="3" fill={accent} transform="rotate(30 73 47)" />
-          {/* Gloves — bright pro-keeper style */}
-          <path d="M2 38 Q-2 42 2 47 Q8 50 12 46 Q14 42 10 38 Z" fill="#ff7a1a" stroke="#1a1208" strokeWidth="0.6" />
-          <path d="M88 38 Q92 42 88 47 Q82 50 78 46 Q76 42 80 38 Z" fill="#ff7a1a" stroke="#1a1208" strokeWidth="0.6" />
-          {/* Glove highlights */}
-          <path d="M4 41 L8 39 L9 42 L5 44 Z" fill="#ffb066" />
-          <path d="M86 41 L82 39 L81 42 L85 44 Z" fill="#ffb066" />
+          {/* LEFT arm: shoulder → upper arm → forearm → glove, raised diagonally up */}
+          {/* Upper arm */}
+          <path d="M26 46 L14 34 L10 38 L22 52 Z" fill={`url(#${jerseyId})`} />
+          {/* Forearm (skin) */}
+          <path d="M14 34 L4 26 L0 30 L10 38 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          {/* Wrist band */}
+          <rect x="6" y="28" width="6" height="2.5" fill={accent} transform="rotate(40 9 29)" />
+          {/* Glove */}
+          <ellipse cx="2" cy="24" rx="5.5" ry="4.5" fill="#ff7a1a" stroke="#1a1208" strokeWidth="0.6" transform="rotate(-30 2 24)" />
+          <path d="M-1 22 L4 21 L4 25 L0 27 Z" fill="#ffb066" />
+
+          {/* RIGHT arm mirrored */}
+          <path d="M64 46 L76 34 L80 38 L68 52 Z" fill={`url(#${jerseyId})`} />
+          <path d="M76 34 L86 26 L90 30 L80 38 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          <rect x="78" y="28" width="6" height="2.5" fill={accent} transform="rotate(-40 81 29)" />
+          <ellipse cx="88" cy="24" rx="5.5" ry="4.5" fill="#ff7a1a" stroke="#1a1208" strokeWidth="0.6" transform="rotate(30 88 24)" />
+          <path d="M91 22 L86 21 L86 25 L90 27 Z" fill="#ffb066" />
         </>
       ) : (
         <>
-          {/* Back arm */}
-          <path d="M24 46 L14 58 L18 62 L28 50 Z" fill={`url(#${jerseyId})`} />
-          {/* Forward arm */}
-          <path d="M66 46 L74 56 L70 62 L60 50 Z" fill={`url(#${jerseyId})`} />
-          {/* Wrist bands */}
-          <rect x="14" y="56" width="5" height="2.5" fill={accent} transform="rotate(40 16 57)" />
-          <rect x="70" y="56" width="5" height="2.5" fill={accent} transform="rotate(-40 72 57)" />
-          {/* Hands as soft rounded blobs */}
-          <ellipse cx="16" cy="60" rx="3.2" ry="3.6" fill={`url(#${skinId})`} />
-          <ellipse cx="72" cy="60" rx="3.2" ry="3.6" fill={`url(#${skinId})`} />
+          {/* LEFT arm — back swung, longer reach */}
+          {/* Upper arm (jersey) */}
+          <path d="M26 46 L18 60 L22 64 L30 50 Z" fill={`url(#${jerseyId})`} />
+          {/* Forearm (skin) */}
+          <path d="M18 60 L8 74 L12 78 L22 64 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          {/* Wrist band */}
+          <rect x="9" y="73" width="6" height="2.5" fill={accent} transform="rotate(55 12 74)" />
+          {/* Hand */}
+          <ellipse cx="9" cy="78" rx="3.4" ry="3.8" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+
+          {/* RIGHT arm — forward swing */}
+          <path d="M64 46 L72 60 L68 64 L60 50 Z" fill={`url(#${jerseyId})`} />
+          <path d="M72 60 L82 74 L78 78 L68 64 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          <rect x="75" y="73" width="6" height="2.5" fill={accent} transform="rotate(-55 78 74)" />
+          <ellipse cx="81" cy="78" rx="3.4" ry="3.8" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
         </>
       )}
 
