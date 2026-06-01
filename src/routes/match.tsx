@@ -287,17 +287,20 @@ function MatchPage() {
     const oppIguanaHit = oppIguanaArmed.current && Math.random() < 0.5;
     const oppGorillaHit = oppTeam === "Гориллы" && shotMeta.row === 1 && Math.random() < 0.3;
     const oppCheetahHit = oppTeam === "Гепарды" && Math.random() < 0.3;
-    const oppKrakenHit = oppTeam === "Кракены" && Math.random() < 0.35;
-    const oppVikingHit = oppVikingsArmed.current && Math.random() < 0.6;
-    const oppGhostHit = oppTeam === "Призраки" && Math.random() < 0.25;
     const oppKeeperBypass =
-      oppCondorHit || oppFoxHit || oppIguanaHit || oppGorillaHit || oppCheetahHit ||
-      oppKrakenHit || oppVikingHit || oppGhostHit;
+      oppCondorHit || oppFoxHit || oppIguanaHit || oppGorillaHit || oppCheetahHit;
     const offChance = wolves ? 0.25 : 0.1;
     const frostHit = frostForceOff && Math.random() < 0.4;
     const oppPhoenixSafe = oppTeam === "Фениксы" && oppPhoenixRebornArmed.current;
+    // Призраки (у игрока): первый удар соперника в матче — мимо
+    const ghostFearForce =
+      team === "Призраки" && !ghostFearUsed.current;
     const offTarget =
-      oppDragons || oppPhoenixSafe ? false : frostHit || Math.random() < offChance;
+      ghostFearForce
+        ? true
+        : oppDragons || oppPhoenixSafe
+          ? false
+          : frostHit || Math.random() < offChance;
     const crocSave = crocodiles && shotMeta.row === 1 && Math.random() < 0.5;
     const bearSave = bears && shotMeta.col === 1 && Math.random() < 0.5;
     const perkSaveChance = (inv.perks.saveBoost ?? 0) * 0.05;
