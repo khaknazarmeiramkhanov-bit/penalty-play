@@ -48,6 +48,7 @@ type Last = {
   shot: Zone;
   keeper: Zone;
   scored: boolean;
+  offTarget: boolean;
 };
 
 function randomZone(): Zone {
@@ -102,8 +103,9 @@ function MatchPage() {
     const shot: Zone = smart ? leastUsed(playerGuessHistory.current) : randomZone();
     playerGuessHistory.current = [...playerGuessHistory.current, playerKeeper];
 
-    const scored = shot !== playerKeeper;
-    setLast({ shooter: "opponent", shot, keeper: playerKeeper, scored });
+    const offTarget = Math.random() < 0.1;
+    const scored = !offTarget && shot !== playerKeeper;
+    setLast({ shooter: "opponent", shot, keeper: playerKeeper, scored, offTarget });
     setPhase("result");
     if (scored) setOppScore((s) => s + 1);
     window.setTimeout(() => setAnimating(false), 700);
@@ -117,8 +119,9 @@ function MatchPage() {
     const keeper: Zone = smart ? mostUsed(playerShotHistory.current) : randomZone();
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
-    const scored = playerShot !== keeper;
-    setLast({ shooter: "player", shot: playerShot, keeper, scored });
+    const offTarget = Math.random() < 0.1;
+    const scored = !offTarget && playerShot !== keeper;
+    setLast({ shooter: "player", shot: playerShot, keeper, scored, offTarget });
     setPhase("result");
     if (scored) setPlayerScore((s) => s + 1);
     window.setTimeout(() => setAnimating(false), 700);
@@ -309,13 +312,17 @@ function ResultBlock({ last, onNext }: { last: Last; onNext: () => void }) {
         className="text-center text-xl font-black uppercase"
         style={{ color: last.scored ? "#ff4d4d" : "#ccff00" }}
       >
-        {isOpp
-          ? last.scored
-            ? "Соперник забил! +1 ему"
-            : "Ты отбил!"
-          : last.scored
-            ? "ГОЛ! +1 тебе"
-            : "Вратарь отбил!"}
+        {last.offTarget
+          ? isOpp
+            ? "Соперник пробил мимо!"
+            : "Ты пробил мимо!"
+          : isOpp
+            ? last.scored
+              ? "Соперник забил! +1 ему"
+              : "Ты отбил!"
+            : last.scored
+              ? "ГОЛ! +1 тебе"
+              : "Вратарь отбил!"}
       </p>
       <p className="text-[10px] tracking-[0.25em] text-white/70 uppercase">
         Удар: {zoneLabel(last.shot)} · Вратарь: {zoneLabel(last.keeper)}
@@ -396,14 +403,65 @@ function zoneLabel(z: Zone) {
   return map[z];
 }
 
+function Crowd({
+  playerColor,
+  oppColor,
+}: {
+  playerColor: string;
+  oppColor: string;
+}) {
+  // Two stands behind the goal: left supports player team, right supports opponent
+  const fans = Array.from({ length: 30 });
+  return (
+    <div
+      className="pointer-events-none absolute -top-6 left-0 right-0 -z-0 flex justify-between gap-1 px-1"
+      aria-hidden
+    >
+      <div className="flex flex-1 flex-wrap items-end gap-0.5">
+        {fans.map((_, i) => (
+          <FanHead key={`l-${i}`} color={playerColor} delay={i * 80} />
+        ))}
+      </div>
+      <div className="flex flex-1 flex-wrap items-end justify-end gap-0.5">
+        {fans.map((_, i) => (
+          <FanHead key={`r-${i}`} color={oppColor} delay={i * 90 + 40} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FanHead({ color, delay }: { color: string; delay: number }) {
+  return (
+    <div
+      className="flex flex-col items-center"
+      style={{
+        animation: "fanBob 1.2s ease-in-out infinite",
+        animationDelay: `${delay}ms`,
+      }}
+    >
+      <div
+        className="h-2 w-2 rounded-full border border-black/50"
+        style={{ backgroundColor: color }}
+      />
+      <div
+        className="h-3 w-3 rounded-sm border border-black/50"
+        style={{ backgroundColor: color, opacity: 0.85 }}
+      />
+    </div>
+  );
+}
+
 function PlayerFigure({
   color,
   pose,
   size = 44,
+  emotion = "neutral",
 }: {
   color: string;
   pose: "striker" | "keeper";
   size?: number;
+  emotion?: "neutral" | "happy" | "sad";
 }) {
   const isKeeper = pose === "keeper";
   return (
@@ -415,6 +473,17 @@ function PlayerFigure({
     >
       {/* head */}
       <circle cx="24" cy="10" r="7" fill="#f5d6b1" stroke="#000" strokeWidth="1.5" />
+      {/* eyes */}
+      <circle cx="21.5" cy="9" r="0.9" fill="#000" />
+      <circle cx="26.5" cy="9" r="0.9" fill="#000" />
+      {/* mouth */}
+      {emotion === "sad" ? (
+        <path d="M21 13 Q24 11 27 13" stroke="#000" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+      ) : emotion === "happy" ? (
+        <path d="M21 12 Q24 15 27 12" stroke="#000" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+      ) : (
+        <path d="M22 13 L26 13" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+      )}
       {/* jersey / body */}
       <path
         d={
@@ -491,8 +560,37 @@ function GoalScene({
   // Keeper is the OTHER team
   const keeperColor = activeShooter === "player" ? oppColor : playerColor;
 
+  // Emotions only during result
+  let strikerEmotion: "neutral" | "happy" | "sad" = "neutral";
+  let keeperEmotion: "neutral" | "happy" | "sad" = "neutral";
+  if (showAction && last) {
+    if (last.offTarget) {
+      strikerEmotion = "sad";
+      keeperEmotion = "happy";
+    } else if (last.scored) {
+      strikerEmotion = "happy";
+      keeperEmotion = "sad";
+    } else {
+      strikerEmotion = "sad";
+      keeperEmotion = "happy";
+    }
+  }
+
+  // Off-target ball position: throw it off to the side / over the bar
+  const offBallPos =
+    showAction && last?.offTarget
+      ? last.shot === "TL" || last.shot === "BL"
+        ? { left: "-8%", top: "20%" }
+        : last.shot === "TR" || last.shot === "BR"
+          ? { left: "108%", top: "20%" }
+          : { left: "50%", top: "-15%" }
+      : null;
+  const finalBallPos = offBallPos ?? ballPos;
+
   return (
     <div className="relative w-full max-w-md">
+      {/* Crowd */}
+      <Crowd playerColor={playerColor} oppColor={oppColor} />
       {/* Goal frame */}
       <div
         className="relative w-full overflow-hidden rounded-lg bg-white/5"
@@ -512,17 +610,17 @@ function GoalScene({
           className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
           style={{ left: keeperPos.left, top: keeperPos.top }}
         >
-          <PlayerFigure color={keeperColor} pose="keeper" size={46} />
+          <PlayerFigure color={keeperColor} pose="keeper" size={64} emotion={keeperEmotion} />
         </div>
 
         {/* Ball */}
-        {ballPos && (
+        {finalBallPos && (
           <div
             key={`ball-${tick}`}
             className="absolute -translate-x-1/2 -translate-y-1/2 text-3xl"
             style={{
-              left: ballPos.left,
-              top: ballPos.top,
+              left: finalBallPos.left,
+              top: finalBallPos.top,
               filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))",
               animation: "ballFly 0.55s ease-out",
             }}
@@ -548,11 +646,11 @@ function GoalScene({
 
       {/* Striker outside the goal */}
       <div className="mt-2 flex items-center justify-between px-2">
-        <PlayerFigure color={strikerColor} pose="striker" size={44} />
+        <PlayerFigure color={strikerColor} pose="striker" size={64} emotion={strikerEmotion} />
         <span className="text-[10px] tracking-[0.25em] text-white/70 uppercase">
           {activeShooter === "player" ? "Бьёшь ты" : "Бьёт соперник"}
         </span>
-        <div className="h-10 w-10" />
+        <div className="h-14 w-14" />
       </div>
 
       <style>{`
@@ -560,6 +658,10 @@ function GoalScene({
           0% { transform: translate(-50%, 80px) scale(0.4); opacity: 0.4; }
           60% { opacity: 1; }
           100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        @keyframes fanBob {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
         }
       `}</style>
     </div>
