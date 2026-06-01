@@ -416,6 +416,9 @@ function read(): Store {
       perks: { ...initial.perks, ...(parsed.perks ?? {}) },
       ownedTeams: parsed.ownedTeams ?? initial.ownedTeams,
       wins: parsed.wins ?? initial.wins,
+      losses: parsed.losses ?? initial.losses,
+      matches: parsed.matches ?? initial.matches,
+      spentCoins: parsed.spentCoins ?? initial.spentCoins,
       sponsor: parsed.sponsor ?? initial.sponsor,
     };
   } catch {
