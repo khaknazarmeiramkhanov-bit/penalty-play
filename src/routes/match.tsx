@@ -1462,11 +1462,11 @@ function PlayerFigure({
 
       {/* === HEAD === */}
       {/* Hair back layer (varies by style) */}
-      {hairStyle === "afro" && (
-        <circle cx="45" cy="14" r="13" fill={hair} />
+      {hairStyle === "sidepart" && (
+        <path d="M33 18 Q33 7 45 7 Q57 7 57 18 L57 24 L33 24 Z" fill={hair} />
       )}
-      {hairStyle === "long" && (
-        <path d="M30 18 Q30 6 45 6 Q60 6 60 18 L60 38 Q56 36 54 32 L54 24 L36 24 L36 32 Q34 36 30 38 Z" fill={hair} />
+      {hairStyle === "slickback" && (
+        <path d="M32 18 Q32 5 45 5 Q58 5 58 18 L60 24 L58 28 L32 28 L30 24 Z" fill={hair} />
       )}
       {hairStyle === "short" && (
         <path d="M32 18 Q32 7 45 7 Q58 7 58 18 L58 24 L32 24 Z" fill={hair} />
@@ -1489,14 +1489,11 @@ function PlayerFigure({
       {hairStyle === "short" && (
         <path d="M33 18 Q40 12 47 16 Q52 14 57 18 L56 21 Q50 18 46 20 Q40 17 34 22 Z" fill={hair} />
       )}
-      {hairStyle === "long" && (
-        <path d="M33 18 Q40 10 48 15 Q53 12 57 18 L56 22 Q50 19 46 21 Q40 18 34 23 Z" fill={hair} />
+      {hairStyle === "slickback" && (
+        <path d="M33 18 Q40 10 45 12 Q50 10 57 18 L56 22 Q50 18 45 20 Q40 18 34 22 Z" fill={hair} />
       )}
-      {hairStyle === "afro" && (
-        <circle cx="38" cy="16" r="3.5" fill={hair} />
-      )}
-      {hairStyle === "afro" && (
-        <circle cx="52" cy="16" r="3.5" fill={hair} />
+      {hairStyle === "sidepart" && (
+        <path d="M34 18 Q40 14 45 16 Q50 14 56 18 L55 21 L45 19 Q40 17 35 22 Z" fill={hair} />
       )}
       {hairStyle === "buzz" && (
         <path d="M35 17 Q45 14 55 17 L55 19 Q45 17 35 19 Z" fill={hair} opacity="0.7" />
