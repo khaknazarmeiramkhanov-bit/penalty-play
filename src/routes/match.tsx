@@ -48,6 +48,7 @@ type Last = {
   shot: Zone;
   keeper: Zone;
   scored: boolean;
+  offTarget: boolean;
 };
 
 function randomZone(): Zone {
@@ -102,8 +103,9 @@ function MatchPage() {
     const shot: Zone = smart ? leastUsed(playerGuessHistory.current) : randomZone();
     playerGuessHistory.current = [...playerGuessHistory.current, playerKeeper];
 
-    const scored = shot !== playerKeeper;
-    setLast({ shooter: "opponent", shot, keeper: playerKeeper, scored });
+    const offTarget = Math.random() < 0.1;
+    const scored = !offTarget && shot !== playerKeeper;
+    setLast({ shooter: "opponent", shot, keeper: playerKeeper, scored, offTarget });
     setPhase("result");
     if (scored) setOppScore((s) => s + 1);
     window.setTimeout(() => setAnimating(false), 700);
@@ -117,8 +119,9 @@ function MatchPage() {
     const keeper: Zone = smart ? mostUsed(playerShotHistory.current) : randomZone();
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
-    const scored = playerShot !== keeper;
-    setLast({ shooter: "player", shot: playerShot, keeper, scored });
+    const offTarget = Math.random() < 0.1;
+    const scored = !offTarget && playerShot !== keeper;
+    setLast({ shooter: "player", shot: playerShot, keeper, scored, offTarget });
     setPhase("result");
     if (scored) setPlayerScore((s) => s + 1);
     window.setTimeout(() => setAnimating(false), 700);
