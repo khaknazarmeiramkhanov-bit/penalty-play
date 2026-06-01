@@ -327,9 +327,7 @@ function MatchPage() {
     ) {
       scored = true;
       setAbilityFlash(
-        snowLeopards
-          ? "🐆 Горный хищник! Гол сквозь вратаря"
-          : "🦏 Таран! Пробил вратаря",
+        snowLeopards ? "🐆 Горный хищник! Гол сквозь вратаря" : "🦏 Таран! Пробил вратаря",
       );
     } else if (foxFint && scored) {
       setAbilityFlash("🦊 Хитрый финт! Вратарь обманут");
