@@ -830,34 +830,32 @@ function PlayerFigure({
       {/* === ARMS === */}
       {isKeeper ? (
         <>
-          {/* LEFT arm — shoulder (28,46) → wrist (16,52) */}
+          {/* LEFT arm — shoulder (28,46) → wrist (34,64), arms forward to chest */}
           <path
-            d="M28 44 L30 48 L18 56 L14 52 Z"
+            d="M28 44 L30 48 L36 62 L32 64 Z"
             fill={`url(#${jerseyId})`}
             stroke="#0a0a0a"
             strokeWidth="0.4"
           />
-          {/* Forearm skin between sleeve and glove cuff */}
           <path
-            d="M18 54 L20 58 L16 60 L14 56 Z"
+            d="M32 60 L36 62 L34 66 L30 64 Z"
             fill={`url(#${skinId})`}
             stroke="#1a1208"
             strokeWidth="0.4"
           />
-          {/* Wristband */}
           <rect
-            x="13"
-            y="55"
+            x="31"
+            y="62"
             width="7"
             height="3"
             rx="1"
             fill={resolvedBand}
             stroke="#0a0a0a"
             strokeWidth="0.4"
-            transform="rotate(-25 16 56)"
+            transform="rotate(35 34 64)"
           />
-          {/* LEFT GLOVE — bigger realistic keeper glove */}
-          <g transform="translate(16 62) scale(0.75)">
+          {/* LEFT GLOVE — centered on chest */}
+          <g transform="translate(34 70) scale(0.7)">
             {/* Palm */}
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
