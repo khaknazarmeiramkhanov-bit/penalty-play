@@ -119,15 +119,33 @@ function Section({
           const isOwned = owned.includes(item.id);
           const isEquipped = equipped === item.id;
           const canAfford = coins >= item.price;
+          const isLegendary = item.rarity === "legendary";
+          const isRare = item.rarity === "rare";
           return (
             <div
               key={item.id}
-              className="flex flex-col items-center gap-2 rounded-xl bg-black/40 p-3 backdrop-blur-sm"
+              className="relative flex flex-col items-center gap-2 rounded-xl bg-black/40 p-3 backdrop-blur-sm"
               style={{
-                border: isEquipped ? "2px solid #ccff00" : "2px solid rgba(255,255,255,0.15)",
-                boxShadow: isEquipped ? "0 0 24px rgba(204,255,0,0.4)" : undefined,
+                border: isEquipped
+                  ? "2px solid #ccff00"
+                  : isLegendary
+                    ? "2px solid #fbbf24"
+                    : isRare
+                      ? "2px solid #a855f7"
+                      : "2px solid rgba(255,255,255,0.15)",
+                boxShadow: isEquipped
+                  ? "0 0 24px rgba(204,255,0,0.4)"
+                  : isLegendary
+                    ? "0 0 20px rgba(251,191,36,0.35), inset 0 0 12px rgba(251,191,36,0.12)"
+                    : undefined,
               }}
             >
+              {isLegendary && (
+                <span className="absolute top-1.5 right-1.5 text-xs">👑</span>
+              )}
+              {isRare && !isLegendary && (
+                <span className="absolute top-1.5 right-1.5 text-xs">⭐</span>
+              )}
               <Preview item={item} />
               <span className="text-center text-sm font-black tracking-wider text-white uppercase">
                 {item.name}
@@ -139,8 +157,14 @@ function Section({
                   onClick={() => onEquip(item.id)}
                   className="w-full rounded-md px-3 py-2 text-xs font-black tracking-widest uppercase transition-all disabled:opacity-60"
                   style={{
-                    backgroundColor: isEquipped ? "#ccff00" : "rgba(255,255,255,0.1)",
-                    color: isEquipped ? "#000" : "#fff",
+                    backgroundColor: isEquipped
+                      ? "#ccff00"
+                      : isLegendary
+                        ? "rgba(251,191,36,0.25)"
+                        : isRare
+                          ? "rgba(168,85,247,0.25)"
+                          : "rgba(255,255,255,0.1)",
+                    color: isEquipped ? "#000" : isLegendary ? "#fbbf24" : "#fff",
                   }}
                 >
                   {isEquipped ? "Надето" : "Надеть"}
@@ -152,8 +176,18 @@ function Section({
                   onClick={() => onBuy(item.id)}
                   className="flex w-full items-center justify-center gap-1 rounded-md px-3 py-2 text-xs font-black tracking-widest uppercase transition-all disabled:opacity-50"
                   style={{
-                    backgroundColor: canAfford ? "#ccff00" : "rgba(255,255,255,0.08)",
-                    color: canAfford ? "#000" : "#fff",
+                    backgroundColor: canAfford
+                      ? isLegendary
+                        ? "#fbbf24"
+                        : isRare
+                          ? "#a855f7"
+                          : "#ccff00"
+                      : isLegendary
+                        ? "rgba(251,191,36,0.12)"
+                        : isRare
+                          ? "rgba(168,85,247,0.12)"
+                          : "rgba(255,255,255,0.08)",
+                    color: canAfford ? (isLegendary || isRare ? "#000" : "#000") : isLegendary ? "#fbbf24" : isRare ? "#c4b5fd" : "#fff",
                   }}
                 >
                   🪙 {item.price}
