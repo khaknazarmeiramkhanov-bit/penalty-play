@@ -879,8 +879,18 @@ function GoalScene({
 }) {
   // Animation: ball travels from striker spot to its zone after picking
   const [tick, setTick] = useState(0);
+  // Kick animation: idle → wind-up → strike
+  const [kickStage, setKickStage] = useState<"idle" | "kick">("idle");
   useEffect(() => {
-    if (phase === "result") setTick((t) => t + 1);
+    if (phase === "result") {
+      setTick((t) => t + 1);
+      // Show wind-up, then kick after small delay; reset to idle after the ball arrives
+      setKickStage("idle");
+      const t1 = window.setTimeout(() => setKickStage("kick"), 80);
+      return () => window.clearTimeout(t1);
+    } else {
+      setKickStage("idle");
+    }
   }, [phase, last]);
 
   const showAction = phase === "result" && last;
@@ -986,19 +996,38 @@ function GoalScene({
         )}
       </div>
 
-      {/* Striker outside the goal */}
-      <div className="mt-2 flex items-center justify-between px-2">
-        <PlayerFigure color={strikerColor} pose="striker" size={110} emotion={strikerEmotion} />
-        <span className="text-[10px] tracking-[0.25em] text-white/70 uppercase">
+      {/* Pitch in front of the goal */}
+      <div className="relative mt-2 w-full overflow-hidden rounded-b-lg" style={{ height: 180 }}>
+        {/* Field with pitch lines */}
+        <PitchLines />
+        {/* Striker on the penalty spot */}
+        <div
+          key={`striker-${tick}`}
+          className="absolute bottom-2"
+          style={{
+            left: "50%",
+            transform: `translateX(-50%) ${kickStage === "kick" ? "translateX(6px)" : ""}`,
+            transition: "transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+          }}
+        >
+          <PlayerFigure
+            color={strikerColor}
+            pose="striker"
+            size={120}
+            emotion={strikerEmotion}
+            kicking={kickStage === "kick"}
+          />
+        </div>
+        {/* Label */}
+        <span className="absolute right-3 top-3 rounded bg-black/50 px-2 py-1 text-[10px] tracking-[0.25em] text-white/80 uppercase">
           {activeShooter === "player" ? "Бьёшь ты" : "Бьёт соперник"}
         </span>
-        <div className="h-20 w-20" />
       </div>
 
       <style>{`
         @keyframes ballFly {
-          0% { transform: translate(-50%, 80px) scale(0.4); opacity: 0.4; }
-          60% { opacity: 1; }
+          0% { transform: translate(-50%, 200px) scale(0.3); opacity: 0; }
+          15% { opacity: 1; }
           100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
         @keyframes fanBob {
@@ -1011,5 +1040,42 @@ function GoalScene({
         }
       `}</style>
     </div>
+  );
+}
+
+function PitchLines() {
+  // SVG of penalty area as seen looking toward the goal (top-down compressed perspective).
+  return (
+    <svg
+      viewBox="0 0 400 180"
+      preserveAspectRatio="none"
+      className="absolute inset-0 h-full w-full"
+      style={{
+        background:
+          "linear-gradient(180deg, #0e6a30 0%, #0d5c2a 60%, #0a4a22 100%)",
+      }}
+    >
+      {/* Mowed stripes */}
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <rect
+          key={i}
+          x="0"
+          y={i * 30}
+          width="400"
+          height="30"
+          fill={i % 2 === 0 ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)"}
+        />
+      ))}
+      {/* Goal-area (6-yard box) — narrow trapezoid at top */}
+      <path d="M150 0 L250 0 L260 24 L140 24 Z" fill="none" stroke="#fff" strokeWidth="2" />
+      {/* Penalty area (18-yard box) — wider trapezoid */}
+      <path d="M70 0 L330 0 L380 70 L20 70 Z" fill="none" stroke="#fff" strokeWidth="2" />
+      {/* Penalty arc */}
+      <path d="M170 70 Q200 95 230 70" fill="none" stroke="#fff" strokeWidth="2" />
+      {/* Penalty spot */}
+      <circle cx="200" cy="56" r="3" fill="#fff" />
+      {/* Side touchlines fade */}
+      <line x1="0" y1="178" x2="400" y2="178" stroke="#fff" strokeWidth="2" opacity="0.6" />
+    </svg>
   );
 }
