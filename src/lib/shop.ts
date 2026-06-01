@@ -8,37 +8,114 @@ export type ShopItem = {
   name: string;
   price: number;
   // visual props applied to PlayerFigure
-  color: string;        // primary color
-  accent?: string;      // secondary highlight
+  color: string; // primary color
+  accent?: string; // secondary highlight
 };
 
 export const ITEMS: ShopItem[] = [
   // Gloves
-  { id: "glove_orange",  kind: "glove", name: "Классика", price: 0,   color: "#ff7a1a", accent: "#ffb066" },
-  { id: "glove_neon",    kind: "glove", name: "Неон",     price: 80,  color: "#39ff14", accent: "#a7ffb1" },
-  { id: "glove_royal",   kind: "glove", name: "Роял",     price: 120, color: "#1e3a8a", accent: "#60a5fa" },
-  { id: "glove_crimson", kind: "glove", name: "Кровь",    price: 150, color: "#b91c1c", accent: "#fca5a5" },
-  { id: "glove_gold",    kind: "glove", name: "Золото",   price: 300, color: "#facc15", accent: "#fff7c2" },
-  { id: "glove_carbon",  kind: "glove", name: "Карбон",   price: 220, color: "#1f2937", accent: "#7dd3fc" },
+  {
+    id: "glove_orange",
+    kind: "glove",
+    name: "Классика",
+    price: 0,
+    color: "#ff7a1a",
+    accent: "#ffb066",
+  },
+  { id: "glove_neon", kind: "glove", name: "Неон", price: 80, color: "#39ff14", accent: "#a7ffb1" },
+  {
+    id: "glove_royal",
+    kind: "glove",
+    name: "Роял",
+    price: 120,
+    color: "#1e3a8a",
+    accent: "#60a5fa",
+  },
+  {
+    id: "glove_crimson",
+    kind: "glove",
+    name: "Кровь",
+    price: 150,
+    color: "#b91c1c",
+    accent: "#fca5a5",
+  },
+  {
+    id: "glove_gold",
+    kind: "glove",
+    name: "Золото",
+    price: 300,
+    color: "#facc15",
+    accent: "#fff7c2",
+  },
+  {
+    id: "glove_carbon",
+    kind: "glove",
+    name: "Карбон",
+    price: 220,
+    color: "#1f2937",
+    accent: "#7dd3fc",
+  },
 
   // Boots
-  { id: "boot_black",  kind: "boot", name: "Чёрные",   price: 0,   color: "#0a0a0a", accent: "#ffffff" },
-  { id: "boot_white",  kind: "boot", name: "Белые",    price: 60,  color: "#f4f4f5", accent: "#0a0a0a" },
-  { id: "boot_red",    kind: "boot", name: "Алые",     price: 120, color: "#dc2626", accent: "#fff7c2" },
-  { id: "boot_gold",   kind: "boot", name: "Золотые",  price: 280, color: "#facc15", accent: "#0a0a0a" },
-  { id: "boot_neon",   kind: "boot", name: "Лазер",    price: 200, color: "#ec4899", accent: "#fde68a" },
+  { id: "boot_black", kind: "boot", name: "Чёрные", price: 0, color: "#0a0a0a", accent: "#ffffff" },
+  { id: "boot_white", kind: "boot", name: "Белые", price: 60, color: "#f4f4f5", accent: "#0a0a0a" },
+  { id: "boot_red", kind: "boot", name: "Алые", price: 120, color: "#dc2626", accent: "#fff7c2" },
+  {
+    id: "boot_gold",
+    kind: "boot",
+    name: "Золотые",
+    price: 280,
+    color: "#facc15",
+    accent: "#0a0a0a",
+  },
+  { id: "boot_neon", kind: "boot", name: "Лазер", price: 200, color: "#ec4899", accent: "#fde68a" },
 
   // Wristbands
-  { id: "band_white",  kind: "wristband", name: "Белая",   price: 0,   color: "#ffffff", accent: "#000" },
-  { id: "band_team",   kind: "wristband", name: "Командная", price: 50, color: "TEAM",   accent: "#000" },
-  { id: "band_gold",   kind: "wristband", name: "Золото",  price: 180, color: "#facc15", accent: "#000" },
-  { id: "band_rainbow",kind: "wristband", name: "Радуга",  price: 220, color: "RAINBOW", accent: "#000" },
+  {
+    id: "band_white",
+    kind: "wristband",
+    name: "Белая",
+    price: 0,
+    color: "#ffffff",
+    accent: "#000",
+  },
+  {
+    id: "band_team",
+    kind: "wristband",
+    name: "Командная",
+    price: 50,
+    color: "TEAM",
+    accent: "#000",
+  },
+  {
+    id: "band_gold",
+    kind: "wristband",
+    name: "Золото",
+    price: 180,
+    color: "#facc15",
+    accent: "#000",
+  },
+  {
+    id: "band_rainbow",
+    kind: "wristband",
+    name: "Радуга",
+    price: 220,
+    color: "RAINBOW",
+    accent: "#000",
+  },
 
   // Socks
-  { id: "sock_black",  kind: "sock", name: "Чёрные",   price: 0,   color: "#0c0c10", accent: "TEAM" },
-  { id: "sock_white",  kind: "sock", name: "Белые",    price: 50,  color: "#e5e7eb", accent: "TEAM" },
-  { id: "sock_navy",   kind: "sock", name: "Военные",  price: 100, color: "#0f172a", accent: "#22c55e" },
-  { id: "sock_neon",   kind: "sock", name: "Кислота",  price: 180, color: "#ccff00", accent: "#000" },
+  { id: "sock_black", kind: "sock", name: "Чёрные", price: 0, color: "#0c0c10", accent: "TEAM" },
+  { id: "sock_white", kind: "sock", name: "Белые", price: 50, color: "#e5e7eb", accent: "TEAM" },
+  {
+    id: "sock_navy",
+    kind: "sock",
+    name: "Военные",
+    price: 100,
+    color: "#0f172a",
+    accent: "#22c55e",
+  },
+  { id: "sock_neon", kind: "sock", name: "Кислота", price: 180, color: "#ccff00", accent: "#000" },
 ];
 
 export const DEFAULT_EQUIPPED: Record<ItemKind, string> = {

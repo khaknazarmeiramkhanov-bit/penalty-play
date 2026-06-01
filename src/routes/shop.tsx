@@ -1,12 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ITEMS,
-  PERKS,
-  useInventory,
-  type ItemKind,
-  type Perk,
-  type ShopItem,
-} from "@/lib/shop";
+import { ITEMS, PERKS, useInventory, type ItemKind, type Perk, type ShopItem } from "@/lib/shop";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
@@ -120,9 +113,7 @@ function Section({
 }) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-xs font-black tracking-[0.3em] text-white/80 uppercase">
-        {title}
-      </h2>
+      <h2 className="text-xs font-black tracking-[0.3em] text-white/80 uppercase">{title}</h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {items.map((item) => {
           const isOwned = owned.includes(item.id);
@@ -251,7 +242,7 @@ function PerksSection({
 function Preview({ item }: { item: ShopItem }) {
   const color =
     item.color === "TEAM" ? "#ccff00" : item.color === "RAINBOW" ? "url(#rg)" : item.color;
-  const accent = item.accent === "TEAM" ? "#ccff00" : item.accent ?? "#fff";
+  const accent = item.accent === "TEAM" ? "#ccff00" : (item.accent ?? "#fff");
   return (
     <div className="flex h-16 w-full items-center justify-center rounded-md bg-black/30">
       <svg viewBox="0 0 60 40" width="60" height="40">
@@ -272,10 +263,46 @@ function Preview({ item }: { item: ShopItem }) {
               stroke="#0a0a0a"
               strokeWidth="1"
             />
-            <rect x="18" y="6" width="3" height="14" rx="1.5" fill={color} stroke="#0a0a0a" strokeWidth="0.6" />
-            <rect x="24" y="4" width="3" height="16" rx="1.5" fill={color} stroke="#0a0a0a" strokeWidth="0.6" />
-            <rect x="30" y="5" width="3" height="15" rx="1.5" fill={color} stroke="#0a0a0a" strokeWidth="0.6" />
-            <rect x="36" y="8" width="3" height="12" rx="1.5" fill={color} stroke="#0a0a0a" strokeWidth="0.6" />
+            <rect
+              x="18"
+              y="6"
+              width="3"
+              height="14"
+              rx="1.5"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="0.6"
+            />
+            <rect
+              x="24"
+              y="4"
+              width="3"
+              height="16"
+              rx="1.5"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="0.6"
+            />
+            <rect
+              x="30"
+              y="5"
+              width="3"
+              height="15"
+              rx="1.5"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="0.6"
+            />
+            <rect
+              x="36"
+              y="8"
+              width="3"
+              height="12"
+              rx="1.5"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="0.6"
+            />
             <path d="M14 28 L40 28" stroke={accent} strokeWidth="1.5" />
             <rect x="12" y="32" width="30" height="4" fill="#0a0a0a" />
             <rect x="12" y="32" width="30" height="1.5" fill={accent} />
@@ -283,7 +310,12 @@ function Preview({ item }: { item: ShopItem }) {
         )}
         {item.kind === "boot" && (
           <g>
-            <path d="M6 24 Q6 18 14 18 L34 18 Q42 18 44 22 L52 28 L52 32 Q52 34 50 34 L8 34 Q6 34 6 32 Z" fill={color} stroke="#0a0a0a" strokeWidth="1" />
+            <path
+              d="M6 24 Q6 18 14 18 L34 18 Q42 18 44 22 L52 28 L52 32 Q52 34 50 34 L8 34 Q6 34 6 32 Z"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="1"
+            />
             <path d="M6 30 L52 30" stroke={accent} strokeWidth="1.2" />
             <circle cx="14" cy="34" r="1.2" fill="#0a0a0a" />
             <circle cx="20" cy="34" r="1.2" fill="#0a0a0a" />
@@ -294,14 +326,32 @@ function Preview({ item }: { item: ShopItem }) {
         )}
         {item.kind === "wristband" && (
           <g>
-            <rect x="10" y="14" width="40" height="14" rx="3" fill={color} stroke="#0a0a0a" strokeWidth="1" />
+            <rect
+              x="10"
+              y="14"
+              width="40"
+              height="14"
+              rx="3"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="1"
+            />
             <rect x="10" y="18" width="40" height="2" fill="rgba(255,255,255,0.4)" />
             <rect x="10" y="23" width="40" height="2" fill="rgba(0,0,0,0.25)" />
           </g>
         )}
         {item.kind === "sock" && (
           <g>
-            <rect x="22" y="4" width="16" height="32" rx="3" fill={color} stroke="#0a0a0a" strokeWidth="1" />
+            <rect
+              x="22"
+              y="4"
+              width="16"
+              height="32"
+              rx="3"
+              fill={color}
+              stroke="#0a0a0a"
+              strokeWidth="1"
+            />
             <rect x="22" y="14" width="16" height="3" fill={accent} />
             <rect x="22" y="22" width="16" height="3" fill={accent} />
           </g>
