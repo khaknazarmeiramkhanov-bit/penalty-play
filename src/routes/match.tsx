@@ -267,7 +267,13 @@ function MatchPage() {
 
     const offTarget = dragons || elephants ? false : Math.random() < 0.1;
     let scored = !offTarget && playerShot !== keeper;
-    if (!scored && !offTarget && ((snowLeopards && Math.random() < 0.2) || (foxes && Math.random() < 0.15) || (crocodiles && Math.random() < 0.2))) {
+    if (
+      !scored &&
+      !offTarget &&
+      ((snowLeopards && Math.random() < 0.2) ||
+        (foxes && Math.random() < 0.15) ||
+        (crocodiles && Math.random() < 0.2))
+    ) {
       scored = true;
       const flash = snowLeopards
         ? "🐆 Горный хищник! Гол сквозь вратаря"
