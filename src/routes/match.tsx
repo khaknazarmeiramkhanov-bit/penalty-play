@@ -935,32 +935,32 @@ function PlayerFigure({
             <rect x="-10" y="11" width="22" height="1.5" fill={gear.gloveAccent} opacity="0.9" />
           </g>
 
-          {/* RIGHT arm — shoulder (62,46) → wrist (74,52), mirrored */}
+          {/* RIGHT arm — shoulder (62,46) → wrist (56,64), mirrored forward */}
           <path
-            d="M62 44 L60 48 L72 56 L76 52 Z"
+            d="M62 44 L60 48 L54 62 L58 64 Z"
             fill={`url(#${jerseyId})`}
             stroke="#0a0a0a"
             strokeWidth="0.4"
           />
           <path
-            d="M72 54 L70 58 L74 60 L76 56 Z"
+            d="M58 60 L54 62 L56 66 L60 64 Z"
             fill={`url(#${skinId})`}
             stroke="#1a1208"
             strokeWidth="0.4"
           />
           <rect
-            x="70"
-            y="55"
+            x="52"
+            y="62"
             width="7"
             height="3"
             rx="1"
             fill={resolvedBand}
             stroke="#0a0a0a"
             strokeWidth="0.4"
-            transform="rotate(25 74 56)"
+            transform="rotate(-35 56 64)"
           />
-          {/* RIGHT GLOVE — bigger mirrored keeper glove */}
-          <g transform="translate(74 62) scale(-0.75 0.75)">
+          {/* RIGHT GLOVE — centered mirrored on chest */}
+          <g transform="translate(56 70) scale(-0.7 0.7)">
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
               fill={`url(#${gloveGradId})`}
