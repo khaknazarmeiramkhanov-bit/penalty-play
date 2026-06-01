@@ -1408,7 +1408,7 @@ function PlayerFigure({
     return Math.abs(h);
   };
   const HAIR_COLORS = ["#1a1208", "#3a1f0a", "#6b3410", "#c98a3a", "#0a0a0a", "#5a3a2a"];
-  const HAIR_STYLES = ["short", "bald", "afro", "mohawk", "long", "buzz"] as const;
+  const HAIR_STYLES = ["short", "bald", "sidepart", "mohawk", "slickback", "buzz"] as const;
   const styleSeed = hashStr(color);
   const hairStyle = HAIR_STYLES[styleSeed % HAIR_STYLES.length];
   const hair = HAIR_COLORS[(styleSeed >> 3) % HAIR_COLORS.length];
