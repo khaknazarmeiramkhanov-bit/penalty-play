@@ -567,7 +567,7 @@ function MatchPage() {
               {isSudden ? `+${round - MIN_ROUNDS}` : `${round}/${MIN_ROUNDS}`}
             </span>
           </div>
-          <ScorePane label="Соперник" name="Враги" score={oppScore} />
+          <ScorePane label="Соперник" name={`${oppEmoji} ${oppTeam}`} score={oppScore} />
         </div>
 
         {/* Coins + shop */}
