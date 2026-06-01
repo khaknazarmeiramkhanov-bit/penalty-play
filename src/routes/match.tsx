@@ -39,6 +39,26 @@ function teamGlove(name: string): { color: string; accent: string; style: GloveS
       return { color: "#1a1a1a", accent: tc, style: "carbon" };
     case "Быки":
       return { color: tc, accent: "#fde68a", style: "classic" };
+    case "Лисы":
+      return { color: tc, accent: "#fdba74", style: "striped" };
+    case "Медведи":
+      return { color: tc, accent: "#d6c0a8", style: "classic" };
+    case "Кондоры":
+      return { color: tc, accent: "#e0f2fe", style: "tech" };
+    case "Олени":
+      return { color: tc, accent: "#bfdbfe", style: "classic" };
+    case "Игуаны":
+      return { color: tc, accent: "#a7f3d0", style: "striped" };
+    case "Совы":
+      return { color: tc, accent: "#e5e7eb", style: "tech" };
+    case "Крокодилы":
+      return { color: tc, accent: "#a7f3d0", style: "striped" };
+    case "Слоны":
+      return { color: tc, accent: "#d1d5db", style: "classic" };
+    case "Носороги":
+      return { color: tc, accent: "#fecaca", style: "carbon" };
+    case "Бабочки":
+      return { color: tc, accent: "#c7d2fe", style: "tech" };
     default:
       return { color: "#ff7a1a", accent: "#ffb066", style: "classic" };
   }
