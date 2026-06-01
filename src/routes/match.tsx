@@ -209,9 +209,12 @@ function MatchPage() {
     // ABILITIES affecting opponent shot:
     const wolves = team === "Волки"; // opp off-target chance up to 25%
     const tigers = team === "Тигры"; // 20% auto-save
-    const offChance = wolves ? 0.25 : 0.1;
+    const condors = team === "Кондоры"; // opp off-target up to 20%
+    const bears = team === "Медведи"; // 15% auto-save
+    const butterflies = team === "Бабочки"; // 15% cancel opponent goal
+    const offChance = wolves ? 0.25 : condors ? 0.2 : 0.1;
     const offTarget = Math.random() < offChance;
-    const autoSave = tigers && Math.random() < 0.2;
+    const autoSave = (tigers && Math.random() < 0.2) || (bears && Math.random() < 0.15);
     const effectiveKeeper: Zone = autoSave ? shot : playerKeeper;
     let scored = !offTarget && shot !== effectiveKeeper;
 
@@ -220,8 +223,11 @@ function MatchPage() {
       kingCancelUsed.current = true;
       scored = false;
       setAbilityFlash("👑 Корона! Гол отменён");
+    } else if (scored && butterflies && Math.random() < 0.15) {
+      scored = false;
+      setAbilityFlash("🦋 Эффект бабочки! Гол отменён");
     } else if (autoSave) {
-      setAbilityFlash("🐯 Прыжок тигра! Автосейв");
+      setAbilityFlash(tigers ? "🐯 Прыжок тигра! Автосейв" : "🐻 Берлога! Автосейв");
     } else {
       setAbilityFlash(null);
     }
