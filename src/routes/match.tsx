@@ -1900,6 +1900,7 @@ function GoalScene({
             size={104}
             emotion={keeperEmotion}
             gear={activeShooter === "player" ? DEFAULT_GEAR : gear}
+            sponsor={activeShooter === "player" ? undefined : playerSponsor}
           />
         </div>
 
@@ -1957,6 +1958,7 @@ function GoalScene({
             emotion={strikerEmotion}
             kicking={kickStage === "kick"}
             gear={activeShooter === "player" ? gear : DEFAULT_GEAR}
+            sponsor={activeShooter === "player" ? playerSponsor : undefined}
           />
         </div>
         {/* Label */}
