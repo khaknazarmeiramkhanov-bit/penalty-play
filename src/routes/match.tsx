@@ -110,6 +110,7 @@ function MatchPage() {
   const [last, setLast] = useState<Last | null>(null);
   const [animating, setAnimating] = useState(false);
   const [abilityFlash, setAbilityFlash] = useState<string | null>(null);
+  const [resultLocked, setResultLocked] = useState(false);
 
   // History of player choices to drive smarter AI
   const playerGuessHistory = useRef<Zone[]>([]); // where player dives as keeper
@@ -172,6 +173,8 @@ function MatchPage() {
 
     setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
     setPhase("result");
+    setResultLocked(true);
+    window.setTimeout(() => setResultLocked(false), 3000);
     if (scored) setOppScore((s) => s + 1);
     if (!scored) inv.addCoins(15); // save reward
     pendingOppShot.current = null;
@@ -211,12 +214,15 @@ function MatchPage() {
 
     setLast({ shooter: "player", shot: playerShot, keeper, scored, offTarget });
     setPhase("result");
+    setResultLocked(true);
+    window.setTimeout(() => setResultLocked(false), 3000);
     if (scored) setPlayerScore((s) => s + 1);
     if (scored) inv.addCoins(20); // goal reward
     window.setTimeout(() => setAnimating(false), 700);
   }
 
   function next() {
+    if (resultLocked) return;
     if (!last) return;
     // After opponent shot → player shoots in same round
     if (last.shooter === "opponent") {
@@ -359,7 +365,7 @@ function MatchPage() {
           />
         )}
 
-        {phase === "result" && last && <ResultBlock last={last} onNext={next} />}
+        {phase === "result" && last && <ResultBlock last={last} onNext={next} locked={resultLocked} />}
 
         {phase === "over" && (
           <OverBlock team={team} playerScore={playerScore} oppScore={oppScore} onReset={reset} />
@@ -425,7 +431,7 @@ function ZonePad({
   );
 }
 
-function ResultBlock({ last, onNext }: { last: Last; onNext: () => void }) {
+function ResultBlock({ last, onNext, locked }: { last: Last; onNext: () => void; locked?: boolean }) {
   const isOpp = last.shooter === "opponent";
   return (
     <div className="flex flex-col items-center gap-3">
@@ -451,7 +457,8 @@ function ResultBlock({ last, onNext }: { last: Last; onNext: () => void }) {
       <button
         type="button"
         onClick={onNext}
-        className="rounded-xl px-10 py-3 text-lg font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
+        disabled={locked}
+        className="rounded-xl px-10 py-3 text-lg font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
         style={{
           backgroundColor: "#ccff00",
           boxShadow: "0 8px 0 rgb(132,163,0)",
