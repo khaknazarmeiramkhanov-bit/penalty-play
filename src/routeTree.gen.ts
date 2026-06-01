@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TeamsRouteImport } from './routes/teams'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as RatingRouteImport } from './routes/rating'
 import { Route as MatchRouteImport } from './routes/match'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -22,6 +23,11 @@ const TeamsRoute = TeamsRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RatingRoute = RatingRouteImport.update({
+  id: '/rating',
+  path: '/rating',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatchRoute = MatchRouteImport.update({
@@ -38,12 +44,14 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/match': typeof MatchRoute
+  '/rating': typeof RatingRoute
   '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/match': typeof MatchRoute
+  '/rating': typeof RatingRoute
   '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/match': typeof MatchRoute
+  '/rating': typeof RatingRoute
   '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/match' | '/shop' | '/teams'
+  fullPaths: '/' | '/match' | '/rating' | '/shop' | '/teams'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/match' | '/shop' | '/teams'
-  id: '__root__' | '/' | '/match' | '/shop' | '/teams'
+  to: '/' | '/match' | '/rating' | '/shop' | '/teams'
+  id: '__root__' | '/' | '/match' | '/rating' | '/shop' | '/teams'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MatchRoute: typeof MatchRoute
+  RatingRoute: typeof RatingRoute
   ShopRoute: typeof ShopRoute
   TeamsRoute: typeof TeamsRoute
 }
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rating': {
+      id: '/rating'
+      path: '/rating'
+      fullPath: '/rating'
+      preLoaderRoute: typeof RatingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/match': {
@@ -105,9 +122,20 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MatchRoute: MatchRoute,
+  RatingRoute: RatingRoute,
   ShopRoute: ShopRoute,
   TeamsRoute: TeamsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
