@@ -64,6 +64,12 @@ function teamGlove(name: string): { color: string; accent: string; style: GloveS
       return { color: tc, accent: "#fecaca", style: "carbon" };
     case "Бабочки":
       return { color: tc, accent: "#c7d2fe", style: "tech" };
+    case "Гориллы":
+      return { color: tc, accent: "#fafafa", style: "carbon" };
+    case "Гепарды":
+      return { color: tc, accent: "#1a1a1a", style: "striped" };
+    case "Фениксы":
+      return { color: tc, accent: "#fde68a", style: "tech" };
     default:
       return { color: "#ff7a1a", accent: "#ffb066", style: "classic" };
   }
