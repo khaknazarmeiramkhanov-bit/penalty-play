@@ -1,5 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ITEMS, PERKS, useInventory, type ItemKind, type Perk, type ShopItem } from "@/lib/shop";
+import {
+  ITEMS,
+  PERKS,
+  SPONSORS,
+  useInventory,
+  type ItemKind,
+  type Perk,
+  type ShopItem,
+  type Sponsor,
+} from "@/lib/shop";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
@@ -67,6 +76,13 @@ function ShopPage() {
           levels={inv.perks}
           crystals={inv.crystals}
           onBuy={inv.buyPerk}
+        />
+
+        <SponsorsSection
+          sponsors={SPONSORS}
+          wins={inv.wins}
+          current={inv.sponsor}
+          onEquip={inv.equipSponsor}
         />
 
         {SECTIONS.map((s) => (
