@@ -302,39 +302,34 @@ function MatchPage() {
       keeper = others[Math.floor(Math.random() * others.length)];
     }
     const shotMeta = ZONES.find((z) => z.id === playerShot)!;
-    // Кондоры: верхний ряд — вратарь всегда не туда
-    if (condors && shotMeta.row === 0) {
-      const others = ALL_ZONES.filter((z) => z !== playerShot);
-      keeper = others[Math.floor(Math.random() * others.length)];
-    }
-    // Игуаны: накопленный гарантированный гол
-    if (iguanaShot) {
-      const others = ALL_ZONES.filter((z) => z !== playerShot);
-      keeper = others[Math.floor(Math.random() * others.length)];
-    }
-    // Лисы: хитрый финт — вратарь точно прыгает не туда
-    if (foxFint) {
+    // Кондоры: верхний ряд — 40% обмануть вратаря
+    const condorHit = condors && shotMeta.row === 0 && Math.random() < 0.4;
+    // Игуаны: после сейва — 50% обмануть вратаря
+    const iguanaHit = iguanaShot && Math.random() < 0.5;
+    // Лисы: после промаха соперника — 50% обмануть вратаря
+    const foxHit = foxFint && Math.random() < 0.5;
+    if (condorHit || iguanaHit || foxHit) {
       const others = ALL_ZONES.filter((z) => z !== playerShot);
       keeper = others[Math.floor(Math.random() * others.length)];
     }
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
-    const offTarget = dragons || foxFint || iguanaShot ? false : Math.random() < 0.1;
+    const offTarget = dragons || condorHit || iguanaHit || foxHit ? false : Math.random() < 0.1;
     let scored = !offTarget && playerShot !== keeper;
     if (
       !scored &&
       !offTarget &&
-      ((snowLeopards && Math.random() < 0.2) || (rhinos && Math.random() < 0.3))
+      ((snowLeopards && Math.random() < 0.2) || (rhinos && Math.random() < 0.2))
     ) {
       scored = true;
       setAbilityFlash(
         snowLeopards ? "🐆 Горный хищник! Гол сквозь вратаря" : "🦏 Таран! Пробил вратаря",
       );
-    } else if (foxFint && scored) {
+    } else if (foxHit && scored) {
       setAbilityFlash("🦊 Хитрый финт! Вратарь обманут");
-    } else if (iguanaShot && scored) {
-      setAbilityFlash("🦎 Липкий язык! Гарантированный гол");
-    } else if (condors && shotMeta.row === 0 && scored) {
+    } else if (iguanaHit && scored) {
+      setAbilityFlash("🦎 Липкий язык! Вратарь обманут");
+    } else if (condorHit && scored) {
       setAbilityFlash("🦅 Пике сверху! Верх — твой");
     } else if (cobras && keeper !== playerShot && scored) {
       setAbilityFlash("🐍 Гипноз сработал!");
@@ -348,6 +343,7 @@ function MatchPage() {
       scored = !scored;
       setAbilityFlash("🦋 Эффект бабочки! Исход перевёрнут");
     }
+    // Способность всегда тратится, попала она или нет
     if (iguanaShot) iguanaArmed.current = false;
     if (foxFint) foxFintArmed.current = false;
     // Олени: после твоего гола взводим заморозку соперника
