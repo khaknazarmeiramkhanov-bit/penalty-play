@@ -818,8 +818,8 @@ function PlayerFigure({
           <path d="M18 54 L20 58 L16 60 L14 56 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
           {/* Wristband */}
           <rect x="13" y="55" width="7" height="3" rx="1" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.4" transform="rotate(-25 16 56)" />
-          {/* LEFT GLOVE — big, anchored at (16,62), entirely inside viewBox */}
-          <g transform="translate(16 62)">
+          {/* LEFT GLOVE — compact realistic keeper glove, under 50% of the old size */}
+          <g transform="translate(16 62) scale(0.48)">
             {/* Palm */}
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
@@ -850,8 +850,8 @@ function PlayerFigure({
           <path d="M62 44 L60 48 L72 56 L76 52 Z" fill={`url(#${jerseyId})`} stroke="#0a0a0a" strokeWidth="0.4" />
           <path d="M72 54 L70 58 L74 60 L76 56 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
           <rect x="70" y="55" width="7" height="3" rx="1" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.4" transform="rotate(25 74 56)" />
-          {/* RIGHT GLOVE — anchored at (74,62), mirrored */}
-          <g transform="translate(74 62) scale(-1 1)">
+          {/* RIGHT GLOVE — compact mirrored keeper glove, under 50% of the old size */}
+          <g transform="translate(74 62) scale(-0.48 0.48)">
             <path
               d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
               fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.8"
