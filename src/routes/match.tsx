@@ -526,7 +526,7 @@ function MatchPage() {
           phase={phase}
           last={last}
           playerColor={teamColor(team)}
-          oppColor={OPPONENT_COLOR}
+          oppColor={oppColor}
           gear={gear}
         />
 
