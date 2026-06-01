@@ -206,6 +206,7 @@ export const TEAMS = [
     flag: "🇨🇲",
     ability: "Сила",
     abilityDesc: "Удары в нижний ряд — 30% пробить вратаря силой",
+    special: true,
   },
   {
     name: "Гепарды",
@@ -215,6 +216,7 @@ export const TEAMS = [
     flag: "🇰🇪",
     ability: "Скорость",
     abilityDesc: "30% — вратарь не успевает прыгнуть к мячу",
+    special: true,
   },
   {
     name: "Фениксы",
@@ -224,6 +226,7 @@ export const TEAMS = [
     flag: "🇪🇬",
     ability: "Возрождение",
     abilityDesc: "После промаха мимо ворот — следующий удар точно в створ",
+    special: true,
   },
 ];
 
@@ -280,7 +283,7 @@ function TeamsPage() {
 
         {/* Teams Grid */}
         <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
-          {TEAMS.map((team) => (
+          {TEAMS.filter((t) => !t.special).map((team) => (
             <button
               key={team.name}
               type="button"
@@ -309,6 +312,64 @@ function TeamsPage() {
               </span>
             </button>
           ))}
+        </div>
+
+        {/* Special Teams Section */}
+        <div className="w-full space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, transparent, #ffd700)" }} />
+            <span
+              className="text-xs font-black tracking-[0.3em] uppercase"
+              style={{ color: "#ffd700", textShadow: "0 0 12px rgba(255,215,0,0.5)" }}
+            >
+              ★ Особые команды ★
+            </span>
+            <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, #ffd700, transparent)" }} />
+          </div>
+          <div
+            className="grid w-full grid-cols-1 gap-4 rounded-2xl p-4 sm:grid-cols-3"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,100,200,0.08))",
+              border: "2px dashed rgba(255,215,0,0.4)",
+            }}
+          >
+            {TEAMS.filter((t) => t.special).map((team) => (
+              <button
+                key={team.name}
+                type="button"
+                onClick={() => setSelected(team.name)}
+                className="group relative flex flex-col items-center justify-center gap-2 rounded-xl bg-black/40 px-4 py-5 text-white backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95"
+                style={{
+                  border: `2px solid ${team.color}`,
+                  boxShadow:
+                    selected === team.name
+                      ? `0 0 0 4px #ccff00, 0 6px 0 rgba(0,0,0,0.35), 0 0 40px ${team.color}aa`
+                      : `0 6px 0 rgba(0,0,0,0.35), 0 0 32px ${team.color}55`,
+                  transform: selected === team.name ? "scale(1.05)" : undefined,
+                }}
+              >
+                <span
+                  className="absolute -top-2 -right-2 rounded-full px-2 py-0.5 text-[9px] font-black tracking-wider uppercase text-black"
+                  style={{ background: "#ffd700", boxShadow: "0 0 12px rgba(255,215,0,0.7)" }}
+                >
+                  ★ Особая
+                </span>
+                <span className="text-4xl">{team.emoji}</span>
+                <span className="text-sm font-black tracking-wider uppercase">{team.name}</span>
+                <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white/70">
+                  <span className="text-sm leading-none">{team.flag}</span>
+                  {team.country}
+                </span>
+                <span className="text-[10px] font-bold leading-tight tracking-wide text-white/80">
+                  {team.ability}
+                </span>
+                <span className="text-[9px] font-medium leading-tight text-white/55">
+                  {team.abilityDesc}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Next Button */}
