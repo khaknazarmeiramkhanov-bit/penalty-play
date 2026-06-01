@@ -382,6 +382,9 @@ type Store = {
   perks: Record<PerkId, number>;
   ownedTeams: string[];
   wins: number;
+  losses: number;
+  matches: number;
+  spentCoins: number;
   sponsor: string;
 };
 
@@ -393,6 +396,9 @@ const initial: Store = {
   perks: { saveBoost: 0, goalBoost: 0, coinBoost: 0, accuracy: 0 },
   ownedTeams: [],
   wins: 0,
+  losses: 0,
+  matches: 0,
+  spentCoins: 0,
   sponsor: "none",
 };
 
@@ -410,6 +416,9 @@ function read(): Store {
       perks: { ...initial.perks, ...(parsed.perks ?? {}) },
       ownedTeams: parsed.ownedTeams ?? initial.ownedTeams,
       wins: parsed.wins ?? initial.wins,
+      losses: parsed.losses ?? initial.losses,
+      matches: parsed.matches ?? initial.matches,
+      spentCoins: parsed.spentCoins ?? initial.spentCoins,
       sponsor: parsed.sponsor ?? initial.sponsor,
     };
   } catch {
@@ -472,6 +481,7 @@ export function useInventory() {
     if (next.owned.includes(id)) return true;
     if (next.coins < item.price) return false;
     next.coins -= item.price;
+    next.spentCoins = (next.spentCoins ?? 0) + item.price;
     next.owned = [...next.owned, id];
     next.equipped = { ...next.equipped, [item.kind]: id };
     write(next);
@@ -521,6 +531,18 @@ export function useInventory() {
     return true;
   }, []);
 
+  const addMatch = useCallback(() => {
+    const next = read();
+    next.matches = (next.matches ?? 0) + 1;
+    write(next);
+  }, []);
+
+  const addLoss = useCallback(() => {
+    const next = read();
+    next.losses = (next.losses ?? 0) + 1;
+    write(next);
+  }, []);
+
   const reset = useCallback(() => write(initial), []);
 
   return {
@@ -532,6 +554,8 @@ export function useInventory() {
     buyTeam,
     equip,
     addWin,
+    addMatch,
+    addLoss,
     equipSponsor,
     reset,
   };

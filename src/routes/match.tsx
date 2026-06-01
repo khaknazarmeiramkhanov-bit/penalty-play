@@ -543,6 +543,7 @@ function MatchPage() {
 
     if (playerWinsOutright || reachedSuddenTarget) {
       setPhase("over");
+      inv.addMatch();
       if (!winRewarded.current && playerScore > oppScore) {
         winRewarded.current = true;
         inv.addCoins(100);
@@ -550,6 +551,8 @@ function MatchPage() {
         const crystals = oppScore === 0 ? 3 : 1;
         inv.addCrystals(crystals);
         inv.addWin();
+      } else if (playerScore < oppScore) {
+        inv.addLoss();
       }
       return;
     }
