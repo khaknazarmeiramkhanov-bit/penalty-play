@@ -235,6 +235,9 @@ function MatchPage() {
   // Призраки: соперник пугается и пробивает мимо в первом раунде
   const ghostFearUsed = useRef(false);
   const oppGhostFearUsed = useRef(false);
+  // Черепахи: после гола соперника — следующий его удар мимо
+  const turtleArmed = useRef(false);
+  const oppTurtleArmed = useRef(false);
 
   // Precompute opponent's shot whenever opponent phase starts
   useEffect(() => {
