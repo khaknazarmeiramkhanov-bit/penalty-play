@@ -69,27 +69,36 @@ function Index() {
           />
         </div>
 
-        {/* Action Button */}
-        <Link
-          to="/teams"
-          className="group relative inline-flex items-center justify-center rounded-xl px-10 py-5 text-xl font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
-          style={{
-            backgroundColor: "#ccff00",
-            boxShadow: "0 8px 0 rgb(132,163,0)",
-          }}
-        >
-          <span className="relative">Начать</span>
-          {/* Shine Effect */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
-            <div
-              className="absolute inset-0 -translate-x-full transition-transform duration-700 group-hover:translate-x-full"
-              style={{
-                background:
-                  "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
-              }}
-            />
-          </div>
-        </Link>
+        {/* Action Buttons */}
+        <div className="flex flex-col items-center gap-4">
+          <Link
+            to="/teams"
+            className="group relative inline-flex items-center justify-center rounded-xl px-10 py-5 text-xl font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{
+              backgroundColor: "#ccff00",
+              boxShadow: "0 8px 0 rgb(132,163,0)",
+            }}
+          >
+            <span className="relative">Начать</span>
+            {/* Shine Effect */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
+              <div
+                className="absolute inset-0 -translate-x-full transition-transform duration-700 group-hover:translate-x-full"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
+                }}
+              />
+            </div>
+          </Link>
+
+          <Link
+            to="/rating"
+            className="inline-flex items-center justify-center rounded-xl border-2 border-white/20 bg-white/10 px-8 py-3 text-sm font-black tracking-widest text-white uppercase backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:bg-white/20 active:scale-95"
+          >
+            📊 Рейтинг
+          </Link>
+        </div>
 
         {/* Subtext */}
         <p className="text-xs font-medium tracking-[0.2em] text-white/60 uppercase">
