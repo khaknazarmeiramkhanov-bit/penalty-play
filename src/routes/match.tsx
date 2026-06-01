@@ -1260,6 +1260,7 @@ function zoneCoords(z: Zone): { left: string; top: string } {
 type Gear = {
   gloveColor: string;
   gloveAccent: string;
+  gloveStyle: GloveStyle;
   bootColor: string;
   bootAccent: string;
   bandColor: string;
@@ -1270,6 +1271,7 @@ type Gear = {
 const DEFAULT_GEAR: Gear = {
   gloveColor: "#ff7a1a",
   gloveAccent: "#ffb066",
+  gloveStyle: "classic",
   bootColor: "#0a0a0a",
   bootAccent: "#ffffff",
   bandColor: "#ffffff",
