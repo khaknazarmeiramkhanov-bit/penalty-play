@@ -525,6 +525,16 @@ function MatchPage() {
     pendingOppShot.current = null;
     kingCancelUsed.current = false;
     winRewarded.current = false;
+    foxFintArmed.current = false;
+    iguanaArmed.current = false;
+    reindeerFrostArmed.current = false;
+    oppShotHistory.current = [];
+    owlHintZone.current = null;
+    oppKingCancelUsed.current = false;
+    oppFoxFintArmed.current = false;
+    oppIguanaArmed.current = false;
+    oppReindeerFrostArmed.current = false;
+    setOppTeam(pickOpponent(team));
   }
 
   const isSudden = round > MIN_ROUNDS;
