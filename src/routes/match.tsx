@@ -1265,9 +1265,9 @@ function GoalScene({
   useEffect(() => {
     if (phase === "result") {
       setTick((t) => t + 1);
-      // Show wind-up, then kick after small delay; reset to idle after the ball arrives
+      // Show wind-up for at least 3 seconds, then strike
       setKickStage("idle");
-      const t1 = window.setTimeout(() => setKickStage("kick"), 80);
+      const t1 = window.setTimeout(() => setKickStage("kick"), 3000);
       return () => window.clearTimeout(t1);
     } else {
       setKickStage("idle");
