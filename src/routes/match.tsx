@@ -467,6 +467,37 @@ function ZonePad({
 
 function ResultBlock({ last, onNext, locked }: { last: Last; onNext: () => void; locked?: boolean }) {
   const isOpp = last.shooter === "opponent";
+  // Suspense phase: while striker winds up (~3s), hide result and show hype phrases
+  const HYPE = ["Момент истины!!!", "Иииииии!!!", "Замах...", "Сейчас будет!!!"];
+  const [suspense, setSuspense] = useState(true);
+  const [hypeIdx, setHypeIdx] = useState(0);
+  useEffect(() => {
+    setSuspense(true);
+    setHypeIdx(0);
+    const rot = window.setInterval(() => setHypeIdx((i) => (i + 1) % HYPE.length), 700);
+    const end = window.setTimeout(() => setSuspense(false), 3000);
+    return () => {
+      window.clearInterval(rot);
+      window.clearTimeout(end);
+    };
+  }, [last]);
+
+  if (suspense) {
+    return (
+      <div className="flex flex-col items-center gap-3">
+        <p
+          key={hypeIdx}
+          className="animate-fade-in text-center text-2xl font-black tracking-wider uppercase"
+          style={{ color: "#ccff00", textShadow: "0 2px 0 rgba(0,0,0,0.4)" }}
+        >
+          {HYPE[hypeIdx]}
+        </p>
+        <p className="text-[10px] tracking-[0.25em] text-white/50 uppercase">
+          Удар: {zoneLabel(last.shot)}
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col items-center gap-3">
       <p
