@@ -370,6 +370,14 @@ function MatchPage() {
     const iguanaShot = team === "Игуаны" && iguanaArmed.current;
     const butterflies = team === "Бабочки"; // 15% invert
 
+    // ---- OPPONENT keeper abilities (соперник защищает ворота) ----
+    const oppTigers = oppTeam === "Тигры";
+    const oppBears = oppTeam === "Медведи";
+    const oppCrocs = oppTeam === "Крокодилы";
+    const oppWolves = oppTeam === "Волки";
+    const oppButterflies = oppTeam === "Бабочки";
+    const oppFrostHit = oppReindeerFrostArmed.current && Math.random() < 0.4;
+
     const smartChance = bulls ? 0.3 : 0.7;
     const smart = Math.random() < smartChance;
     let keeper: Zone = smart ? mostUsed(playerShotHistory.current) : randomZone();
