@@ -250,6 +250,9 @@ export const ITEMS: ShopItem[] = [
   { id: "sock_gold", kind: "sock", name: "Золото", price: 240, color: "#facc15", accent: "#0a0a0a" },
   { id: "sock_purple", kind: "sock", name: "Пурпур", price: 160, color: "#7c3aed", accent: "#fde047" },
   { id: "sock_stripe", kind: "sock", name: "Полоски", price: 200, color: "#0a0a0a", accent: "#ffffff" },
+  { id: "sock_nova", kind: "sock", name: "Сверхновая", price: 900, color: "#4c1d95", accent: "#facc15" },
+  { id: "sock_eclipse", kind: "sock", name: "Затмение", price: 1200, color: "#020617", accent: "#f43f5e" },
+  { id: "sock_aurora", kind: "sock", name: "Сияние", price: 1000, color: "#164e63", accent: "#67e8f9" },
 ];
 
 export const DEFAULT_EQUIPPED: Record<ItemKind, string> = {
