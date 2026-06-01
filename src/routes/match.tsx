@@ -710,6 +710,7 @@ function PlayerFigure({
       width={size}
       height={(size * 130) / 90}
       viewBox="0 0 90 130"
+      overflow="visible"
       style={{ filter: "drop-shadow(0 6px 4px rgba(0,0,0,0.45))" }}
     >
       <defs>
@@ -811,55 +812,58 @@ function PlayerFigure({
       {/* === ARMS === */}
       {isKeeper ? (
         <>
-          {/* LEFT arm: shoulder → upper arm → forearm → glove, raised diagonally up */}
-          {/* Upper arm */}
-          <path d="M26 46 L14 34 L10 38 L22 52 Z" fill={`url(#${jerseyId})`} />
+          {/* LEFT arm — raised out to the side, ready stance */}
+          {/* Upper arm (jersey sleeve) */}
+          <path d="M28 46 L18 44 L14 50 L26 52 Z" fill={`url(#${jerseyId})`} />
           {/* Forearm (skin) */}
-          <path d="M14 34 L4 26 L0 30 L10 38 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
-          {/* Cuff (wristband over glove cuff) */}
-          <rect x="2" y="26" width="9" height="4" rx="1.5" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.4" transform="rotate(40 6 28)" />
-          {/* Glove — realistic with fingers + thumb */}
-          <g transform="rotate(-30 2 22)">
+          <path d="M18 44 L8 42 L6 48 L14 50 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          {/* Wristband cuff */}
+          <rect x="6" y="41" width="5" height="8" rx="1.5" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.5" />
+          {/* Big visible glove — palm + 4 fingers + thumb */}
+          <g>
             {/* Palm */}
-            <path d="M-5 18 Q-6 12 0 12 L6 12 Q9 12 9 16 L9 23 Q9 27 5 27 L-3 27 Q-6 27 -6 23 Z" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
-            {/* Fingers */}
-            <rect x="-2.5" y="6" width="2.3" height="9" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
-            <rect x="0.6" y="4" width="2.3" height="11" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
-            <rect x="3.7" y="5" width="2.3" height="10" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
-            <rect x="6.8" y="8" width="2.3" height="7" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
-            {/* Thumb */}
-            <path d="M-6 18 Q-9 16 -8 22 L-6 24 Z" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
-            {/* Palm grip dots */}
-            <circle cx="0" cy="19" r="0.5" fill="#0a0a0a" opacity="0.5" />
-            <circle cx="3" cy="19" r="0.5" fill="#0a0a0a" opacity="0.5" />
-            <circle cx="6" cy="19" r="0.5" fill="#0a0a0a" opacity="0.5" />
-            <circle cx="0" cy="22" r="0.5" fill="#0a0a0a" opacity="0.5" />
-            <circle cx="3" cy="22" r="0.5" fill="#0a0a0a" opacity="0.5" />
-            <circle cx="6" cy="22" r="0.5" fill="#0a0a0a" opacity="0.5" />
-            {/* Brand accent stripe */}
-            <path d="M-4 14 L8 14" stroke={gear.gloveAccent} strokeWidth="1.2" strokeLinecap="round" />
-            <path d="M-3 16 Q3 17 7 16" stroke={gear.gloveAccent} strokeWidth="0.8" fill="none" />
+            <path
+              d="M-2 40 Q-3 34 4 33 L11 33 Q14 33 14 38 L14 50 Q14 54 9 54 L2 54 Q-3 54 -3 49 Z"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.7"
+            />
+            {/* Thumb sticking up */}
+            <path d="M-2 38 Q-5 32 -1 28 Q3 28 3 33 Z" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
+            {/* 4 fingers pointing up */}
+            <rect x="2" y="24" width="3" height="11" rx="1.4" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
+            <rect x="5.5" y="22" width="3" height="13" rx="1.4" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
+            <rect x="9" y="23" width="3" height="12" rx="1.4" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
+            <rect x="12.5" y="26" width="3" height="9" rx="1.4" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
+            {/* Brand stripe + grip dots */}
+            <path d="M-1 44 L13 44" stroke={gear.gloveAccent} strokeWidth="1.4" strokeLinecap="round" />
+            <path d="M0 48 Q6 49 12 48" stroke={gear.gloveAccent} strokeWidth="1" fill="none" />
+            <circle cx="2" cy="46" r="0.6" fill="#0a0a0a" opacity="0.55" />
+            <circle cx="6" cy="46" r="0.6" fill="#0a0a0a" opacity="0.55" />
+            <circle cx="10" cy="46" r="0.6" fill="#0a0a0a" opacity="0.55" />
           </g>
 
-          {/* RIGHT arm mirrored */}
-          <path d="M64 46 L76 34 L80 38 L68 52 Z" fill={`url(#${jerseyId})`} />
-          <path d="M76 34 L86 26 L90 30 L80 38 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
-          <rect x="79" y="26" width="9" height="4" rx="1.5" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.4" transform="rotate(-40 84 28)" />
-          <g transform="rotate(30 88 22) translate(176, 0) scale(-1, 1)">
-            <path d="M-5 18 Q-6 12 0 12 L6 12 Q9 12 9 16 L9 23 Q9 27 5 27 L-3 27 Q-6 27 -6 23 Z" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
-            <rect x="-2.5" y="6" width="2.3" height="9" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
-            <rect x="0.6" y="4" width="2.3" height="11" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
-            <rect x="3.7" y="5" width="2.3" height="10" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
-            <rect x="6.8" y="8" width="2.3" height="7" rx="1.1" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
-            <path d="M-6 18 Q-9 16 -8 22 L-6 24 Z" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.5" />
-            <circle cx="0" cy="19" r="0.5" fill="#0a0a0a" opacity="0.5" />
-            <circle cx="3" cy="19" r="0.5" fill="#0a0a0a" opacity="0.5" />
-            <circle cx="6" cy="19" r="0.5" fill="#0a0a0a" opacity="0.5" />
-            <circle cx="0" cy="22" r="0.5" fill="#0a0a0a" opacity="0.5" />
-            <circle cx="3" cy="22" r="0.5" fill="#0a0a0a" opacity="0.5" />
-            <circle cx="6" cy="22" r="0.5" fill="#0a0a0a" opacity="0.5" />
-            <path d="M-4 14 L8 14" stroke={gear.gloveAccent} strokeWidth="1.2" strokeLinecap="round" />
-            <path d="M-3 16 Q3 17 7 16" stroke={gear.gloveAccent} strokeWidth="0.8" fill="none" />
+          {/* RIGHT arm — mirrored */}
+          <path d="M62 46 L72 44 L76 50 L64 52 Z" fill={`url(#${jerseyId})`} />
+          <path d="M72 44 L82 42 L84 48 L76 50 Z" fill={`url(#${skinId})`} stroke="#1a1208" strokeWidth="0.4" />
+          <rect x="79" y="41" width="5" height="8" rx="1.5" fill={resolvedBand} stroke="#0a0a0a" strokeWidth="0.5" />
+          <g transform="translate(180 0) scale(-1 1)">
+            <path
+              d="M-2 40 Q-3 34 4 33 L11 33 Q14 33 14 38 L14 50 Q14 54 9 54 L2 54 Q-3 54 -3 49 Z"
+              fill={`url(#${gloveGradId})`}
+              stroke="#0a0a0a"
+              strokeWidth="0.7"
+            />
+            <path d="M-2 38 Q-5 32 -1 28 Q3 28 3 33 Z" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
+            <rect x="2" y="24" width="3" height="11" rx="1.4" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
+            <rect x="5.5" y="22" width="3" height="13" rx="1.4" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
+            <rect x="9" y="23" width="3" height="12" rx="1.4" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
+            <rect x="12.5" y="26" width="3" height="9" rx="1.4" fill={`url(#${gloveGradId})`} stroke="#0a0a0a" strokeWidth="0.6" />
+            <path d="M-1 44 L13 44" stroke={gear.gloveAccent} strokeWidth="1.4" strokeLinecap="round" />
+            <path d="M0 48 Q6 49 12 48" stroke={gear.gloveAccent} strokeWidth="1" fill="none" />
+            <circle cx="2" cy="46" r="0.6" fill="#0a0a0a" opacity="0.55" />
+            <circle cx="6" cy="46" r="0.6" fill="#0a0a0a" opacity="0.55" />
+            <circle cx="10" cy="46" r="0.6" fill="#0a0a0a" opacity="0.55" />
           </g>
         </>
       ) : kicking ? (
