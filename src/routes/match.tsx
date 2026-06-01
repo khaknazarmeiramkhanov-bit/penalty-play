@@ -1401,7 +1401,17 @@ function PlayerFigure({
   // Modern flat-vector style — clean silhouette, no creepy face.
   const skin = "#e8b894";
   const skinShade = "#b9805c";
-  const hair = "#1a1208";
+  // Deterministic hairstyle + hair color from team color string
+  const hashStr = (s: string) => {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return Math.abs(h);
+  };
+  const HAIR_COLORS = ["#1a1208", "#3a1f0a", "#6b3410", "#c98a3a", "#0a0a0a", "#5a3a2a"];
+  const HAIR_STYLES = ["short", "bald", "afro", "mohawk", "long", "buzz"] as const;
+  const styleSeed = hashStr(color);
+  const hairStyle = HAIR_STYLES[styleSeed % HAIR_STYLES.length];
+  const hair = HAIR_COLORS[(styleSeed >> 3) % HAIR_COLORS.length];
   const sockDark = gear.sockColor;
   const sockAccent = gear.sockAccent;
   const cleat = gear.bootColor;
@@ -1451,8 +1461,23 @@ function PlayerFigure({
       <ellipse cx="45" cy="126" rx="24" ry="3" fill="rgba(0,0,0,0.35)" />
 
       {/* === HEAD === */}
-      {/* Hair back layer */}
-      <path d="M32 18 Q32 7 45 7 Q58 7 58 18 L58 24 L32 24 Z" fill={hair} />
+      {/* Hair back layer (varies by style) */}
+      {hairStyle === "afro" && (
+        <circle cx="45" cy="14" r="13" fill={hair} />
+      )}
+      {hairStyle === "long" && (
+        <path d="M30 18 Q30 6 45 6 Q60 6 60 18 L60 38 Q56 36 54 32 L54 24 L36 24 L36 32 Q34 36 30 38 Z" fill={hair} />
+      )}
+      {hairStyle === "short" && (
+        <path d="M32 18 Q32 7 45 7 Q58 7 58 18 L58 24 L32 24 Z" fill={hair} />
+      )}
+      {hairStyle === "mohawk" && (
+        <path d="M42 4 Q45 0 48 4 L48 18 L42 18 Z" fill={hair} />
+      )}
+      {hairStyle === "buzz" && (
+        <path d="M34 16 Q34 9 45 9 Q56 9 56 16 L56 20 L34 20 Z" fill={hair} opacity="0.9" />
+      )}
+      {/* bald: no hair layer; add a subtle highlight later */}
       {/* Face */}
       <path
         d="M34 18 Q34 11 45 11 Q56 11 56 18 L56 26 Q56 33 45 33 Q34 33 34 26 Z"
@@ -1460,8 +1485,25 @@ function PlayerFigure({
       />
       {/* Jaw shade */}
       <path d="M37 28 Q45 32 53 28 L53 30 Q45 33.5 37 30 Z" fill={skinShade} opacity="0.5" />
-      {/* Hair fringe over forehead */}
-      <path d="M33 18 Q40 12 47 16 Q52 14 57 18 L56 21 Q50 18 46 20 Q40 17 34 22 Z" fill={hair} />
+      {/* Hair fringe over forehead (style-dependent) */}
+      {hairStyle === "short" && (
+        <path d="M33 18 Q40 12 47 16 Q52 14 57 18 L56 21 Q50 18 46 20 Q40 17 34 22 Z" fill={hair} />
+      )}
+      {hairStyle === "long" && (
+        <path d="M33 18 Q40 10 48 15 Q53 12 57 18 L56 22 Q50 19 46 21 Q40 18 34 23 Z" fill={hair} />
+      )}
+      {hairStyle === "afro" && (
+        <circle cx="38" cy="16" r="3.5" fill={hair} />
+      )}
+      {hairStyle === "afro" && (
+        <circle cx="52" cy="16" r="3.5" fill={hair} />
+      )}
+      {hairStyle === "buzz" && (
+        <path d="M35 17 Q45 14 55 17 L55 19 Q45 17 35 19 Z" fill={hair} opacity="0.7" />
+      )}
+      {hairStyle === "bald" && (
+        <ellipse cx="45" cy="14" rx="6" ry="2.2" fill="#ffffff" opacity="0.25" />
+      )}
       {/* Ears */}
       <ellipse cx="33.5" cy="22" rx="1.4" ry="2.4" fill={skinShade} />
       <ellipse cx="56.5" cy="22" rx="1.4" ry="2.4" fill={skinShade} />
