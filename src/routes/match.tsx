@@ -6,7 +6,12 @@ import { useInventory, getItem, resolveColor } from "@/lib/shop";
 
 const searchSchema = z.object({ team: z.string().default("Команда") });
 
-const OPPONENT_COLOR = "#dc2626";
+const OPPONENT_FALLBACK_COLOR = "#dc2626";
+
+function pickOpponent(playerTeam: string): string {
+  const pool = TEAMS.filter((t) => t.name !== playerTeam);
+  return pool[Math.floor(Math.random() * pool.length)].name;
+}
 
 function teamColor(name: string): string {
   return TEAMS.find((t) => t.name === name)?.color ?? "#ccff00";
@@ -140,6 +145,12 @@ function MatchPage() {
   const { ability, abilityDesc } = teamAbility(team);
   const inv = useInventory();
   const tColor = teamColor(team);
+  // Opponent: random team (different from player). Stable for the match;
+  // reset() picks a new one.
+  const [oppTeam, setOppTeam] = useState<string>(() => pickOpponent(team));
+  const oppMeta = teamAbility(oppTeam);
+  const oppColor = teamColor(oppTeam) || OPPONENT_FALLBACK_COLOR;
+  const oppEmoji = TEAMS.find((t) => t.name === oppTeam)?.emoji ?? "🤖";
   const equippedGlove = getItem(inv.equipped.glove);
   const equippedBoot = getItem(inv.equipped.boot);
   const equippedBand = getItem(inv.equipped.wristband);
@@ -183,6 +194,11 @@ function MatchPage() {
   const oppShotHistory = useRef<Zone[]>([]);
   // Owls: per-opponent-phase flag — is the hint truthful or misleading
   const owlHintZone = useRef<Zone | null>(null);
+  // ---- OPPONENT ability state (mirrors player abilities) ----
+  const oppKingCancelUsed = useRef(false); // Короли у соперника отменяют наш гол
+  const oppFoxFintArmed = useRef(false); // Лисы: после нашего промаха
+  const oppIguanaArmed = useRef(false); // Игуаны: после сейва соперника
+  const oppReindeerFrostArmed = useRef(false); // Олени: после гола соперника
 
   // Precompute opponent's shot whenever opponent phase starts
   useEffect(() => {
