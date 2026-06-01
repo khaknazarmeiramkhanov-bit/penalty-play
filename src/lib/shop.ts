@@ -55,6 +55,46 @@ export const ITEMS: ShopItem[] = [
     color: "#1f2937",
     accent: "#7dd3fc",
   },
+  {
+    id: "glove_ice",
+    kind: "glove",
+    name: "Лёд",
+    price: 180,
+    color: "#7dd3fc",
+    accent: "#e0f2fe",
+  },
+  {
+    id: "glove_fire",
+    kind: "glove",
+    name: "Пламя",
+    price: 250,
+    color: "#ef4444",
+    accent: "#fde047",
+  },
+  {
+    id: "glove_purple",
+    kind: "glove",
+    name: "Аметист",
+    price: 200,
+    color: "#7c3aed",
+    accent: "#c4b5fd",
+  },
+  {
+    id: "glove_mint",
+    kind: "glove",
+    name: "Мята",
+    price: 140,
+    color: "#10b981",
+    accent: "#a7f3d0",
+  },
+  {
+    id: "glove_shadow",
+    kind: "glove",
+    name: "Тень",
+    price: 350,
+    color: "#020617",
+    accent: "#a855f7",
+  },
 
   // Boots
   { id: "boot_black", kind: "boot", name: "Чёрные", price: 0, color: "#0a0a0a", accent: "#ffffff" },
@@ -69,6 +109,12 @@ export const ITEMS: ShopItem[] = [
     accent: "#0a0a0a",
   },
   { id: "boot_neon", kind: "boot", name: "Лазер", price: 200, color: "#ec4899", accent: "#fde68a" },
+  { id: "boot_blue", kind: "boot", name: "Сапфир", price: 140, color: "#2563eb", accent: "#ffffff" },
+  { id: "boot_green", kind: "boot", name: "Изумруд", price: 160, color: "#16a34a", accent: "#bbf7d0" },
+  { id: "boot_violet", kind: "boot", name: "Фиолет", price: 180, color: "#7c3aed", accent: "#fde047" },
+  { id: "boot_chrome", kind: "boot", name: "Хром", price: 260, color: "#cbd5e1", accent: "#0f172a" },
+  { id: "boot_lava", kind: "boot", name: "Лава", price: 320, color: "#dc2626", accent: "#facc15" },
+  { id: "boot_galaxy", kind: "boot", name: "Галактика", price: 400, color: "#1e1b4b", accent: "#a78bfa" },
 
   // Wristbands
   {
@@ -103,6 +149,38 @@ export const ITEMS: ShopItem[] = [
     color: "RAINBOW",
     accent: "#000",
   },
+  {
+    id: "band_black",
+    kind: "wristband",
+    name: "Чёрная",
+    price: 40,
+    color: "#0a0a0a",
+    accent: "#fff",
+  },
+  {
+    id: "band_red",
+    kind: "wristband",
+    name: "Алая",
+    price: 90,
+    color: "#dc2626",
+    accent: "#fff",
+  },
+  {
+    id: "band_neon",
+    kind: "wristband",
+    name: "Кислота",
+    price: 150,
+    color: "#ccff00",
+    accent: "#000",
+  },
+  {
+    id: "band_ice",
+    kind: "wristband",
+    name: "Лёд",
+    price: 130,
+    color: "#7dd3fc",
+    accent: "#000",
+  },
 
   // Socks
   { id: "sock_black", kind: "sock", name: "Чёрные", price: 0, color: "#0c0c10", accent: "TEAM" },
@@ -116,6 +194,11 @@ export const ITEMS: ShopItem[] = [
     accent: "#22c55e",
   },
   { id: "sock_neon", kind: "sock", name: "Кислота", price: 180, color: "#ccff00", accent: "#000" },
+  { id: "sock_red", kind: "sock", name: "Красные", price: 120, color: "#dc2626", accent: "TEAM" },
+  { id: "sock_blue", kind: "sock", name: "Синие", price: 110, color: "#2563eb", accent: "#fff" },
+  { id: "sock_gold", kind: "sock", name: "Золото", price: 240, color: "#facc15", accent: "#0a0a0a" },
+  { id: "sock_purple", kind: "sock", name: "Пурпур", price: 160, color: "#7c3aed", accent: "#fde047" },
+  { id: "sock_stripe", kind: "sock", name: "Полоски", price: 200, color: "#0a0a0a", accent: "#ffffff" },
 ];
 
 export const DEFAULT_EQUIPPED: Record<ItemKind, string> = {
