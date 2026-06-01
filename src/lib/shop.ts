@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { syncPlayer } from "./leaderboard";
 
 export type ItemKind = "glove" | "boot" | "wristband" | "sock";
 
@@ -452,6 +453,20 @@ export function useInventory() {
       window.removeEventListener("storage", onChange);
     };
   }, []);
+
+  // Синхронизируем рейтинг с облаком при изменениях
+  useEffect(() => {
+    if (!store.playerName) return;
+    const t = window.setTimeout(() => {
+      syncPlayer({
+        name: store.playerName!,
+        wins: store.wins,
+        losses: store.losses,
+        matches: store.matches,
+      }).catch(() => {});
+    }, 400);
+    return () => window.clearTimeout(t);
+  }, [store.playerName, store.wins, store.losses, store.matches]);
 
   const addCoins = useCallback((n: number) => {
     const next = read();
