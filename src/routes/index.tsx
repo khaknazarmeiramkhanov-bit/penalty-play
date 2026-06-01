@@ -23,7 +23,6 @@ export const Route = createFileRoute("/")({
 function Index() {
   const inv = useInventory();
   const [nameInput, setNameInput] = useState("");
-  const [showNameModal, setShowNameModal] = useState(!inv.playerName);
 
   const handleSaveName = () => {
     const trimmed = nameInput.trim();
