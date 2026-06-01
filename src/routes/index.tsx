@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -70,8 +70,8 @@ function Index() {
         </div>
 
         {/* Action Button */}
-        <button
-          type="button"
+        <Link
+          to="/teams"
           className="group relative inline-flex items-center justify-center rounded-xl px-10 py-5 text-xl font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
           style={{
             backgroundColor: "#ccff00",
@@ -89,7 +89,7 @@ function Index() {
               }}
             />
           </div>
-        </button>
+        </Link>
 
         {/* Subtext */}
         <p className="text-xs font-medium tracking-[0.2em] text-white/60 uppercase">
