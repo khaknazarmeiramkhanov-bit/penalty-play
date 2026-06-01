@@ -216,8 +216,15 @@ function MatchPage() {
   const phoenixRebornArmed = useRef(false);
   const oppPhoenixRebornArmed = useRef(false);
   // Викинги: после промаха игрока — следующий удар 60% обмануть вратаря
-  const vikingsArmed = useRef(false);
-  const oppVikingsArmed = useRef(false);
+  // Кракены: раз за матч — повторный удар после сейва
+  const krakenReboundUsed = useRef(false);
+  const oppKrakenReboundUsed = useRef(false);
+  // Викинги: первый гол в матче приносит +2
+  const vikingsDoubleUsed = useRef(false);
+  const oppVikingsDoubleUsed = useRef(false);
+  // Призраки: соперник пугается и пробивает мимо в первом раунде
+  const ghostFearUsed = useRef(false);
+  const oppGhostFearUsed = useRef(false);
 
   // Precompute opponent's shot whenever opponent phase starts
   useEffect(() => {
