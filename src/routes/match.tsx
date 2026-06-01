@@ -293,6 +293,23 @@ function MatchPage() {
           <ScorePane label="Соперник" name="Враги" score={oppScore} />
         </div>
 
+        {/* Coins + shop */}
+        <div className="relative z-20 flex w-full items-center justify-between gap-3">
+          <div
+            className="flex items-center gap-2 rounded-lg bg-black/40 px-3 py-1.5 font-black text-white"
+            style={{ border: "2px solid #ccff00" }}
+          >
+            <span className="text-base">🪙</span>
+            <span className="text-sm">{inv.coins}</span>
+          </div>
+          <Link
+            to="/shop"
+            className="rounded-lg bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.2em] text-white uppercase hover:bg-white/20"
+          >
+            Магазин →
+          </Link>
+        </div>
+
         {/* Phase title */}
         <h2
           className="relative z-20 text-center text-xl font-black italic tracking-tight text-white uppercase sm:text-2xl"
@@ -339,6 +356,7 @@ function MatchPage() {
           last={last}
           playerColor={teamColor(team)}
           oppColor={OPPONENT_COLOR}
+          gear={gear}
         />
 
         {/* Zone controls */}
