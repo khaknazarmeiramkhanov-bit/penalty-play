@@ -908,16 +908,38 @@ function zoneCoords(z: Zone): { left: string; top: string } {
   return { left, top };
 }
 
+type Gear = {
+  gloveColor: string;
+  gloveAccent: string;
+  bootColor: string;
+  bootAccent: string;
+  bandColor: string;
+  sockColor: string;
+  sockAccent: string;
+};
+
+const DEFAULT_GEAR: Gear = {
+  gloveColor: "#ff7a1a",
+  gloveAccent: "#ffb066",
+  bootColor: "#0a0a0a",
+  bootAccent: "#ffffff",
+  bandColor: "#ffffff",
+  sockColor: "#0c0c10",
+  sockAccent: "#ffffff",
+};
+
 function GoalScene({
   phase,
   last,
   playerColor,
   oppColor,
+  gear,
 }: {
   phase: Phase;
   last: Last | null;
   playerColor: string;
   oppColor: string;
+  gear: Gear;
 }) {
   // Animation: ball travels from striker spot to its zone after picking
   const [tick, setTick] = useState(0);
@@ -1004,7 +1026,13 @@ function GoalScene({
           className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
           style={{ left: keeperPos.left, top: keeperPos.top }}
         >
-          <PlayerFigure color={keeperColor} pose="keeper" size={104} emotion={keeperEmotion} />
+          <PlayerFigure
+            color={keeperColor}
+            pose="keeper"
+            size={104}
+            emotion={keeperEmotion}
+            gear={activeShooter === "player" ? DEFAULT_GEAR : gear}
+          />
         </div>
 
         {/* Ball */}
@@ -1058,6 +1086,7 @@ function GoalScene({
             size={120}
             emotion={strikerEmotion}
             kicking={kickStage === "kick"}
+            gear={activeShooter === "player" ? gear : DEFAULT_GEAR}
           />
         </div>
         {/* Label */}
