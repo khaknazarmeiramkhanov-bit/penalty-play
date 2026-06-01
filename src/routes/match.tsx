@@ -576,6 +576,8 @@ function MatchPage() {
     oppFoxFintArmed.current = false;
     oppIguanaArmed.current = false;
     oppReindeerFrostArmed.current = false;
+    phoenixRebornArmed.current = false;
+    oppPhoenixRebornArmed.current = false;
     setOppTeam(pickOpponent(team));
   }
 
