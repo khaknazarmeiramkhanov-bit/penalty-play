@@ -6,7 +6,12 @@ import { useInventory, getItem, resolveColor } from "@/lib/shop";
 
 const searchSchema = z.object({ team: z.string().default("Команда") });
 
-const OPPONENT_COLOR = "#dc2626";
+const OPPONENT_FALLBACK_COLOR = "#dc2626";
+
+function pickOpponent(playerTeam: string): string {
+  const pool = TEAMS.filter((t) => t.name !== playerTeam);
+  return pool[Math.floor(Math.random() * pool.length)].name;
+}
 
 function teamColor(name: string): string {
   return TEAMS.find((t) => t.name === name)?.color ?? "#ccff00";
@@ -140,6 +145,12 @@ function MatchPage() {
   const { ability, abilityDesc } = teamAbility(team);
   const inv = useInventory();
   const tColor = teamColor(team);
+  // Opponent: random team (different from player). Stable for the match;
+  // reset() picks a new one.
+  const [oppTeam, setOppTeam] = useState<string>(() => pickOpponent(team));
+  const oppMeta = teamAbility(oppTeam);
+  const oppColor = teamColor(oppTeam) || OPPONENT_FALLBACK_COLOR;
+  const oppEmoji = TEAMS.find((t) => t.name === oppTeam)?.emoji ?? "🤖";
   const equippedGlove = getItem(inv.equipped.glove);
   const equippedBoot = getItem(inv.equipped.boot);
   const equippedBand = getItem(inv.equipped.wristband);
@@ -183,6 +194,11 @@ function MatchPage() {
   const oppShotHistory = useRef<Zone[]>([]);
   // Owls: per-opponent-phase flag — is the hint truthful or misleading
   const owlHintZone = useRef<Zone | null>(null);
+  // ---- OPPONENT ability state (mirrors player abilities) ----
+  const oppKingCancelUsed = useRef(false); // Короли у соперника отменяют наш гол
+  const oppFoxFintArmed = useRef(false); // Лисы: после нашего промаха
+  const oppIguanaArmed = useRef(false); // Игуаны: после сейва соперника
+  const oppReindeerFrostArmed = useRef(false); // Олени: после гола соперника
 
   // Precompute opponent's shot whenever opponent phase starts
   useEffect(() => {
@@ -237,20 +253,50 @@ function MatchPage() {
     const butterflies = team === "Бабочки"; // 15% invert outcome
     const shotMeta = ZONES.find((z) => z.id === shot)!;
     const frostForceOff = reindeerFrostArmed.current; // Олени: после твоего гола
+    // ---- OPPONENT shooter abilities ----
+    const oppDragons = oppTeam === "Драконы";
+    const oppCondors = oppTeam === "Кондоры" && shotMeta.row === 0;
+    const oppCondorHit = oppCondors && Math.random() < 0.4;
+    const oppFoxHit = oppFoxFintArmed.current && Math.random() < 0.5;
+    const oppIguanaHit = oppIguanaArmed.current && Math.random() < 0.5;
+    const oppKeeperBypass = oppCondorHit || oppFoxHit || oppIguanaHit;
     const offChance = wolves ? 0.25 : 0.1;
     const frostHit = frostForceOff && Math.random() < 0.4;
-    const offTarget = frostHit || Math.random() < offChance;
+    const offTarget = oppDragons ? false : frostHit || Math.random() < offChance;
     const crocSave = crocodiles && shotMeta.row === 1 && Math.random() < 0.5;
     const bearSave = bears && shotMeta.col === 1 && Math.random() < 0.5;
     const perkSaveChance = (inv.perks.saveBoost ?? 0) * 0.05;
     const perkSave = perkSaveChance > 0 && Math.random() < perkSaveChance;
-    const autoSave = (tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave;
-    const effectiveKeeper: Zone = autoSave ? shot : playerKeeper;
+    const autoSave =
+      !oppKeeperBypass && ((tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave);
+    // Если соперник пробил вратаря (Кондоры/Лисы/Игуаны) — вратарь точно мимо
+    const effectiveKeeper: Zone = autoSave
+      ? shot
+      : oppKeeperBypass
+        ? ALL_ZONES.filter((z) => z !== shot)[Math.floor(Math.random() * 5)]
+        : playerKeeper;
     let scored = !offTarget && shot !== effectiveKeeper;
     let butterflyFlip = false;
+    const oppButterflyFlip = oppTeam === "Бабочки" && Math.random() < 0.15;
     if (butterflies && Math.random() < 0.15) {
       butterflyFlip = true;
       scored = !scored;
+    } else if (oppButterflyFlip) {
+      scored = !scored;
+    }
+    // Соперник-Снежные барсы / Носороги: пробивают сквозь нашего вратаря
+    if (
+      !scored &&
+      !offTarget &&
+      ((oppTeam === "Снежные барсы" && Math.random() < 0.2) ||
+        (oppTeam === "Носороги" && Math.random() < 0.2))
+    ) {
+      scored = true;
+      setAbilityFlash(
+        oppTeam === "Снежные барсы"
+          ? `${oppEmoji} ${oppTeam}: гол сквозь вратаря`
+          : `${oppEmoji} ${oppTeam}: таран!`,
+      );
     }
 
     // Корона: cancel first opponent goal
@@ -262,6 +308,16 @@ function MatchPage() {
       setAbilityFlash("🦌 Северное сияние! Соперник замёрз и бьёт мимо");
     } else if (butterflyFlip) {
       setAbilityFlash("🦋 Эффект бабочки! Исход перевёрнут");
+    } else if (oppButterflyFlip) {
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: эффект бабочки`);
+    } else if (oppKeeperBypass && scored) {
+      setAbilityFlash(
+        oppCondorHit
+          ? `${oppEmoji} ${oppTeam}: пике сверху`
+          : oppFoxHit
+            ? `${oppEmoji} ${oppTeam}: хитрый финт`
+            : `${oppEmoji} ${oppTeam}: липкий язык`,
+      );
     } else if (autoSave) {
       setAbilityFlash(
         crocSave
@@ -276,12 +332,18 @@ function MatchPage() {
       setAbilityFlash(null);
     }
     if (frostForceOff) reindeerFrostArmed.current = false;
+    if (oppFoxFintArmed.current) oppFoxFintArmed.current = false;
+    if (oppIguanaArmed.current) oppIguanaArmed.current = false;
 
     setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget });
     setPhase("result");
     setResultLocked(true);
     window.setTimeout(() => setResultLocked(false), 4000);
-    if (scored) setOppScore((s) => s + 1);
+    if (scored) {
+      setOppScore((s) => s + 1);
+      // Опп-Олени: после своего гола замораживают наш следующий удар
+      if (oppTeam === "Олени") oppReindeerFrostArmed.current = true;
+    }
     if (!scored) {
       inv.addCoins(15 + (inv.perks.coinBoost ?? 0) * 5); // save reward + perk
       // Игуаны: после сейва — следующий удар гарантированный гол
@@ -307,6 +369,14 @@ function MatchPage() {
     const iguanaShot = team === "Игуаны" && iguanaArmed.current;
     const butterflies = team === "Бабочки"; // 15% invert
 
+    // ---- OPPONENT keeper abilities (соперник защищает ворота) ----
+    const oppTigers = oppTeam === "Тигры";
+    const oppBears = oppTeam === "Медведи";
+    const oppCrocs = oppTeam === "Крокодилы";
+    const oppWolves = oppTeam === "Волки";
+    const oppButterflies = oppTeam === "Бабочки";
+    const oppFrostHit = oppReindeerFrostArmed.current && Math.random() < 0.4;
+
     const smartChance = bulls ? 0.3 : 0.7;
     const smart = Math.random() < smartChance;
     let keeper: Zone = smart ? mostUsed(playerShotHistory.current) : randomZone();
@@ -328,11 +398,22 @@ function MatchPage() {
       const others = ALL_ZONES.filter((z) => z !== playerShot);
       keeper = others[Math.floor(Math.random() * others.length)];
     }
+    // Opp keeper auto-saves
+    const oppCrocSave = oppCrocs && shotMeta.row === 1 && Math.random() < 0.5;
+    const oppBearSave = oppBears && shotMeta.col === 1 && Math.random() < 0.5;
+    const oppTigerSave = oppTigers && Math.random() < 0.2;
+    const oppAutoSave =
+      !(condorHit || iguanaHit || foxHit || perkGoalHit) &&
+      (oppCrocSave || oppBearSave || oppTigerSave);
+    if (oppAutoSave) keeper = playerShot; // принудительный сейв
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
     const baseOff = Math.max(0, 0.1 - (inv.perks.accuracy ?? 0) * 0.02);
+    const wolvesOff = oppWolves && Math.random() < 0.25;
     const offTarget =
-      dragons || condorHit || iguanaHit || foxHit || perkGoalHit ? false : Math.random() < baseOff;
+      dragons || condorHit || iguanaHit || foxHit || perkGoalHit
+        ? false
+        : oppFrostHit || wolvesOff || Math.random() < baseOff;
     let scored = !offTarget && playerShot !== keeper;
     if (
       !scored &&
@@ -353,17 +434,41 @@ function MatchPage() {
       setAbilityFlash("🐍 Гипноз сработал!");
     } else if (dragons && playerShot !== keeper) {
       setAbilityFlash("🐉 Огненный удар!");
+    } else if (oppFrostHit) {
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: северное сияние — ты бьёшь мимо`);
+    } else if (wolvesOff) {
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: стая отвлекла — мимо`);
+    } else if (oppAutoSave) {
+      setAbilityFlash(
+        oppCrocSave
+          ? `${oppEmoji} ${oppTeam}: засада снизу!`
+          : oppBearSave
+            ? `${oppEmoji} ${oppTeam}: медвежья хватка!`
+            : `${oppEmoji} ${oppTeam}: прыжок тигра!`,
+      );
     } else {
       setAbilityFlash(null);
     }
-    // Бабочки: 15% перевернуть исход твоего удара
+    // Бабочки (наши/соперника): 15% инверсия
     if (butterflies && Math.random() < 0.15) {
       scored = !scored;
       setAbilityFlash("🦋 Эффект бабочки! Исход перевёрнут");
+    } else if (oppButterflies && Math.random() < 0.15) {
+      scored = !scored;
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: эффект бабочки`);
+    }
+    // Опп-Короли: отменяют наш первый гол
+    if (scored && oppTeam === "Короли" && !oppKingCancelUsed.current) {
+      oppKingCancelUsed.current = true;
+      scored = false;
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: корона отменила гол`);
     }
     // Способность всегда тратится, попала она или нет
     if (iguanaShot) iguanaArmed.current = false;
     if (foxFint) foxFintArmed.current = false;
+    if (oppFrostHit) oppReindeerFrostArmed.current = false;
+    if (offTarget && oppTeam === "Лисы") oppFoxFintArmed.current = true;
+    if (!scored && !offTarget && oppTeam === "Игуаны") oppIguanaArmed.current = true;
     // Олени: после твоего гола взводим заморозку соперника
     if (scored && team === "Олени") reindeerFrostArmed.current = true;
 
@@ -419,6 +524,16 @@ function MatchPage() {
     pendingOppShot.current = null;
     kingCancelUsed.current = false;
     winRewarded.current = false;
+    foxFintArmed.current = false;
+    iguanaArmed.current = false;
+    reindeerFrostArmed.current = false;
+    oppShotHistory.current = [];
+    owlHintZone.current = null;
+    oppKingCancelUsed.current = false;
+    oppFoxFintArmed.current = false;
+    oppIguanaArmed.current = false;
+    oppReindeerFrostArmed.current = false;
+    setOppTeam(pickOpponent(team));
   }
 
   const isSudden = round > MIN_ROUNDS;
@@ -451,7 +566,7 @@ function MatchPage() {
               {isSudden ? `+${round - MIN_ROUNDS}` : `${round}/${MIN_ROUNDS}`}
             </span>
           </div>
-          <ScorePane label="Соперник" name="Враги" score={oppScore} />
+          <ScorePane label="Соперник" name={`${oppEmoji} ${oppTeam}`} score={oppScore} />
         </div>
 
         {/* Coins + shop */}
@@ -480,37 +595,57 @@ function MatchPage() {
         </h2>
 
         {/* Ability badge */}
-        <div
-          className="relative z-20 flex w-full flex-col items-center gap-1 rounded-lg bg-black/40 px-3 py-2 text-center"
-          style={{ border: `2px solid ${teamColor(team)}` }}
-        >
-          <span className="text-[10px] tracking-[0.25em] text-white/60 uppercase">Способность</span>
-          <span className="text-sm font-black tracking-wider text-white uppercase">{ability}</span>
-          <span className="text-[10px] font-medium text-white/70">{abilityDesc}</span>
-          {oppHint && (
-            <span
-              className="mt-1 rounded px-2 py-0.5 text-[11px] font-black uppercase text-black"
-              style={{ backgroundColor: "#ccff00" }}
-            >
-              {oppHint}
+        <div className="relative z-20 grid w-full grid-cols-2 gap-2">
+          <div
+            className="flex flex-col items-center gap-1 rounded-lg bg-black/40 px-2 py-2 text-center"
+            style={{ border: `2px solid ${teamColor(team)}` }}
+          >
+            <span className="text-[9px] tracking-[0.2em] text-white/60 uppercase">Ты</span>
+            <span className="text-xs font-black tracking-wider text-white uppercase">
+              {ability}
             </span>
-          )}
-          {abilityFlash && phase === "result" && (
-            <span
-              className="mt-1 rounded px-2 py-0.5 text-[11px] font-black uppercase text-black"
-              style={{ backgroundColor: "#ccff00" }}
-            >
-              {abilityFlash}
+            <span className="text-[9px] font-medium text-white/70">{abilityDesc}</span>
+          </div>
+          <div
+            className="flex flex-col items-center gap-1 rounded-lg bg-black/40 px-2 py-2 text-center"
+            style={{ border: `2px solid ${oppColor}` }}
+          >
+            <span className="text-[9px] tracking-[0.2em] text-white/60 uppercase">
+              {oppEmoji} Соперник
             </span>
-          )}
+            <span className="text-xs font-black tracking-wider text-white uppercase">
+              {oppMeta.ability}
+            </span>
+            <span className="text-[9px] font-medium text-white/70">{oppMeta.abilityDesc}</span>
+          </div>
         </div>
+        {(oppHint || (abilityFlash && phase === "result")) && (
+          <div className="relative z-20 flex w-full flex-col items-center gap-1 text-center">
+            {oppHint && (
+              <span
+                className="rounded px-2 py-0.5 text-[11px] font-black uppercase text-black"
+                style={{ backgroundColor: "#ccff00" }}
+              >
+                {oppHint}
+              </span>
+            )}
+            {abilityFlash && phase === "result" && (
+              <span
+                className="rounded px-2 py-0.5 text-[11px] font-black uppercase text-black"
+                style={{ backgroundColor: "#ccff00" }}
+              >
+                {abilityFlash}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Goal scene */}
         <GoalScene
           phase={phase}
           last={last}
           playerColor={teamColor(team)}
-          oppColor={OPPONENT_COLOR}
+          oppColor={oppColor}
           gear={gear}
         />
 
