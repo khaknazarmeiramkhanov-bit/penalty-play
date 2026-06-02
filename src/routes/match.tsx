@@ -13,7 +13,10 @@ import {
 } from "@/lib/shop";
 import { BallSvg } from "@/components/BallSvg";
 
-const searchSchema = z.object({ team: z.string().default("Команда") });
+const searchSchema = z.object({
+  team: z.string().default("Команда"),
+  ranked: z.coerce.boolean().optional().default(false),
+});
 
 const OPPONENT_FALLBACK_COLOR = "#dc2626";
 
@@ -172,9 +175,11 @@ function mostUsed(history: Zone[]): Zone {
 }
 
 function MatchPage() {
-  const { team } = Route.useSearch();
+  const { team, ranked } = Route.useSearch();
   const { ability, abilityDesc } = teamAbility(team);
   const inv = useInventory();
+  const [ratingDelta, setRatingDelta] = useState<number | null>(null);
+  const [ratingAfter, setRatingAfter] = useState<number | null>(null);
   const playerSponsor = getSponsor(inv.sponsor);
   const tColor = teamColor(team);
   // Opponent: random team (different from player). Stable for the match;
@@ -717,9 +722,19 @@ function MatchPage() {
         inv.addCrystals(crystals);
         inv.addWin();
         inv.advanceTournament();
+        if (ranked) {
+          const after = inv.addRatingWin();
+          setRatingDelta(30);
+          setRatingAfter(after);
+        }
       } else if (playerScore < oppScore) {
         inv.addLoss();
         inv.resetTournament();
+        if (ranked) {
+          const after = inv.addRatingLoss();
+          setRatingDelta(-40);
+          setRatingAfter(after);
+        }
       }
       return;
     }
