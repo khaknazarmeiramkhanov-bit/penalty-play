@@ -1083,6 +1083,7 @@ function OverBlock({
   ranked,
   ratingDelta,
   ratingAfter,
+  ratingClaimed,
 }: {
   team: string;
   playerScore: number;
@@ -1092,6 +1093,7 @@ function OverBlock({
   ranked?: boolean;
   ratingDelta?: number | null;
   ratingAfter?: number | null;
+  ratingClaimed?: RatingMilestone[];
 }) {
   const won = playerScore > oppScore;
   // stage here отражает СЛЕДУЮЩИЙ раунд турнира (уже обновлён после победы)
