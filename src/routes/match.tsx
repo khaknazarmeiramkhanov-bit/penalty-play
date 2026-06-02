@@ -371,12 +371,24 @@ function MatchPage() {
       team === "Призраки" && !ghostFearUsed.current;
     // Черепахи (у игрока): после гола соперника — следующий удар мимо
     const turtleForce = team === "Черепахи" && turtleArmed.current;
-    const offTarget =
+    let offTarget =
       ghostFearForce || turtleForce
         ? true
         : oppDragons || oppPhoenixSafe
           ? false
           : frostHit || Math.random() < offChance;
+    // 🌦️ Погода: дополнительный шанс, что бьющий промажет мимо ворот.
+    let oppWeatherMiss = false;
+    if (
+      !offTarget &&
+      !oppDragons &&
+      !oppPhoenixSafe &&
+      !oppKeeperBypass &&
+      Math.random() < WEATHER_EFFECT[weather].off
+    ) {
+      offTarget = true;
+      oppWeatherMiss = true;
+    }
     // Скорпионы (у соперника): мимо → 35% закрутка в створ
     let oppScorpionRecover = false;
     let oppOffTargetFinal = offTarget;
