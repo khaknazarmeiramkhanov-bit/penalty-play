@@ -932,6 +932,7 @@ function MatchPage() {
             ranked={ranked}
             ratingDelta={ratingDelta}
             ratingAfter={ratingAfter}
+            ratingClaimed={ratingClaimed}
           />
         )}
 
