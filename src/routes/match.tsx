@@ -1398,20 +1398,27 @@ function PlayerFigure({
   sponsor?: Sponsor;
 }) {
   const isKeeper = pose === "keeper";
-  // Modern flat-vector style — clean silhouette, no creepy face.
-  const skin = "#e8b894";
-  const skinShade = "#b9805c";
-  // Deterministic hairstyle + hair color from team color string
+  // Deterministic hairstyle + hair color + skin tone from team color string
   const hashStr = (s: string) => {
     let h = 0;
     for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
     return Math.abs(h);
   };
+  // Skin tones — light to deep, includes african-american tones
+  const SKIN_TONES: Array<[string, string]> = [
+    ["#f1c79a", "#b9805c"],
+    ["#e8b894", "#a36a48"],
+    ["#c98e62", "#7a4a2c"],
+    ["#a06a40", "#5a3416"],
+    ["#6b3f22", "#3a1f0e"],
+    ["#4a2812", "#26110a"],
+  ];
   const HAIR_COLORS = ["#1a1208", "#3a1f0a", "#6b3410", "#c98a3a", "#0a0a0a", "#5a3a2a"];
   const HAIR_STYLES = ["short", "bald", "sidepart", "mohawk", "slickback", "buzz"] as const;
   const styleSeed = hashStr(color);
   const hairStyle = HAIR_STYLES[styleSeed % HAIR_STYLES.length];
   const hair = HAIR_COLORS[(styleSeed >> 3) % HAIR_COLORS.length];
+  const [skin, skinShade] = SKIN_TONES[(styleSeed >> 5) % SKIN_TONES.length];
   const sockDark = gear.sockColor;
   const sockAccent = gear.sockAccent;
   const cleat = gear.bootColor;
