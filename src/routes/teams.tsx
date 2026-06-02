@@ -622,20 +622,24 @@ function TeamsPage() {
                   >
                     ✦ Секрет
                   </span>
-                  <span className="text-4xl">{team.emoji}</span>
-                  <span className="text-sm font-black tracking-wider uppercase">{team.name}</span>
+                  <span className="text-4xl" style={{ filter: owned ? undefined : "blur(6px) grayscale(1)" }}>
+                    {owned ? team.emoji : "❓"}
+                  </span>
+                  <span className="text-sm font-black tracking-wider uppercase">
+                    {owned ? team.name : "???"}
+                  </span>
                   <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white/70">
-                    <span className="text-sm leading-none">{team.flag}</span>
-                    {team.country}
+                    <span className="text-sm leading-none">{owned ? team.flag : "🌐"}</span>
+                    {owned ? team.country : "Неизвестно"}
                   </span>
                   <span
                     className="text-[10px] font-black leading-tight tracking-wide"
                     style={{ color: "#d8b4fe" }}
                   >
-                    {team.ability}
+                    {owned ? team.ability : "Скрытая способность"}
                   </span>
                   <span className="text-[9px] font-medium leading-tight text-white/65 text-center">
-                    {team.abilityDesc}
+                    {owned ? team.abilityDesc : "Откройте, чтобы узнать"}
                   </span>
 
                   {owned ? (
