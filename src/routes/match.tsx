@@ -1052,6 +1052,7 @@ function MatchPage() {
           gear={gear}
           sponsor={playerSponsor}
           ball={equippedBall}
+          weather={weather}
           onPickShot={
             !animating && phase === "player"
               ? (z) => handlePlayerShot(z)
