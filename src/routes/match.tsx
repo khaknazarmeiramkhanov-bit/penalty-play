@@ -714,6 +714,14 @@ function MatchPage() {
       scored = false;
       setAbilityFlash(`${oppEmoji} ${oppTeam}: корона отменила гол`);
     }
+    // 😇 Опп-Архангелы: первые 2 наших гола отменяются
+    if (scored && oppTeam === "Архангелы" && oppArchangelCancels.current < 2) {
+      oppArchangelCancels.current += 1;
+      scored = false;
+      setAbilityFlash(
+        `${oppEmoji} ${oppTeam}: святой щит (${oppArchangelCancels.current}/2)`,
+      );
+    }
     // Способность всегда тратится, попала она или нет
     if (iguanaShot) iguanaArmed.current = false;
     if (foxFint) foxFintArmed.current = false;
