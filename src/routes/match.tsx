@@ -2,7 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { TEAMS } from "./teams";
-import { useInventory, getItem, resolveColor, getSponsor, type Sponsor } from "@/lib/shop";
+import {
+  useInventory,
+  getItem,
+  resolveColor,
+  getSponsor,
+  DEFAULT_EQUIPPED,
+  type Sponsor,
+  type ShopItem,
+} from "@/lib/shop";
+import { BallSvg } from "@/components/BallSvg";
 
 const searchSchema = z.object({ team: z.string().default("Команда") });
 
@@ -178,6 +187,8 @@ function MatchPage() {
   const equippedBoot = getItem(inv.equipped.boot);
   const equippedBand = getItem(inv.equipped.wristband);
   const equippedSock = getItem(inv.equipped.sock);
+  const equippedBall =
+    getItem(inv.equipped.ball) ?? getItem(DEFAULT_EQUIPPED.ball)!;
   const tGlove = teamGlove(team);
   const gear = {
     gloveColor: resolveColor(equippedGlove?.color ?? tGlove.color, tColor),
@@ -852,6 +863,7 @@ function MatchPage() {
           oppColor={oppColor}
           gear={gear}
           sponsor={playerSponsor}
+          ball={equippedBall}
           onPickShot={
             !animating && phase === "player"
               ? (z) => handlePlayerShot(z)
@@ -1985,6 +1997,7 @@ function GoalScene({
   oppColor,
   gear,
   sponsor,
+  ball,
   onPickShot,
 }: {
   phase: Phase;
@@ -1993,6 +2006,7 @@ function GoalScene({
   oppColor: string;
   gear: Gear;
   sponsor: Sponsor;
+  ball: ShopItem;
   onPickShot?: (z: Zone) => void;
 }) {
   // Random weather/time-of-day condition picked once per match mount
@@ -2163,7 +2177,7 @@ function GoalScene({
         {finalBallPos && ballFly && (
           <div
             key={`ball-${tick}`}
-            className="absolute -translate-x-1/2 -translate-y-1/2 text-3xl"
+            className="absolute -translate-x-1/2 -translate-y-1/2"
             style={{
               left: finalBallPos.left,
               top: finalBallPos.top,
@@ -2171,7 +2185,7 @@ function GoalScene({
               animation: "ballFly 0.55s ease-out",
             }}
           >
-            ⚽
+            <BallSvg item={ball} size={36} />
           </div>
         )}
 
