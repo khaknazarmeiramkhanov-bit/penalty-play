@@ -770,6 +770,7 @@ function MatchPage() {
     oppPhoenixRebornArmed.current = false;
     setRatingDelta(null);
     setRatingAfter(null);
+    setRatingClaimed([]);
     setOppTeam(pickOpponent(team));
   }
 
