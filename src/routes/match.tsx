@@ -2254,11 +2254,11 @@ function GoalScene({
           0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(1); }
           50% { opacity: 0.95; transform: translateX(-50%) scale(1.15); }
         }
-        @keyframes sparkOrbit {
-          0% { transform: translate(-50%, 0) rotate(0deg) translateX(var(--radius, 14px)) scale(0.8); opacity: 0; }
-          15% { opacity: 1; }
-          85% { opacity: 1; }
-          100% { transform: translate(-50%, -30px) rotate(360deg) translateX(var(--radius, 14px)) scale(0.3); opacity: 0; }
+        @keyframes sparkFloat {
+          0% { transform: translate(0, 0) scale(0.8); opacity: 0; }
+          20% { opacity: 1; }
+          80% { opacity: 0.8; }
+          100% { transform: translate(var(--drift, 0px), -70px) scale(0.2); opacity: 0; }
         }
         @keyframes auraPulse {
           0%, 100% { opacity: 0.35; transform: translateX(-50%) scale(0.9); }
