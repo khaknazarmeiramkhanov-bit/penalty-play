@@ -21,6 +21,21 @@ const searchSchema = z.object({
 
 const OPPONENT_FALLBACK_COLOR = "#dc2626";
 
+// Влияние погоды на игру: шанс промаха бьющего и шанс,
+// что вратарь прыгнет не туда (обзор/скользко/слепит).
+const WEATHER_EFFECT: Record<
+  WeatherKind,
+  { off: number; keeperMiss: number; label: string }
+> = {
+  day: { off: 0.05, keeperMiss: 0.05, label: "☀️ Палящее солнце мешает" },
+  sunset: { off: 0.10, keeperMiss: 0.10, label: "🌅 Закат слепит" },
+  night: { off: 0.08, keeperMiss: 0.15, label: "🌙 Темнота мешает" },
+  rain: { off: 0.12, keeperMiss: 0.12, label: "🌧️ Скользкое поле" },
+  storm: { off: 0.18, keeperMiss: 0.15, label: "⛈️ Буря сбивает удар" },
+  snow: { off: 0.12, keeperMiss: 0.10, label: "❄️ Снег мешает игре" },
+  fog: { off: 0.08, keeperMiss: 0.20, label: "🌫️ Туман — плохая видимость" },
+};
+
 function pickOpponent(playerTeam: string): string {
   const pool = TEAMS.filter((t) => t.name !== playerTeam);
   return pool[Math.floor(Math.random() * pool.length)].name;
