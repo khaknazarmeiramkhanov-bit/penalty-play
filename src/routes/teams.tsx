@@ -605,7 +605,7 @@ function TeamsPage() {
               boxShadow: "0 0 40px rgba(168,85,247,0.15)",
             }}
           >
-            {TEAMS.filter((t) => "secret" in t && t.secret).map((team) => {
+            {shuffledSecretTeams.map((team) => {
               const owned = isTeamOwned(team);
               const canAfford = inv.crystals >= (team.priceCrystals ?? 0);
               return (
