@@ -2174,10 +2174,11 @@ function GoalScene({
   // Keeper is the OTHER team
   const keeperColor = activeShooter === "player" ? oppColor : playerColor;
 
-  // Emotions only during result
+  // Emotions only AFTER the ball has been struck — иначе по лицу вратаря
+  // можно угадать исход ещё до удара.
   let strikerEmotion: "neutral" | "happy" | "sad" = "neutral";
   let keeperEmotion: "neutral" | "happy" | "sad" = "neutral";
-  if (showAction && last) {
+  if (showAction && last && ballFly) {
     if (last.offTarget) {
       strikerEmotion = "sad";
       keeperEmotion = "happy";
