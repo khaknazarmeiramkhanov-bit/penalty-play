@@ -1075,12 +1075,18 @@ function OverBlock({
   oppScore,
   onReset,
   stage,
+  ranked,
+  ratingDelta,
+  ratingAfter,
 }: {
   team: string;
   playerScore: number;
   oppScore: number;
   onReset: () => void;
   stage: number;
+  ranked?: boolean;
+  ratingDelta?: number | null;
+  ratingAfter?: number | null;
 }) {
   const won = playerScore > oppScore;
   // stage here отражает СЛЕДУЮЩИЙ раунд турнира (уже обновлён после победы)
@@ -1116,6 +1122,18 @@ function OverBlock({
       >
         {nextLabel}
       </p>
+      {ranked && ratingDelta != null && ratingAfter != null && (
+        <p
+          className="rounded-full px-4 py-1 text-xs font-black tracking-[0.2em] uppercase"
+          style={{
+            backgroundColor: "rgba(56,189,248,0.18)",
+            color: "#38bdf8",
+            border: "1.5px solid #38bdf8",
+          }}
+        >
+          📈 Рейтинг: {ratingDelta > 0 ? `+${ratingDelta}` : ratingDelta} → {ratingAfter}
+        </p>
+      )}
       <div className="flex gap-3">
         <button
           type="button"
