@@ -812,6 +812,18 @@ function MatchPage() {
             <span className="text-base">🪙</span>
             <span className="text-sm">{inv.coins}</span>
           </div>
+          {ranked && (
+            <div
+              className="flex items-center gap-2 rounded-lg bg-black/40 px-3 py-1.5 font-black text-white"
+              style={{ border: "2px solid #38bdf8" }}
+              title="Рейтинг"
+            >
+              <span className="text-base">📈</span>
+              <span className="text-xs tracking-[0.15em] uppercase">
+                {inv.rating ?? 1000}
+              </span>
+            </div>
+          )}
           <div
             className="flex items-center gap-2 rounded-lg bg-black/40 px-3 py-1.5 font-black text-white"
             style={{ border: "2px solid #ffd700" }}
@@ -913,6 +925,9 @@ function MatchPage() {
             oppScore={oppScore}
             onReset={reset}
             stage={inv.tournamentStage ?? 0}
+            ranked={ranked}
+            ratingDelta={ratingDelta}
+            ratingAfter={ratingAfter}
           />
         )}
 
