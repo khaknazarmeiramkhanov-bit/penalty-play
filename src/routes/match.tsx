@@ -227,6 +227,9 @@ function MatchPage() {
   const pendingOppShot = useRef<Zone | null>(null);
   // One-time uses
   const kingCancelUsed = useRef(false);
+  // Архангелы: 2 отмены гола соперника
+  const archangelCancels = useRef(0);
+  const oppArchangelCancels = useRef(0);
   // Foxes: armed after opponent miss, consumed on next player shot (cunning feint)
   const foxFintArmed = useRef(false);
   // Iguanas: armed after a save, consumed on next player shot (sticky tongue)
@@ -362,8 +365,16 @@ function MatchPage() {
     const perkSave = perkSaveChance > 0 && Math.random() < perkSaveChance;
     // Барсуки (у игрока): +15% автосейв
     const badgerSave = team === "Барсуки" && Math.random() < 0.15;
+    // 🗿 Колоссы (у игрока): +35% автосейв на любом ударе
+    const colossusSave = team === "Колоссы" && Math.random() < 0.35;
     const autoSave =
-      !oppKeeperBypass && ((tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave || badgerSave);
+      !oppKeeperBypass &&
+      ((tigers && Math.random() < 0.2) ||
+        crocSave ||
+        bearSave ||
+        perkSave ||
+        badgerSave ||
+        colossusSave);
     // Если соперник пробил вратаря (Кондоры/Лисы/Игуаны) — вратарь точно мимо
     const effectiveKeeper: Zone = autoSave
       ? shot
@@ -399,6 +410,14 @@ function MatchPage() {
       kingCancelUsed.current = true;
       scored = false;
       setAbilityFlash("👑 Корона! Гол отменён");
+    } else if (scored && team === "Архангелы" && archangelCancels.current < 2) {
+      archangelCancels.current += 1;
+      scored = false;
+      setAbilityFlash(
+        `😇 Святой щит! Гол отменён (${archangelCancels.current}/2)`,
+      );
+    } else if (autoSave && colossusSave) {
+      setAbilityFlash("🗿 Каменный щит! Автосейв");
     } else if (frostHit) {
       setAbilityFlash("🦌 Северное сияние! Соперник замёрз и бьёт мимо");
     } else if (ghostFearForce) {
@@ -534,10 +553,22 @@ function MatchPage() {
     // Соколы: боковые углы — +30% обмануть вратаря
     const falconHit =
       team === "Соколы" && shotMeta.col !== 1 && Math.random() < 0.3;
+    // 🪐 Нибиру: 50% обмануть вратаря в любой зоне
+    const nibiruHit = team === "Нибиру" && Math.random() < 0.5;
     // Перк "Удар по углам" — общий шанс что вратарь прыгнет не туда
     const perkGoalChance = (inv.perks.goalBoost ?? 0) * 0.05;
     const perkGoalHit = perkGoalChance > 0 && Math.random() < perkGoalChance;
-    if (condorHit || iguanaHit || foxHit || perkGoalHit || gorillaHit || cheetahHit || zebraHit || falconHit) {
+    if (
+      condorHit ||
+      iguanaHit ||
+      foxHit ||
+      perkGoalHit ||
+      gorillaHit ||
+      cheetahHit ||
+      zebraHit ||
+      falconHit ||
+      nibiruHit
+    ) {
       const others = ALL_ZONES.filter((z) => z !== playerShot);
       keeper = others[Math.floor(Math.random() * others.length)];
     }
@@ -546,9 +577,20 @@ function MatchPage() {
     const oppBearSave = oppBears && shotMeta.col === 1 && Math.random() < 0.5;
     const oppTigerSave = oppTigers && Math.random() < 0.2;
     const oppBadgerSave = oppBadgers && Math.random() < 0.15;
+    const oppColossusSave = oppTeam === "Колоссы" && Math.random() < 0.35;
     const oppAutoSave =
-      !(condorHit || iguanaHit || foxHit || perkGoalHit || gorillaHit || cheetahHit || zebraHit || falconHit) &&
-      (oppCrocSave || oppBearSave || oppTigerSave || oppBadgerSave);
+      !(
+        condorHit ||
+        iguanaHit ||
+        foxHit ||
+        perkGoalHit ||
+        gorillaHit ||
+        cheetahHit ||
+        zebraHit ||
+        falconHit ||
+        nibiruHit
+      ) &&
+      (oppCrocSave || oppBearSave || oppTigerSave || oppBadgerSave || oppColossusSave);
     if (oppAutoSave) keeper = playerShot; // принудительный сейв
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
@@ -567,6 +609,7 @@ function MatchPage() {
       cheetahHit ||
       zebraHit ||
       falconHit ||
+      nibiruHit ||
       phoenixSafe
         ? false
         : oppFrostHit || wolvesOff || Math.random() < baseOff;
@@ -620,6 +663,8 @@ function MatchPage() {
       setAbilityFlash("🦓 Стадо! Гарантированный гол");
     } else if (falconHit && scored) {
       setAbilityFlash("🦅 Точность сокола! В угол");
+    } else if (nibiruHit && scored) {
+      setAbilityFlash("🪐 Гравитация! Мяч искривил траекторию");
     } else if (scorpionRecover) {
       setAbilityFlash(
         scored ? "🦂 Жало! Закрутка — гол" : "🦂 Жало! Закрутка спасена вратарём",
@@ -648,7 +693,9 @@ function MatchPage() {
             ? `${oppEmoji} ${oppTeam}: медвежья хватка!`
             : oppTigerSave
               ? `${oppEmoji} ${oppTeam}: прыжок тигра!`
-              : `${oppEmoji} ${oppTeam}: цепкая лапа!`,
+              : oppColossusSave
+                ? `${oppEmoji} ${oppTeam}: каменный щит!`
+                : `${oppEmoji} ${oppTeam}: цепкая лапа!`,
       );
     } else {
       setAbilityFlash(null);
@@ -666,6 +713,14 @@ function MatchPage() {
       oppKingCancelUsed.current = true;
       scored = false;
       setAbilityFlash(`${oppEmoji} ${oppTeam}: корона отменила гол`);
+    }
+    // 😇 Опп-Архангелы: первые 2 наших гола отменяются
+    if (scored && oppTeam === "Архангелы" && oppArchangelCancels.current < 2) {
+      oppArchangelCancels.current += 1;
+      scored = false;
+      setAbilityFlash(
+        `${oppEmoji} ${oppTeam}: святой щит (${oppArchangelCancels.current}/2)`,
+      );
     }
     // Способность всегда тратится, попала она или нет
     if (iguanaShot) iguanaArmed.current = false;
@@ -763,6 +818,8 @@ function MatchPage() {
     playerShotHistory.current = [];
     pendingOppShot.current = null;
     kingCancelUsed.current = false;
+    archangelCancels.current = 0;
+    oppArchangelCancels.current = 0;
     winRewarded.current = false;
     foxFintArmed.current = false;
     iguanaArmed.current = false;

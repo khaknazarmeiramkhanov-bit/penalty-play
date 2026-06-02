@@ -314,6 +314,42 @@ export const TEAMS = [
     special: true,
     priceCrystals: 8,
   },
+  {
+    name: "Колоссы",
+    emoji: "🗿",
+    color: "#94a3b8",
+    country: "Атлантида",
+    flag: "🗿",
+    ability: "Каменный щит",
+    abilityDesc: "+35% автосейв на ЛЮБЫХ ударах соперника",
+    special: true,
+    secret: true,
+    priceCrystals: 10,
+  },
+  {
+    name: "Архангелы",
+    emoji: "😇",
+    color: "#fef9c3",
+    country: "Небеса",
+    flag: "✨",
+    ability: "Святой щит",
+    abilityDesc: "Первые 2 гола соперника отменяются",
+    special: true,
+    secret: true,
+    priceCrystals: 15,
+  },
+  {
+    name: "Нибиру",
+    emoji: "🪐",
+    color: "#a855f7",
+    country: "Космос",
+    flag: "🌌",
+    ability: "Гравитация",
+    abilityDesc: "50% — твой удар обходит вратаря в любую зону",
+    special: true,
+    secret: true,
+    priceCrystals: 20,
+  },
 ];
 
 function TeamsPage() {
@@ -465,7 +501,7 @@ function TeamsPage() {
               border: "2px dashed rgba(255,215,0,0.4)",
             }}
           >
-            {TEAMS.filter((t) => t.special).map((team) => {
+            {TEAMS.filter((t) => t.special && !("secret" in t && t.secret)).map((team) => {
               const owned = isTeamOwned(team);
               const canAfford = inv.crystals >= (team.priceCrystals ?? 0);
               return (
@@ -522,6 +558,110 @@ function TeamsPage() {
                       style={{
                         backgroundColor: canAfford ? "#ccff00" : "rgba(255,255,255,0.08)",
                         color: canAfford ? "#000" : "#fff",
+                      }}
+                    >
+                      🔒 Купить 💎 {team.priceCrystals}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Secret Teams Section */}
+        <div className="w-full space-y-3">
+          <div className="flex items-center gap-3">
+            <div
+              className="h-px flex-1"
+              style={{ background: "linear-gradient(90deg, transparent, #a855f7)" }}
+            />
+            <span
+              className="text-xs font-black tracking-[0.3em] uppercase"
+              style={{ color: "#d8b4fe", textShadow: "0 0 12px rgba(168,85,247,0.7)" }}
+            >
+              ✦ Секретные команды ✦
+            </span>
+            <div
+              className="h-px flex-1"
+              style={{ background: "linear-gradient(90deg, #a855f7, transparent)" }}
+            />
+          </div>
+          <div
+            className="grid w-full grid-cols-1 gap-4 rounded-2xl p-4 sm:grid-cols-3"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(168,85,247,0.12), rgba(14,165,233,0.10))",
+              border: "2px dashed rgba(168,85,247,0.55)",
+              boxShadow: "0 0 40px rgba(168,85,247,0.15)",
+            }}
+          >
+            {TEAMS.filter((t) => "secret" in t && t.secret).map((team) => {
+              const owned = isTeamOwned(team);
+              const canAfford = inv.crystals >= (team.priceCrystals ?? 0);
+              return (
+                <div
+                  key={team.name}
+                  className="group relative flex flex-col items-center justify-center gap-2 rounded-xl bg-black/50 px-4 py-5 text-white backdrop-blur-sm transition-all duration-200"
+                  style={{
+                    border: `2px solid ${team.color}`,
+                    boxShadow:
+                      selected === team.name && owned
+                        ? `0 0 0 4px #ccff00, 0 6px 0 rgba(0,0,0,0.35), 0 0 50px ${team.color}cc`
+                        : `0 6px 0 rgba(0,0,0,0.35), 0 0 40px ${team.color}77`,
+                    transform: selected === team.name && owned ? "scale(1.05)" : undefined,
+                    opacity: owned ? 1 : 0.75,
+                  }}
+                >
+                  <span
+                    className="absolute -top-2 -right-2 rounded-full px-2 py-0.5 text-[9px] font-black tracking-wider uppercase text-white"
+                    style={{
+                      background: "linear-gradient(90deg, #a855f7, #ec4899)",
+                      boxShadow: "0 0 14px rgba(168,85,247,0.8)",
+                    }}
+                  >
+                    ✦ Секрет
+                  </span>
+                  <span className="text-4xl">{team.emoji}</span>
+                  <span className="text-sm font-black tracking-wider uppercase">{team.name}</span>
+                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white/70">
+                    <span className="text-sm leading-none">{team.flag}</span>
+                    {team.country}
+                  </span>
+                  <span
+                    className="text-[10px] font-black leading-tight tracking-wide"
+                    style={{ color: "#d8b4fe" }}
+                  >
+                    {team.ability}
+                  </span>
+                  <span className="text-[9px] font-medium leading-tight text-white/65 text-center">
+                    {team.abilityDesc}
+                  </span>
+
+                  {owned ? (
+                    <button
+                      type="button"
+                      onClick={() => handleSelect(team)}
+                      className="mt-1 w-full rounded-md px-3 py-2 text-xs font-black tracking-widest uppercase transition-all hover:scale-105 active:scale-95"
+                      style={{
+                        backgroundColor:
+                          selected === team.name ? "#ccff00" : "rgba(255,255,255,0.1)",
+                        color: selected === team.name ? "#000" : "#fff",
+                      }}
+                    >
+                      {selected === team.name ? "Выбрано" : "Выбрать"}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={!canAfford}
+                      onClick={() => handleBuy(team)}
+                      className="mt-1 flex w-full items-center justify-center gap-1 rounded-md px-3 py-2 text-xs font-black tracking-widest uppercase transition-all disabled:opacity-50 hover:scale-105 active:scale-95"
+                      style={{
+                        background: canAfford
+                          ? "linear-gradient(90deg, #a855f7, #ec4899)"
+                          : "rgba(255,255,255,0.08)",
+                        color: "#fff",
                       }}
                     >
                       🔒 Купить 💎 {team.priceCrystals}
