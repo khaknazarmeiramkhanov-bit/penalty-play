@@ -9,6 +9,7 @@ import {
   type ShopItem,
   type Sponsor,
 } from "@/lib/shop";
+import { BallSvg } from "@/components/BallSvg";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/shop")({
 });
 
 const SECTIONS: { kind: ItemKind; title: string }[] = [
+  { kind: "ball", title: "Мячи (100 скинов)" },
   { kind: "glove", title: "Перчатки вратаря" },
   { kind: "boot", title: "Бутсы" },
   { kind: "wristband", title: "Напульсники" },
@@ -295,6 +297,9 @@ function Preview({ item }: { item: ShopItem }) {
   const accent = item.accent === "TEAM" ? "#ccff00" : (item.accent ?? "#fff");
   return (
     <div className="flex h-16 w-full items-center justify-center rounded-md bg-black/30">
+      {item.kind === "ball" ? (
+        <BallSvg item={item} size={56} />
+      ) : (
       <svg viewBox="0 0 60 40" width="60" height="40">
         <defs>
           <linearGradient id="rg" x1="0" x2="1">
@@ -407,6 +412,7 @@ function Preview({ item }: { item: ShopItem }) {
           </g>
         )}
       </svg>
+      )}
     </div>
   );
 }
