@@ -2191,6 +2191,9 @@ function GoalScene({
       <div className="relative mt-2 w-full overflow-hidden rounded-b-lg" style={{ height: 180 }}>
         {/* Field with pitch lines */}
         <PitchLines />
+        {/* Fire effects in the corners of the field */}
+        <FieldFire side="left" />
+        <FieldFire side="right" />
         {/* Striker on the penalty spot */}
         <div
           key={`striker-${tick}`}
@@ -2240,7 +2243,113 @@ function GoalScene({
           75% { transform: translateX(-50%) rotate(-3deg) scale(1.02) translateY(-2px); }
           100% { transform: translateX(-50%) rotate(0deg) scale(1); }
         }
+        @keyframes flameFlicker {
+          0%, 100% {
+            transform: translateX(-50%) scale(1, 1) rotate(-2deg);
+            filter: hue-rotate(0deg) brightness(1);
+          }
+          25% {
+            transform: translateX(-50%) scale(1.1, 1.15) rotate(3deg);
+            filter: hue-rotate(-8deg) brightness(1.15);
+          }
+          50% {
+            transform: translateX(-50%) scale(0.92, 1.25) rotate(-4deg);
+            filter: hue-rotate(6deg) brightness(0.95);
+          }
+          75% {
+            transform: translateX(-50%) scale(1.05, 1.1) rotate(2deg);
+            filter: hue-rotate(-4deg) brightness(1.1);
+          }
+        }
+        @keyframes emberRise {
+          0% { transform: translate(-50%, 0) scale(1); opacity: 0.9; }
+          100% { transform: translate(calc(-50% + var(--drift, 0px)), -60px) scale(0.2); opacity: 0; }
+        }
       `}</style>
+    </div>
+  );
+}
+
+function FieldFire({ side }: { side: "left" | "right" }) {
+  const positions = side === "left" ? [8, 22, 40] : [92, 78, 60];
+  return (
+    <div className="pointer-events-none absolute inset-0">
+      {positions.map((leftPct, i) => (
+        <div
+          key={i}
+          className="absolute"
+          style={{ left: `${leftPct}%`, bottom: `${4 + (i % 2) * 6}px` }}
+        >
+          {/* Outer glow */}
+          <div
+            className="absolute"
+            style={{
+              left: "50%",
+              bottom: 0,
+              width: 38,
+              height: 38,
+              transform: "translateX(-50%)",
+              background:
+                "radial-gradient(ellipse at center bottom, rgba(255,140,30,0.55), rgba(255,60,0,0.25) 45%, transparent 70%)",
+              filter: "blur(4px)",
+            }}
+          />
+          {/* Outer flame */}
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              bottom: 0,
+              width: 18,
+              height: 28,
+              borderRadius: "50% 50% 45% 45% / 60% 60% 40% 40%",
+              background:
+                "radial-gradient(ellipse at 50% 90%, #fff2a8 0%, #ffd24a 20%, #ff8a1f 55%, #ff3b00 85%, transparent 100%)",
+              transformOrigin: "50% 100%",
+              animation: `flameFlicker ${1.1 + i * 0.17}s ease-in-out infinite`,
+              animationDelay: `${i * 0.13}s`,
+              mixBlendMode: "screen",
+            }}
+          />
+          {/* Inner flame */}
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              bottom: 2,
+              width: 9,
+              height: 16,
+              borderRadius: "50% 50% 45% 45% / 60% 60% 40% 40%",
+              background:
+                "radial-gradient(ellipse at 50% 90%, #ffffff 0%, #fff0a0 35%, #ffb347 80%, transparent 100%)",
+              transformOrigin: "50% 100%",
+              animation: `flameFlicker ${0.7 + i * 0.11}s ease-in-out infinite reverse`,
+              animationDelay: `${i * 0.09}s`,
+              mixBlendMode: "screen",
+            }}
+          />
+          {/* Embers */}
+          {[0, 1, 2].map((e) => (
+            <span
+              key={e}
+              style={{
+                position: "absolute",
+                left: "50%",
+                bottom: 18,
+                width: 3,
+                height: 3,
+                borderRadius: "50%",
+                background: e % 2 === 0 ? "#ffb347" : "#ff6a1f",
+                boxShadow: "0 0 6px #ff8a1f",
+                ["--drift" as any]: `${(e - 1) * 8}px`,
+                animation: `emberRise ${1.6 + e * 0.4}s linear infinite`,
+                animationDelay: `${i * 0.2 + e * 0.5}s`,
+                opacity: 0,
+              }}
+            />
+          ))}
+        </div>
+      ))}
     </div>
   );
 }
