@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { TEAMS } from "./teams";
@@ -208,6 +208,8 @@ function MatchPage() {
     sockAccent: resolveColor(equippedSock?.accent ?? tColor, tColor),
   };
   const winRewarded = useRef(false);
+  const matchSettledRef = useRef(false);
+  const navigate = useNavigate();
 
   const [round, setRound] = useState(1);
   const [phase, setPhase] = useState<Phase>("opponent");
