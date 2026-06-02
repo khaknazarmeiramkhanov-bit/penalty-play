@@ -1007,6 +1007,19 @@ function MatchPage() {
           <ScorePane label="Соперник" name={`${oppEmoji} ${oppTeam}`} score={oppScore} />
         </div>
 
+        {/* Weather indicator */}
+        <div
+          className="relative z-20 flex w-full items-center justify-center gap-2 rounded-lg bg-black/50 px-3 py-2 text-center backdrop-blur-sm"
+          style={{ border: "2px solid #60a5fa" }}
+        >
+          <span className="text-sm font-black tracking-wider text-white">
+            {WEATHER_EFFECT[weather].label}
+          </span>
+          <span className="text-[10px] font-bold tracking-wider text-white/70">
+            −{Math.round(WEATHER_EFFECT[weather].off * 100)}% удар / −{Math.round(WEATHER_EFFECT[weather].keeperMiss * 100)}% вратарь
+          </span>
+        </div>
+
         {/* Coins + shop */}
         <div className="relative z-20 flex w-full items-center justify-between gap-3">
           <div
