@@ -1995,6 +1995,11 @@ function GoalScene({
   sponsor: Sponsor;
   onPickShot?: (z: Zone) => void;
 }) {
+  // Random weather/time-of-day condition picked once per match mount
+  const weather = useMemo<WeatherKind>(() => {
+    const kinds: WeatherKind[] = ["day", "sunset", "night", "rain", "storm", "snow", "fog"];
+    return kinds[Math.floor(Math.random() * kinds.length)];
+  }, []);
   // Animation: ball travels from striker spot to its zone after picking
   const [tick, setTick] = useState(0);
   // Kick animation: idle → wind-up → strike
@@ -2062,6 +2067,8 @@ function GoalScene({
 
   return (
     <div className="relative w-full max-w-lg">
+      {/* Weather/time-of-day atmosphere overlays the whole scene */}
+      <WeatherScene weather={weather} />
       {/* Crowd stand behind the goal */}
       <Crowd playerColor={playerColor} oppColor={oppColor} />
       {/* Goal frame */}
