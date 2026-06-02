@@ -663,6 +663,8 @@ function MatchPage() {
       setAbilityFlash("🦓 Стадо! Гарантированный гол");
     } else if (falconHit && scored) {
       setAbilityFlash("🦅 Точность сокола! В угол");
+    } else if (nibiruHit && scored) {
+      setAbilityFlash("🪐 Гравитация! Мяч искривил траекторию");
     } else if (scorpionRecover) {
       setAbilityFlash(
         scored ? "🦂 Жало! Закрутка — гол" : "🦂 Жало! Закрутка спасена вратарём",
@@ -691,7 +693,9 @@ function MatchPage() {
             ? `${oppEmoji} ${oppTeam}: медвежья хватка!`
             : oppTigerSave
               ? `${oppEmoji} ${oppTeam}: прыжок тигра!`
-              : `${oppEmoji} ${oppTeam}: цепкая лапа!`,
+              : oppColossusSave
+                ? `${oppEmoji} ${oppTeam}: каменный щит!`
+                : `${oppEmoji} ${oppTeam}: цепкая лапа!`,
       );
     } else {
       setAbilityFlash(null);
