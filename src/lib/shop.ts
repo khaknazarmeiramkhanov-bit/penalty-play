@@ -652,6 +652,20 @@ export function useInventory() {
     write(next);
   }, []);
 
+  const addRatingWin = useCallback(() => {
+    const next = read();
+    next.rating = (next.rating ?? 1000) + 30;
+    write(next);
+    return next.rating;
+  }, []);
+
+  const addRatingLoss = useCallback(() => {
+    const next = read();
+    next.rating = Math.max(0, (next.rating ?? 1000) - 40);
+    write(next);
+    return next.rating;
+  }, []);
+
   const setPlayerName = useCallback((name: string) => {
     const next = read();
     next.playerName = name.trim().slice(0, 20) || null;
@@ -673,6 +687,8 @@ export function useInventory() {
     addLoss,
     advanceTournament,
     resetTournament,
+    addRatingWin,
+    addRatingLoss,
     equipSponsor,
     setPlayerName,
     reset,
