@@ -227,6 +227,9 @@ function MatchPage() {
   const pendingOppShot = useRef<Zone | null>(null);
   // One-time uses
   const kingCancelUsed = useRef(false);
+  // Архангелы: 2 отмены гола соперника
+  const archangelCancels = useRef(0);
+  const oppArchangelCancels = useRef(0);
   // Foxes: armed after opponent miss, consumed on next player shot (cunning feint)
   const foxFintArmed = useRef(false);
   // Iguanas: armed after a save, consumed on next player shot (sticky tongue)
@@ -362,8 +365,16 @@ function MatchPage() {
     const perkSave = perkSaveChance > 0 && Math.random() < perkSaveChance;
     // Барсуки (у игрока): +15% автосейв
     const badgerSave = team === "Барсуки" && Math.random() < 0.15;
+    // 🗿 Колоссы (у игрока): +35% автосейв на любом ударе
+    const colossusSave = team === "Колоссы" && Math.random() < 0.35;
     const autoSave =
-      !oppKeeperBypass && ((tigers && Math.random() < 0.2) || crocSave || bearSave || perkSave || badgerSave);
+      !oppKeeperBypass &&
+      ((tigers && Math.random() < 0.2) ||
+        crocSave ||
+        bearSave ||
+        perkSave ||
+        badgerSave ||
+        colossusSave);
     // Если соперник пробил вратаря (Кондоры/Лисы/Игуаны) — вратарь точно мимо
     const effectiveKeeper: Zone = autoSave
       ? shot
@@ -399,6 +410,14 @@ function MatchPage() {
       kingCancelUsed.current = true;
       scored = false;
       setAbilityFlash("👑 Корона! Гол отменён");
+    } else if (scored && team === "Архангелы" && archangelCancels.current < 2) {
+      archangelCancels.current += 1;
+      scored = false;
+      setAbilityFlash(
+        `😇 Святой щит! Гол отменён (${archangelCancels.current}/2)`,
+      );
+    } else if (autoSave && colossusSave) {
+      setAbilityFlash("🗿 Каменный щит! Автосейв");
     } else if (frostHit) {
       setAbilityFlash("🦌 Северное сияние! Соперник замёрз и бьёт мимо");
     } else if (ghostFearForce) {
