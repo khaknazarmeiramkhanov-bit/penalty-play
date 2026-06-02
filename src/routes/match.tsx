@@ -1032,13 +1032,24 @@ function OverBlock({
   playerScore,
   oppScore,
   onReset,
+  stage,
 }: {
   team: string;
   playerScore: number;
   oppScore: number;
   onReset: () => void;
+  stage: number;
 }) {
   const won = playerScore > oppScore;
+  // stage here отражает СЛЕДУЮЩИЙ раунд турнира (уже обновлён после победы)
+  // или 0 если был сброс после поражения
+  const STAGE_LABELS = ["1/16", "1/8", "1/4", "1/2", "Финал", "Чемпион"];
+  const justBecameChampion = won && stage === 0; // после чемпиона сброс на 0
+  const nextLabel = won
+    ? stage >= 5
+      ? "Чемпион!"
+      : `Следующий: ${STAGE_LABELS[stage]}`
+    : "Турнир сброшен → 1/16";
   return (
     <div className="flex flex-col items-center gap-3">
       <p
@@ -1048,10 +1059,20 @@ function OverBlock({
           textShadow: "0 3px 0 rgba(0,0,0,0.3)",
         }}
       >
-        {won ? "Победа!" : "Поражение"}
+        {won ? (justBecameChampion ? "🏆 Чемпион!" : "Победа!") : "Поражение"}
       </p>
       <p className="text-sm tracking-widest text-white/80 uppercase">
         {team} {playerScore} : {oppScore} Враги
+      </p>
+      <p
+        className="rounded-full px-4 py-1 text-xs font-black tracking-[0.2em] uppercase"
+        style={{
+          backgroundColor: won ? "rgba(204,255,0,0.18)" : "rgba(255,77,77,0.18)",
+          color: won ? "#ccff00" : "#ff4d4d",
+          border: `1.5px solid ${won ? "#ccff00" : "#ff4d4d"}`,
+        }}
+      >
+        {nextLabel}
       </p>
       <div className="flex gap-3">
         <button
