@@ -24,6 +24,7 @@ function RatingPage() {
   const winRate = inv.matches > 0 ? ((inv.wins / inv.matches) * 100).toFixed(1) : "0.0";
 
   const stats = [
+    { label: "Рейтинг", value: inv.rating ?? 1000, icon: "📈" },
     { label: "Победы", value: inv.wins, icon: "🏆" },
     { label: "Поражения", value: inv.losses, icon: "💔" },
     { label: "Всего матчей", value: inv.matches, icon: "⚽" },
