@@ -235,6 +235,22 @@ function MatchPage() {
   const [abilityFlash, setAbilityFlash] = useState<string | null>(null);
   const [resultLocked, setResultLocked] = useState(false);
 
+  // Случайная погода фиксируется один раз на матч и реально влияет на игру:
+  // — у бьющего повышается шанс промаха мимо ворот;
+  // — вратарь может прыгнуть не в ту сторону (плохая видимость / скользко).
+  const [weather] = useState<WeatherKind>(() => {
+    const kinds: WeatherKind[] = [
+      "day",
+      "sunset",
+      "night",
+      "rain",
+      "storm",
+      "snow",
+      "fog",
+    ];
+    return kinds[Math.floor(Math.random() * kinds.length)];
+  });
+
   // History of player choices to drive smarter AI
   const playerGuessHistory = useRef<Zone[]>([]); // where player dives as keeper
   const playerShotHistory = useRef<Zone[]>([]); // where player shoots
