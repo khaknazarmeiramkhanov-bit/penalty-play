@@ -1,8 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { z } from "zod";
 import { useInventory } from "@/lib/shop";
 
 export const Route = createFileRoute("/teams")({
+  validateSearch: z.object({
+    ranked: z.coerce.boolean().optional().default(false),
+  }),
   head: () => ({
     meta: [
       { title: "Пенальти — Выбор команды" },
