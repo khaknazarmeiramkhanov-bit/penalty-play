@@ -670,6 +670,31 @@ function MatchPage() {
       phoenixSafe
         ? false
         : oppFrostHit || wolvesOff || Math.random() < baseOff;
+    // 🌦️ Погода мешает и тебе: дополнительный шанс пробить мимо,
+    // если способность не гарантирует попадание в створ.
+    let weatherStrikerMiss = false;
+    const guaranteedOnTarget =
+      dragons ||
+      condorHit ||
+      iguanaHit ||
+      foxHit ||
+      perkGoalHit ||
+      gorillaHit ||
+      cheetahHit ||
+      zebraHit ||
+      falconHit ||
+      nibiruHit ||
+      phoenixSafe;
+    if (
+      !offTarget &&
+      !guaranteedOnTarget &&
+      !oppGhostFearForce &&
+      !oppTurtleForce &&
+      Math.random() < WEATHER_EFFECT[weather].off
+    ) {
+      offTarget = true;
+      weatherStrikerMiss = true;
+    }
     // 🦂 Скорпионы: мимо → 35% закрутка обратно в створ
     let scorpionRecover = false;
     if (
@@ -683,6 +708,19 @@ function MatchPage() {
       scorpionRecover = true;
     }
     let scored = !offTarget && playerShot !== keeper;
+    // 🌦️ Погода мешает и вратарю: при сейве — шанс, что он прыгнул не туда.
+    let weatherKeeperMiss = false;
+    if (
+      !offTarget &&
+      !scored &&
+      !oppAutoSave &&
+      Math.random() < WEATHER_EFFECT[weather].keeperMiss
+    ) {
+      const others = ALL_ZONES.filter((z) => z !== playerShot);
+      keeper = others[Math.floor(Math.random() * others.length)];
+      scored = true;
+      weatherKeeperMiss = true;
+    }
     // 🐙 Кракены: раз за матч — повторный удар после сейва
     let krakenReboundFlash = false;
     if (
