@@ -781,6 +781,44 @@ function MatchPage() {
     setOppTeam(pickOpponent(team));
   }
 
+  // Засчитываем поражение, если игрок выходит из не завершённого
+  // рейтингового матча — иначе можно было бы «слиться» без потери рейтинга.
+  function forfeitIfNeeded() {
+    if (matchSettledRef.current) return;
+    matchSettledRef.current = true;
+    inv.addLoss();
+    inv.resetTournament();
+    if (ranked) inv.addRatingLoss();
+  }
+
+  function handleExit(to: "/" | "/teams") {
+    if (ranked && !matchSettledRef.current) {
+      const ok = window.confirm(
+        "Выйти из рейтингового матча? Будет засчитано поражение: −40 рейтинга.",
+      );
+      if (!ok) return;
+    }
+    forfeitIfNeeded();
+    navigate({ to, search: to === "/teams" ? { ranked } : undefined });
+  }
+
+  // Предупреждение при закрытии вкладки и автоштраф при размонтировании
+  useEffect(() => {
+    if (!ranked) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (matchSettledRef.current) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      // Если уходим до конца матча — фиксируем поражение
+      forfeitIfNeeded();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ranked]);
+
   const isSudden = round > MIN_ROUNDS;
 
   return (
