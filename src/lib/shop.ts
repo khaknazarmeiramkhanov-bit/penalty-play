@@ -447,6 +447,8 @@ type Store = {
   spentCoins: number;
   sponsor: string;
   playerName: string | null;
+  tournamentStage: number; // 0=1/16, 1=1/8, 2=1/4, 3=1/2, 4=Финал, 5=Чемпион
+  tournamentTitles: number; // сколько раз дошёл до чемпиона
 };
 
 const initial: Store = {
@@ -462,6 +464,8 @@ const initial: Store = {
   spentCoins: 0,
   sponsor: "none",
   playerName: null,
+  tournamentStage: 0,
+  tournamentTitles: 0,
 };
 
 function read(): Store {
@@ -483,6 +487,8 @@ function read(): Store {
       spentCoins: parsed.spentCoins ?? initial.spentCoins,
       sponsor: parsed.sponsor ?? initial.sponsor,
       playerName: parsed.playerName ?? initial.playerName,
+      tournamentStage: parsed.tournamentStage ?? initial.tournamentStage,
+      tournamentTitles: parsed.tournamentTitles ?? initial.tournamentTitles,
     };
   } catch {
     return initial;
@@ -620,6 +626,29 @@ export function useInventory() {
     write(next);
   }, []);
 
+  const advanceTournament = useCallback(() => {
+    const next = read();
+    const cur = next.tournamentStage ?? 0;
+    if (cur >= 5) {
+      // Уже чемпион — начинаем новый турнир
+      next.tournamentTitles = (next.tournamentTitles ?? 0) + 1;
+      next.tournamentStage = 0;
+    } else {
+      next.tournamentStage = cur + 1;
+      if (next.tournamentStage === 5) {
+        next.tournamentTitles = (next.tournamentTitles ?? 0) + 1;
+      }
+    }
+    write(next);
+    return next.tournamentStage;
+  }, []);
+
+  const resetTournament = useCallback(() => {
+    const next = read();
+    next.tournamentStage = 0;
+    write(next);
+  }, []);
+
   const setPlayerName = useCallback((name: string) => {
     const next = read();
     next.playerName = name.trim().slice(0, 20) || null;
@@ -639,6 +668,8 @@ export function useInventory() {
     addWin,
     addMatch,
     addLoss,
+    advanceTournament,
+    resetTournament,
     equipSponsor,
     setPlayerName,
     reset,
