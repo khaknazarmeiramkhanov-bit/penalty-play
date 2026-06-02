@@ -2160,7 +2160,12 @@ function GoalScene({
 
   const showAction = phase === "result" && last;
   const ballPos = showAction ? zoneCoords(last!.shot) : null;
-  const keeperPos = showAction ? zoneCoords(last!.keeper) : { left: "50%", top: "65%" };
+  // Вратарь прыгает ТОЛЬКО когда летит мяч — иначе по позиции вратаря
+  // до удара можно было угадать, в какую сторону он пойдёт.
+  const keeperPos =
+    showAction && ballFly
+      ? zoneCoords(last!.keeper)
+      : { left: "50%", top: "65%" };
 
   const strikerIsPlayer = last?.shooter === "player";
   // During action phases, striker color matches the active shooter
