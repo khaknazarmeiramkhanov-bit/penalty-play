@@ -1995,6 +1995,11 @@ function GoalScene({
   sponsor: Sponsor;
   onPickShot?: (z: Zone) => void;
 }) {
+  // Random weather/time-of-day condition picked once per match mount
+  const weather = useMemo<WeatherKind>(() => {
+    const kinds: WeatherKind[] = ["day", "sunset", "night", "rain", "storm", "snow", "fog"];
+    return kinds[Math.floor(Math.random() * kinds.length)];
+  }, []);
   // Animation: ball travels from striker spot to its zone after picking
   const [tick, setTick] = useState(0);
   // Kick animation: idle → wind-up → strike
@@ -2062,6 +2067,8 @@ function GoalScene({
 
   return (
     <div className="relative w-full max-w-lg">
+      {/* Weather/time-of-day atmosphere overlays the whole scene */}
+      <WeatherScene weather={weather} />
       {/* Crowd stand behind the goal */}
       <Crowd playerColor={playerColor} oppColor={oppColor} />
       {/* Goal frame */}
@@ -2393,5 +2400,255 @@ function PitchLines() {
       {/* Side touchlines fade */}
       <line x1="0" y1="178" x2="400" y2="178" stroke="#fff" strokeWidth="2" opacity="0.6" />
     </svg>
+  );
+}
+
+// ============================================================
+// Weather / time-of-day atmosphere
+// ============================================================
+type WeatherKind = "day" | "sunset" | "night" | "rain" | "storm" | "snow" | "fog";
+
+const WEATHER_LABEL: Record<WeatherKind, { icon: string; name: string }> = {
+  day: { icon: "☀️", name: "Ясный день" },
+  sunset: { icon: "🌅", name: "Закат" },
+  night: { icon: "🌙", name: "Ночь" },
+  rain: { icon: "🌧️", name: "Дождь" },
+  storm: { icon: "⛈️", name: "Гроза" },
+  snow: { icon: "❄️", name: "Снег" },
+  fog: { icon: "🌫️", name: "Туман" },
+};
+
+function WeatherScene({ weather }: { weather: WeatherKind }) {
+  // Tints applied as a full-scene overlay (over goal + pitch + crowd)
+  const tint: Record<WeatherKind, string> = {
+    day: "linear-gradient(180deg, rgba(255,240,180,0.10), rgba(255,255,255,0.04))",
+    sunset:
+      "linear-gradient(180deg, rgba(255,120,40,0.28) 0%, rgba(255,80,120,0.18) 50%, rgba(80,30,80,0.25) 100%)",
+    night:
+      "linear-gradient(180deg, rgba(8,12,40,0.55) 0%, rgba(10,20,55,0.55) 100%)",
+    rain:
+      "linear-gradient(180deg, rgba(40,55,75,0.45) 0%, rgba(30,45,65,0.45) 100%)",
+    storm:
+      "linear-gradient(180deg, rgba(15,18,30,0.65) 0%, rgba(20,25,45,0.65) 100%)",
+    snow:
+      "linear-gradient(180deg, rgba(200,220,240,0.30) 0%, rgba(170,190,220,0.25) 100%)",
+    fog: "linear-gradient(180deg, rgba(220,225,230,0.45), rgba(200,210,220,0.55))",
+  };
+
+  const label = WEATHER_LABEL[weather];
+
+  // Pre-compute drop / flake positions
+  const drops = useMemo(
+    () =>
+      Array.from({ length: 60 }, (_, i) => ({
+        left: Math.random() * 100,
+        delay: Math.random() * 1.2,
+        duration: 0.55 + Math.random() * 0.4,
+        length: 12 + Math.random() * 18,
+      })),
+    [],
+  );
+  const flakes = useMemo(
+    () =>
+      Array.from({ length: 50 }, () => ({
+        left: Math.random() * 100,
+        delay: Math.random() * 6,
+        duration: 5 + Math.random() * 5,
+        size: 4 + Math.random() * 6,
+        drift: (Math.random() - 0.5) * 60,
+      })),
+    [],
+  );
+  const stars = useMemo(
+    () =>
+      Array.from({ length: 40 }, () => ({
+        left: Math.random() * 100,
+        top: Math.random() * 40,
+        size: 1 + Math.random() * 2,
+        delay: Math.random() * 3,
+      })),
+    [],
+  );
+
+  return (
+    <>
+      {/* Sky decorations (sun / moon / stars) behind everything */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        {weather === "day" && (
+          <div
+            className="absolute rounded-full"
+            style={{
+              top: "6%",
+              right: "10%",
+              width: 60,
+              height: 60,
+              background:
+                "radial-gradient(circle, #fff7c2 0%, #ffd96b 55%, rgba(255,200,80,0) 75%)",
+              filter: "blur(2px)",
+              boxShadow: "0 0 60px rgba(255,210,90,0.7)",
+            }}
+          />
+        )}
+        {weather === "sunset" && (
+          <div
+            className="absolute rounded-full"
+            style={{
+              bottom: "55%",
+              right: "12%",
+              width: 80,
+              height: 80,
+              background:
+                "radial-gradient(circle, #fff1a8 0%, #ff8a3d 50%, rgba(255,80,40,0) 78%)",
+              filter: "blur(1px)",
+              boxShadow: "0 0 80px rgba(255,120,40,0.8)",
+            }}
+          />
+        )}
+        {(weather === "night" || weather === "storm") && (
+          <>
+            <div
+              className="absolute rounded-full"
+              style={{
+                top: "8%",
+                left: "12%",
+                width: 44,
+                height: 44,
+                background:
+                  "radial-gradient(circle at 35% 35%, #f5f1e0 0%, #cfc8a8 60%, rgba(120,110,80,0) 78%)",
+                boxShadow: "0 0 40px rgba(240,235,200,0.55)",
+              }}
+            />
+            {weather === "night" &&
+              stars.map((s, i) => (
+                <div
+                  key={i}
+                  className="absolute rounded-full bg-white"
+                  style={{
+                    left: `${s.left}%`,
+                    top: `${s.top}%`,
+                    width: s.size,
+                    height: s.size,
+                    animation: `starTwinkle 2.4s ${s.delay}s ease-in-out infinite`,
+                    boxShadow: "0 0 4px rgba(255,255,255,0.9)",
+                  }}
+                />
+              ))}
+          </>
+        )}
+      </div>
+
+      {/* Color tint overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 z-30"
+        style={{ background: tint[weather], mixBlendMode: "multiply" }}
+      />
+
+      {/* Particles & special effects (above tint) */}
+      <div className="pointer-events-none absolute inset-0 z-40 overflow-hidden">
+        {(weather === "rain" || weather === "storm") &&
+          drops.map((d, i) => (
+            <div
+              key={i}
+              className="absolute"
+              style={{
+                left: `${d.left}%`,
+                top: "-10%",
+                width: 1.5,
+                height: d.length,
+                background:
+                  "linear-gradient(180deg, rgba(180,210,255,0) 0%, rgba(200,225,255,0.85) 100%)",
+                animation: `rainFall ${d.duration}s ${d.delay}s linear infinite`,
+                transform: "skewX(-12deg)",
+              }}
+            />
+          ))}
+        {weather === "snow" &&
+          flakes.map((f, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full bg-white"
+              style={{
+                left: `${f.left}%`,
+                top: "-5%",
+                width: f.size,
+                height: f.size,
+                opacity: 0.9,
+                boxShadow: "0 0 4px rgba(255,255,255,0.8)",
+                ["--drift" as string]: `${f.drift}px`,
+                animation: `snowFall ${f.duration}s ${f.delay}s linear infinite`,
+              }}
+            />
+          ))}
+        {weather === "fog" && (
+          <>
+            <div
+              className="absolute inset-x-[-20%] h-24"
+              style={{
+                bottom: "20%",
+                background:
+                  "radial-gradient(ellipse at center, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 70%)",
+                filter: "blur(10px)",
+                animation: "fogDrift 18s linear infinite",
+              }}
+            />
+            <div
+              className="absolute inset-x-[-20%] h-20"
+              style={{
+                bottom: "5%",
+                background:
+                  "radial-gradient(ellipse at center, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%)",
+                filter: "blur(14px)",
+                animation: "fogDrift 24s -6s linear infinite reverse",
+              }}
+            />
+          </>
+        )}
+        {weather === "storm" && (
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "rgba(255,255,255,0.9)",
+              animation: "lightningFlash 6s infinite",
+              mixBlendMode: "screen",
+            }}
+          />
+        )}
+      </div>
+
+      {/* Weather badge */}
+      <div
+        className="pointer-events-none absolute left-3 top-3 z-50 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-medium text-white/90 backdrop-blur-sm"
+        style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.4)" }}
+      >
+        <span className="text-sm leading-none">{label.icon}</span>
+        <span>{label.name}</span>
+      </div>
+
+      <style>{`
+        @keyframes rainFall {
+          0% { transform: translateY(-20px) skewX(-12deg); }
+          100% { transform: translateY(120vh) skewX(-12deg); }
+        }
+        @keyframes snowFall {
+          0% { transform: translate(0, -20px) rotate(0deg); }
+          100% { transform: translate(var(--drift, 0px), 120vh) rotate(360deg); }
+        }
+        @keyframes starTwinkle {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 1; }
+        }
+        @keyframes fogDrift {
+          0% { transform: translateX(-10%); }
+          100% { transform: translateX(10%); }
+        }
+        @keyframes lightningFlash {
+          0%, 92%, 100% { opacity: 0; }
+          93% { opacity: 0.85; }
+          94% { opacity: 0; }
+          96% { opacity: 0.6; }
+          97% { opacity: 0; }
+        }
+      `}</style>
+    </>
   );
 }
