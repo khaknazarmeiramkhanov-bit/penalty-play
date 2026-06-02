@@ -2583,12 +2583,12 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
             style={{
               top: "0%",
               left: "0%",
-              width: "55%",
-              height: "100%",
+              width: "45%",
+              height: "55%",
               background:
-                "conic-gradient(from 130deg at 8% 0%, rgba(255,240,180,0) 0deg, rgba(255,240,180,0.32) 8deg, rgba(255,240,180,0.18) 18deg, rgba(255,240,180,0) 28deg)",
+                "conic-gradient(from 130deg at 8% 0%, rgba(255,240,180,0) 0deg, rgba(255,240,180,0.14) 8deg, rgba(255,240,180,0.07) 18deg, rgba(255,240,180,0) 28deg)",
               mixBlendMode: "screen",
-              filter: "blur(2px)",
+              filter: "blur(6px)",
               animation: "floodFlicker 5s ease-in-out infinite",
             }}
           />
@@ -2598,12 +2598,12 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
             style={{
               top: "0%",
               right: "0%",
-              width: "55%",
-              height: "100%",
+              width: "45%",
+              height: "55%",
               background:
-                "conic-gradient(from 200deg at 92% 0%, rgba(255,240,180,0) 0deg, rgba(255,240,180,0.18) 10deg, rgba(255,240,180,0.32) 20deg, rgba(255,240,180,0) 28deg)",
+                "conic-gradient(from 200deg at 92% 0%, rgba(255,240,180,0) 0deg, rgba(255,240,180,0.07) 10deg, rgba(255,240,180,0.14) 20deg, rgba(255,240,180,0) 28deg)",
               mixBlendMode: "screen",
-              filter: "blur(2px)",
+              filter: "blur(6px)",
               animation: "floodFlicker 5s -2.5s ease-in-out infinite",
             }}
           />
@@ -2612,9 +2612,9 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
             className="absolute inset-x-0"
             style={{
               bottom: 0,
-              height: "55%",
+              height: "40%",
               background:
-                "radial-gradient(ellipse at 50% 100%, rgba(255,235,170,0.28) 0%, rgba(255,220,140,0.12) 40%, rgba(0,0,0,0) 75%)",
+                "radial-gradient(ellipse at 50% 100%, rgba(255,235,170,0.14) 0%, rgba(255,220,140,0.06) 45%, rgba(0,0,0,0) 80%)",
               mixBlendMode: "screen",
             }}
           />
