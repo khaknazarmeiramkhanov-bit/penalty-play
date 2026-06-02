@@ -449,6 +449,7 @@ type Store = {
   playerName: string | null;
   tournamentStage: number; // 0=1/16, 1=1/8, 2=1/4, 3=1/2, 4=Финал, 5=Чемпион
   tournamentTitles: number; // сколько раз дошёл до чемпиона
+  rating: number; // рейтинг в рейтинговых матчах
 };
 
 const initial: Store = {
@@ -466,6 +467,7 @@ const initial: Store = {
   playerName: null,
   tournamentStage: 0,
   tournamentTitles: 0,
+  rating: 1000,
 };
 
 function read(): Store {
@@ -489,6 +491,7 @@ function read(): Store {
       playerName: parsed.playerName ?? initial.playerName,
       tournamentStage: parsed.tournamentStage ?? initial.tournamentStage,
       tournamentTitles: parsed.tournamentTitles ?? initial.tournamentTitles,
+      rating: parsed.rating ?? initial.rating,
     };
   } catch {
     return initial;
