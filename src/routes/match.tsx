@@ -716,8 +716,10 @@ function MatchPage() {
         const crystals = oppScore === 0 ? 3 : 1;
         inv.addCrystals(crystals);
         inv.addWin();
+        inv.advanceTournament();
       } else if (playerScore < oppScore) {
         inv.addLoss();
+        inv.resetTournament();
       }
       return;
     }
