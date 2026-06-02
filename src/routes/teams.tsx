@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { z } from "zod";
 import { useInventory } from "@/lib/shop";
 
@@ -364,6 +364,15 @@ function TeamsPage() {
     return inv.ownedTeams.includes(team.name);
   };
 
+  const shuffledSecretTeams = useMemo(() => {
+    const secret = TEAMS.filter((t) => "secret" in t && t.secret);
+    for (let i = secret.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [secret[i], secret[j]] = [secret[j], secret[i]];
+    }
+    return secret;
+  }, []);
+
   const handleSelect = (team: (typeof TEAMS)[number]) => {
     if (team.special && !isTeamOwned(team)) return;
     setSelected(team.name);
@@ -596,7 +605,7 @@ function TeamsPage() {
               boxShadow: "0 0 40px rgba(168,85,247,0.15)",
             }}
           >
-            {TEAMS.filter((t) => "secret" in t && t.secret).map((team) => {
+            {shuffledSecretTeams.map((team) => {
               const owned = isTeamOwned(team);
               const canAfford = inv.crystals >= (team.priceCrystals ?? 0);
               return (
