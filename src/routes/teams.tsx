@@ -324,7 +324,7 @@ export const TEAMS = [
     abilityDesc: "+35% автосейв на ЛЮБЫХ ударах соперника",
     special: true,
     secret: true,
-    priceCrystals: 10,
+    priceCrystals: 15,
   },
   {
     name: "Архангелы",
@@ -336,7 +336,7 @@ export const TEAMS = [
     abilityDesc: "Первые 2 гола соперника отменяются",
     special: true,
     secret: true,
-    priceCrystals: 10,
+    priceCrystals: 15,
   },
   {
     name: "Нибиру",
@@ -348,7 +348,7 @@ export const TEAMS = [
     abilityDesc: "50% — твой удар обходит вратаря в любую зону",
     special: true,
     secret: true,
-    priceCrystals: 10,
+    priceCrystals: 15,
   },
 ];
 
