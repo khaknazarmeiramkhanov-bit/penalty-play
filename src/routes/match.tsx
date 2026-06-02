@@ -795,6 +795,16 @@ function MatchPage() {
             <span className="text-base">🪙</span>
             <span className="text-sm">{inv.coins}</span>
           </div>
+          <div
+            className="flex items-center gap-2 rounded-lg bg-black/40 px-3 py-1.5 font-black text-white"
+            style={{ border: "2px solid #ffd700" }}
+            title="Стадия турнира"
+          >
+            <span className="text-base">🏆</span>
+            <span className="text-xs tracking-[0.15em] uppercase">
+              {(["1/16", "1/8", "1/4", "1/2", "Финал", "Чемпион"][inv.tournamentStage ?? 0])}
+            </span>
+          </div>
           <Link
             to="/shop"
             className="rounded-lg bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.2em] text-white uppercase hover:bg-white/20"
