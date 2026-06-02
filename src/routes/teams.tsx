@@ -336,7 +336,7 @@ export const TEAMS = [
     abilityDesc: "Первые 2 гола соперника отменяются",
     special: true,
     secret: true,
-    priceCrystals: 15,
+    priceCrystals: 10,
   },
   {
     name: "Нибиру",
@@ -348,7 +348,7 @@ export const TEAMS = [
     abilityDesc: "50% — твой удар обходит вратаря в любую зону",
     special: true,
     secret: true,
-    priceCrystals: 20,
+    priceCrystals: 10,
   },
 ];
 
