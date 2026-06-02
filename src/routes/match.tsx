@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { TEAMS } from "./teams";
 import { useInventory, getItem, resolveColor, getSponsor, type Sponsor } from "@/lib/shop";
+import { BallSvg } from "@/components/BallSvg";
+import { DEFAULT_EQUIPPED } from "@/lib/shop";
 
 const searchSchema = z.object({ team: z.string().default("Команда") });
 
@@ -178,6 +180,8 @@ function MatchPage() {
   const equippedBoot = getItem(inv.equipped.boot);
   const equippedBand = getItem(inv.equipped.wristband);
   const equippedSock = getItem(inv.equipped.sock);
+  const equippedBall =
+    getItem(inv.equipped.ball) ?? getItem(DEFAULT_EQUIPPED.ball)!;
   const tGlove = teamGlove(team);
   const gear = {
     gloveColor: resolveColor(equippedGlove?.color ?? tGlove.color, tColor),
@@ -852,6 +856,7 @@ function MatchPage() {
           oppColor={oppColor}
           gear={gear}
           sponsor={playerSponsor}
+          ball={equippedBall}
           onPickShot={
             !animating && phase === "player"
               ? (z) => handlePlayerShot(z)
@@ -1985,6 +1990,7 @@ function GoalScene({
   oppColor,
   gear,
   sponsor,
+  ball,
   onPickShot,
 }: {
   phase: Phase;
@@ -1993,6 +1999,7 @@ function GoalScene({
   oppColor: string;
   gear: Gear;
   sponsor: Sponsor;
+  ball: ReturnType<typeof getItem>;
   onPickShot?: (z: Zone) => void;
 }) {
   // Random weather/time-of-day condition picked once per match mount
