@@ -818,6 +818,8 @@ function MatchPage() {
     playerShotHistory.current = [];
     pendingOppShot.current = null;
     kingCancelUsed.current = false;
+    archangelCancels.current = 0;
+    oppArchangelCancels.current = 0;
     winRewarded.current = false;
     foxFintArmed.current = false;
     iguanaArmed.current = false;
