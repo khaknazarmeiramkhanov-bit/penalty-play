@@ -516,6 +516,10 @@ function MatchPage() {
     } else {
       setAbilityFlash(null);
     }
+    // 🌦️ Погода берёт верх над обычным сообщением, если именно она
+    // решила исход удара.
+    if (oppWeatherMiss) setAbilityFlash(WEATHER_EFFECT[weather].label + " — соперник мимо");
+    else if (oppWeatherKeeper) setAbilityFlash(WEATHER_EFFECT[weather].label + " — вратарь обманут");
     if (frostForceOff) reindeerFrostArmed.current = false;
     if (oppFoxFintArmed.current) oppFoxFintArmed.current = false;
     if (oppIguanaArmed.current) oppIguanaArmed.current = false;
