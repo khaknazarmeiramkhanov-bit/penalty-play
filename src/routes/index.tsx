@@ -199,6 +199,19 @@ function Index() {
           </Link>
 
           <Link
+            to="/teams"
+            search={{ ranked: true }}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-[#38bdf8] bg-black/40 px-8 py-3 text-sm font-black tracking-widest uppercase backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{
+              color: "#38bdf8",
+              boxShadow: "0 0 8px rgba(56,189,248,0.4)",
+              textShadow: "0 0 4px rgba(56,189,248,0.5)",
+            }}
+          >
+            📈 Рейтинговый матч · {inv.rating ?? 1000}
+          </Link>
+
+          <Link
             to="/rating"
             className="inline-flex items-center justify-center rounded-xl border-2 border-[#ccff00]/50 bg-black/40 px-8 py-3 text-sm font-black tracking-widest uppercase backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:border-[#ccff00] active:scale-95"
             style={{
