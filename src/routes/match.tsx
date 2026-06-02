@@ -2160,7 +2160,12 @@ function GoalScene({
 
   const showAction = phase === "result" && last;
   const ballPos = showAction ? zoneCoords(last!.shot) : null;
-  const keeperPos = showAction ? zoneCoords(last!.keeper) : { left: "50%", top: "65%" };
+  // Вратарь прыгает ТОЛЬКО когда летит мяч — иначе по позиции вратаря
+  // до удара можно было угадать, в какую сторону он пойдёт.
+  const keeperPos =
+    showAction && ballFly
+      ? zoneCoords(last!.keeper)
+      : { left: "50%", top: "65%" };
 
   const strikerIsPlayer = last?.shooter === "player";
   // During action phases, striker color matches the active shooter
@@ -2174,10 +2179,11 @@ function GoalScene({
   // Keeper is the OTHER team
   const keeperColor = activeShooter === "player" ? oppColor : playerColor;
 
-  // Emotions only during result
+  // Emotions only AFTER the ball has been struck — иначе по лицу вратаря
+  // можно угадать исход ещё до удара.
   let strikerEmotion: "neutral" | "happy" | "sad" = "neutral";
   let keeperEmotion: "neutral" | "happy" | "sad" = "neutral";
-  if (showAction && last) {
+  if (showAction && last && ballFly) {
     if (last.offTarget) {
       strikerEmotion = "sad";
       keeperEmotion = "happy";
