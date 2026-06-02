@@ -880,7 +880,13 @@ function MatchPage() {
         )}
 
         {phase === "over" && (
-          <OverBlock team={team} playerScore={playerScore} oppScore={oppScore} onReset={reset} />
+          <OverBlock
+            team={team}
+            playerScore={playerScore}
+            oppScore={oppScore}
+            onReset={reset}
+            stage={inv.tournamentStage ?? 0}
+          />
         )}
 
         <Link
