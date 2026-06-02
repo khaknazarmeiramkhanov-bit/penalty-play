@@ -432,6 +432,26 @@ export function getSponsor(id: string): Sponsor {
   return SPONSORS.find((s) => s.id === id) ?? SPONSORS[0];
 }
 
+// ---------------- Rating milestones (награды за рейтинг) ----------------
+export type RatingMilestone = {
+  rating: number;
+  coins: number;
+  crystals: number;
+  title: string;
+  icon: string;
+};
+
+export const RATING_MILESTONES: RatingMilestone[] = [
+  { rating: 1050, coins: 100, crystals: 0, title: "Новичок+", icon: "🥉" },
+  { rating: 1100, coins: 200, crystals: 1, title: "Любитель", icon: "🎖️" },
+  { rating: 1200, coins: 400, crystals: 2, title: "Опытный", icon: "🏅" },
+  { rating: 1300, coins: 700, crystals: 3, title: "Профи", icon: "⭐" },
+  { rating: 1500, coins: 1200, crystals: 5, title: "Мастер", icon: "🌟" },
+  { rating: 1750, coins: 2000, crystals: 8, title: "Эксперт", icon: "💎" },
+  { rating: 2000, coins: 3500, crystals: 12, title: "Элита", icon: "👑" },
+  { rating: 2500, coins: 6000, crystals: 20, title: "Легенда", icon: "🏆" },
+];
+
 const STORAGE_KEY = "penalty-shop-v2";
 
 type Store = {
@@ -450,6 +470,7 @@ type Store = {
   tournamentStage: number; // 0=1/16, 1=1/8, 2=1/4, 3=1/2, 4=Финал, 5=Чемпион
   tournamentTitles: number; // сколько раз дошёл до чемпиона
   rating: number; // рейтинг в рейтинговых матчах
+  ratingClaimed: number[]; // полученные награды-рейтинги
 };
 
 const initial: Store = {
@@ -468,6 +489,7 @@ const initial: Store = {
   tournamentStage: 0,
   tournamentTitles: 0,
   rating: 1000,
+  ratingClaimed: [],
 };
 
 function read(): Store {
@@ -492,6 +514,7 @@ function read(): Store {
       tournamentStage: parsed.tournamentStage ?? initial.tournamentStage,
       tournamentTitles: parsed.tournamentTitles ?? initial.tournamentTitles,
       rating: parsed.rating ?? initial.rating,
+      ratingClaimed: parsed.ratingClaimed ?? initial.ratingClaimed,
     };
   } catch {
     return initial;
@@ -655,8 +678,19 @@ export function useInventory() {
   const addRatingWin = useCallback(() => {
     const next = read();
     next.rating = (next.rating ?? 1000) + 30;
+    const claimed: RatingMilestone[] = [];
+    const already = new Set(next.ratingClaimed ?? []);
+    for (const m of RATING_MILESTONES) {
+      if (next.rating >= m.rating && !already.has(m.rating)) {
+        already.add(m.rating);
+        next.coins += m.coins;
+        next.crystals += m.crystals;
+        claimed.push(m);
+      }
+    }
+    next.ratingClaimed = Array.from(already);
     write(next);
-    return next.rating;
+    return { rating: next.rating, claimed };
   }, []);
 
   const addRatingLoss = useCallback(() => {
