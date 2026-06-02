@@ -13,7 +13,10 @@ import {
 } from "@/lib/shop";
 import { BallSvg } from "@/components/BallSvg";
 
-const searchSchema = z.object({ team: z.string().default("Команда") });
+const searchSchema = z.object({
+  team: z.string().default("Команда"),
+  ranked: z.coerce.boolean().optional().default(false),
+});
 
 const OPPONENT_FALLBACK_COLOR = "#dc2626";
 
@@ -172,9 +175,11 @@ function mostUsed(history: Zone[]): Zone {
 }
 
 function MatchPage() {
-  const { team } = Route.useSearch();
+  const { team, ranked } = Route.useSearch();
   const { ability, abilityDesc } = teamAbility(team);
   const inv = useInventory();
+  const [ratingDelta, setRatingDelta] = useState<number | null>(null);
+  const [ratingAfter, setRatingAfter] = useState<number | null>(null);
   const playerSponsor = getSponsor(inv.sponsor);
   const tColor = teamColor(team);
   // Opponent: random team (different from player). Stable for the match;
@@ -717,9 +722,19 @@ function MatchPage() {
         inv.addCrystals(crystals);
         inv.addWin();
         inv.advanceTournament();
+        if (ranked) {
+          const after = inv.addRatingWin();
+          setRatingDelta(30);
+          setRatingAfter(after);
+        }
       } else if (playerScore < oppScore) {
         inv.addLoss();
         inv.resetTournament();
+        if (ranked) {
+          const after = inv.addRatingLoss();
+          setRatingDelta(-40);
+          setRatingAfter(after);
+        }
       }
       return;
     }
@@ -750,6 +765,8 @@ function MatchPage() {
     oppReindeerFrostArmed.current = false;
     phoenixRebornArmed.current = false;
     oppPhoenixRebornArmed.current = false;
+    setRatingDelta(null);
+    setRatingAfter(null);
     setOppTeam(pickOpponent(team));
   }
 
@@ -795,6 +812,18 @@ function MatchPage() {
             <span className="text-base">🪙</span>
             <span className="text-sm">{inv.coins}</span>
           </div>
+          {ranked && (
+            <div
+              className="flex items-center gap-2 rounded-lg bg-black/40 px-3 py-1.5 font-black text-white"
+              style={{ border: "2px solid #38bdf8" }}
+              title="Рейтинг"
+            >
+              <span className="text-base">📈</span>
+              <span className="text-xs tracking-[0.15em] uppercase">
+                {inv.rating ?? 1000}
+              </span>
+            </div>
+          )}
           <div
             className="flex items-center gap-2 rounded-lg bg-black/40 px-3 py-1.5 font-black text-white"
             style={{ border: "2px solid #ffd700" }}
@@ -896,6 +925,9 @@ function MatchPage() {
             oppScore={oppScore}
             onReset={reset}
             stage={inv.tournamentStage ?? 0}
+            ranked={ranked}
+            ratingDelta={ratingDelta}
+            ratingAfter={ratingAfter}
           />
         )}
 
@@ -1043,12 +1075,18 @@ function OverBlock({
   oppScore,
   onReset,
   stage,
+  ranked,
+  ratingDelta,
+  ratingAfter,
 }: {
   team: string;
   playerScore: number;
   oppScore: number;
   onReset: () => void;
   stage: number;
+  ranked?: boolean;
+  ratingDelta?: number | null;
+  ratingAfter?: number | null;
 }) {
   const won = playerScore > oppScore;
   // stage here отражает СЛЕДУЮЩИЙ раунд турнира (уже обновлён после победы)
@@ -1084,6 +1122,18 @@ function OverBlock({
       >
         {nextLabel}
       </p>
+      {ranked && ratingDelta != null && ratingAfter != null && (
+        <p
+          className="rounded-full px-4 py-1 text-xs font-black tracking-[0.2em] uppercase"
+          style={{
+            backgroundColor: "rgba(56,189,248,0.18)",
+            color: "#38bdf8",
+            border: "1.5px solid #38bdf8",
+          }}
+        >
+          📈 Рейтинг: {ratingDelta > 0 ? `+${ratingDelta}` : ratingDelta} → {ratingAfter}
+        </p>
+      )}
       <div className="flex gap-3">
         <button
           type="button"

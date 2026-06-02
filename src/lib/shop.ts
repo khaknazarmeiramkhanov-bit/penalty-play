@@ -449,6 +449,7 @@ type Store = {
   playerName: string | null;
   tournamentStage: number; // 0=1/16, 1=1/8, 2=1/4, 3=1/2, 4=Финал, 5=Чемпион
   tournamentTitles: number; // сколько раз дошёл до чемпиона
+  rating: number; // рейтинг в рейтинговых матчах
 };
 
 const initial: Store = {
@@ -466,6 +467,7 @@ const initial: Store = {
   playerName: null,
   tournamentStage: 0,
   tournamentTitles: 0,
+  rating: 1000,
 };
 
 function read(): Store {
@@ -489,6 +491,7 @@ function read(): Store {
       playerName: parsed.playerName ?? initial.playerName,
       tournamentStage: parsed.tournamentStage ?? initial.tournamentStage,
       tournamentTitles: parsed.tournamentTitles ?? initial.tournamentTitles,
+      rating: parsed.rating ?? initial.rating,
     };
   } catch {
     return initial;
@@ -649,6 +652,20 @@ export function useInventory() {
     write(next);
   }, []);
 
+  const addRatingWin = useCallback(() => {
+    const next = read();
+    next.rating = (next.rating ?? 1000) + 30;
+    write(next);
+    return next.rating;
+  }, []);
+
+  const addRatingLoss = useCallback(() => {
+    const next = read();
+    next.rating = Math.max(0, (next.rating ?? 1000) - 40);
+    write(next);
+    return next.rating;
+  }, []);
+
   const setPlayerName = useCallback((name: string) => {
     const next = read();
     next.playerName = name.trim().slice(0, 20) || null;
@@ -670,6 +687,8 @@ export function useInventory() {
     addLoss,
     advanceTournament,
     resetTournament,
+    addRatingWin,
+    addRatingLoss,
     equipSponsor,
     setPlayerName,
     reset,
