@@ -11,6 +11,7 @@ import {
   type Sponsor,
   type ShopItem,
 } from "@/lib/shop";
+import type { RatingMilestone } from "@/lib/shop";
 import { BallSvg } from "@/components/BallSvg";
 
 const searchSchema = z.object({
@@ -180,6 +181,7 @@ function MatchPage() {
   const inv = useInventory();
   const [ratingDelta, setRatingDelta] = useState<number | null>(null);
   const [ratingAfter, setRatingAfter] = useState<number | null>(null);
+  const [ratingClaimed, setRatingClaimed] = useState<RatingMilestone[]>([]);
   const playerSponsor = getSponsor(inv.sponsor);
   const tColor = teamColor(team);
   // Opponent: random team (different from player). Stable for the match;
@@ -723,9 +725,10 @@ function MatchPage() {
         inv.addWin();
         inv.advanceTournament();
         if (ranked) {
-          const after = inv.addRatingWin();
+          const res = inv.addRatingWin();
           setRatingDelta(30);
-          setRatingAfter(after);
+          setRatingAfter(res.rating);
+          setRatingClaimed(res.claimed);
         }
       } else if (playerScore < oppScore) {
         inv.addLoss();
