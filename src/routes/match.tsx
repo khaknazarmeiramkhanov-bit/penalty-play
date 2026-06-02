@@ -425,6 +425,16 @@ function MatchPage() {
         ? ALL_ZONES.filter((z) => z !== shot)[Math.floor(Math.random() * 5)]
         : playerKeeper;
     let scored = !oppOffTargetFinal && shot !== effectiveKeeper;
+    // 🌦️ Погода: вратарь хуже видит/держит мяч — шанс «обмануть» вратаря.
+    let oppWeatherKeeper = false;
+    let keeperWasSavedByPlayer = !oppOffTargetFinal && !scored && !autoSave;
+    if (
+      keeperWasSavedByPlayer &&
+      Math.random() < WEATHER_EFFECT[weather].keeperMiss
+    ) {
+      scored = true;
+      oppWeatherKeeper = true;
+    }
     let butterflyFlip = false;
     const oppButterflyFlip = oppTeam === "Бабочки" && Math.random() < 0.15;
     if (butterflies && Math.random() < 0.15) {
