@@ -553,10 +553,22 @@ function MatchPage() {
     // Соколы: боковые углы — +30% обмануть вратаря
     const falconHit =
       team === "Соколы" && shotMeta.col !== 1 && Math.random() < 0.3;
+    // 🪐 Нибиру: 50% обмануть вратаря в любой зоне
+    const nibiruHit = team === "Нибиру" && Math.random() < 0.5;
     // Перк "Удар по углам" — общий шанс что вратарь прыгнет не туда
     const perkGoalChance = (inv.perks.goalBoost ?? 0) * 0.05;
     const perkGoalHit = perkGoalChance > 0 && Math.random() < perkGoalChance;
-    if (condorHit || iguanaHit || foxHit || perkGoalHit || gorillaHit || cheetahHit || zebraHit || falconHit) {
+    if (
+      condorHit ||
+      iguanaHit ||
+      foxHit ||
+      perkGoalHit ||
+      gorillaHit ||
+      cheetahHit ||
+      zebraHit ||
+      falconHit ||
+      nibiruHit
+    ) {
       const others = ALL_ZONES.filter((z) => z !== playerShot);
       keeper = others[Math.floor(Math.random() * others.length)];
     }
@@ -565,9 +577,20 @@ function MatchPage() {
     const oppBearSave = oppBears && shotMeta.col === 1 && Math.random() < 0.5;
     const oppTigerSave = oppTigers && Math.random() < 0.2;
     const oppBadgerSave = oppBadgers && Math.random() < 0.15;
+    const oppColossusSave = oppTeam === "Колоссы" && Math.random() < 0.35;
     const oppAutoSave =
-      !(condorHit || iguanaHit || foxHit || perkGoalHit || gorillaHit || cheetahHit || zebraHit || falconHit) &&
-      (oppCrocSave || oppBearSave || oppTigerSave || oppBadgerSave);
+      !(
+        condorHit ||
+        iguanaHit ||
+        foxHit ||
+        perkGoalHit ||
+        gorillaHit ||
+        cheetahHit ||
+        zebraHit ||
+        falconHit ||
+        nibiruHit
+      ) &&
+      (oppCrocSave || oppBearSave || oppTigerSave || oppBadgerSave || oppColossusSave);
     if (oppAutoSave) keeper = playerShot; // принудительный сейв
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
@@ -586,6 +609,7 @@ function MatchPage() {
       cheetahHit ||
       zebraHit ||
       falconHit ||
+      nibiruHit ||
       phoenixSafe
         ? false
         : oppFrostHit || wolvesOff || Math.random() < baseOff;
