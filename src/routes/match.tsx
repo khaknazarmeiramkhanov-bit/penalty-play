@@ -21,6 +21,21 @@ const searchSchema = z.object({
 
 const OPPONENT_FALLBACK_COLOR = "#dc2626";
 
+// Влияние погоды на игру: шанс промаха бьющего и шанс,
+// что вратарь прыгнет не туда (обзор/скользко/слепит).
+const WEATHER_EFFECT: Record<
+  WeatherKind,
+  { off: number; keeperMiss: number; label: string }
+> = {
+  day: { off: 0.05, keeperMiss: 0.05, label: "☀️ Палящее солнце мешает" },
+  sunset: { off: 0.10, keeperMiss: 0.10, label: "🌅 Закат слепит" },
+  night: { off: 0.08, keeperMiss: 0.15, label: "🌙 Темнота мешает" },
+  rain: { off: 0.12, keeperMiss: 0.12, label: "🌧️ Скользкое поле" },
+  storm: { off: 0.18, keeperMiss: 0.15, label: "⛈️ Буря сбивает удар" },
+  snow: { off: 0.12, keeperMiss: 0.10, label: "❄️ Снег мешает игре" },
+  fog: { off: 0.08, keeperMiss: 0.20, label: "🌫️ Туман — плохая видимость" },
+};
+
 function pickOpponent(playerTeam: string): string {
   const pool = TEAMS.filter((t) => t.name !== playerTeam);
   return pool[Math.floor(Math.random() * pool.length)].name;
@@ -220,6 +235,22 @@ function MatchPage() {
   const [abilityFlash, setAbilityFlash] = useState<string | null>(null);
   const [resultLocked, setResultLocked] = useState(false);
 
+  // Случайная погода фиксируется один раз на матч и реально влияет на игру:
+  // — у бьющего повышается шанс промаха мимо ворот;
+  // — вратарь может прыгнуть не в ту сторону (плохая видимость / скользко).
+  const [weather] = useState<WeatherKind>(() => {
+    const kinds: WeatherKind[] = [
+      "day",
+      "sunset",
+      "night",
+      "rain",
+      "storm",
+      "snow",
+      "fog",
+    ];
+    return kinds[Math.floor(Math.random() * kinds.length)];
+  });
+
   // History of player choices to drive smarter AI
   const playerGuessHistory = useRef<Zone[]>([]); // where player dives as keeper
   const playerShotHistory = useRef<Zone[]>([]); // where player shoots
@@ -340,12 +371,24 @@ function MatchPage() {
       team === "Призраки" && !ghostFearUsed.current;
     // Черепахи (у игрока): после гола соперника — следующий удар мимо
     const turtleForce = team === "Черепахи" && turtleArmed.current;
-    const offTarget =
+    let offTarget =
       ghostFearForce || turtleForce
         ? true
         : oppDragons || oppPhoenixSafe
           ? false
           : frostHit || Math.random() < offChance;
+    // 🌦️ Погода: дополнительный шанс, что бьющий промажет мимо ворот.
+    let oppWeatherMiss = false;
+    if (
+      !offTarget &&
+      !oppDragons &&
+      !oppPhoenixSafe &&
+      !oppKeeperBypass &&
+      Math.random() < WEATHER_EFFECT[weather].off
+    ) {
+      offTarget = true;
+      oppWeatherMiss = true;
+    }
     // Скорпионы (у соперника): мимо → 35% закрутка в створ
     let oppScorpionRecover = false;
     let oppOffTargetFinal = offTarget;
@@ -382,6 +425,16 @@ function MatchPage() {
         ? ALL_ZONES.filter((z) => z !== shot)[Math.floor(Math.random() * 5)]
         : playerKeeper;
     let scored = !oppOffTargetFinal && shot !== effectiveKeeper;
+    // 🌦️ Погода: вратарь хуже видит/держит мяч — шанс «обмануть» вратаря.
+    let oppWeatherKeeper = false;
+    let keeperWasSavedByPlayer = !oppOffTargetFinal && !scored && !autoSave;
+    if (
+      keeperWasSavedByPlayer &&
+      Math.random() < WEATHER_EFFECT[weather].keeperMiss
+    ) {
+      scored = true;
+      oppWeatherKeeper = true;
+    }
     let butterflyFlip = false;
     const oppButterflyFlip = oppTeam === "Бабочки" && Math.random() < 0.15;
     if (butterflies && Math.random() < 0.15) {
@@ -463,6 +516,10 @@ function MatchPage() {
     } else {
       setAbilityFlash(null);
     }
+    // 🌦️ Погода берёт верх над обычным сообщением, если именно она
+    // решила исход удара.
+    if (oppWeatherMiss) setAbilityFlash(WEATHER_EFFECT[weather].label + " — соперник мимо");
+    else if (oppWeatherKeeper) setAbilityFlash(WEATHER_EFFECT[weather].label + " — вратарь обманут");
     if (frostForceOff) reindeerFrostArmed.current = false;
     if (oppFoxFintArmed.current) oppFoxFintArmed.current = false;
     if (oppIguanaArmed.current) oppIguanaArmed.current = false;
@@ -613,6 +670,31 @@ function MatchPage() {
       phoenixSafe
         ? false
         : oppFrostHit || wolvesOff || Math.random() < baseOff;
+    // 🌦️ Погода мешает и тебе: дополнительный шанс пробить мимо,
+    // если способность не гарантирует попадание в створ.
+    let weatherStrikerMiss = false;
+    const guaranteedOnTarget =
+      dragons ||
+      condorHit ||
+      iguanaHit ||
+      foxHit ||
+      perkGoalHit ||
+      gorillaHit ||
+      cheetahHit ||
+      zebraHit ||
+      falconHit ||
+      nibiruHit ||
+      phoenixSafe;
+    if (
+      !offTarget &&
+      !guaranteedOnTarget &&
+      !oppGhostFearForce &&
+      !oppTurtleForce &&
+      Math.random() < WEATHER_EFFECT[weather].off
+    ) {
+      offTarget = true;
+      weatherStrikerMiss = true;
+    }
     // 🦂 Скорпионы: мимо → 35% закрутка обратно в створ
     let scorpionRecover = false;
     if (
@@ -626,6 +708,19 @@ function MatchPage() {
       scorpionRecover = true;
     }
     let scored = !offTarget && playerShot !== keeper;
+    // 🌦️ Погода мешает и вратарю: при сейве — шанс, что он прыгнул не туда.
+    let weatherKeeperMiss = false;
+    if (
+      !offTarget &&
+      !scored &&
+      !oppAutoSave &&
+      Math.random() < WEATHER_EFFECT[weather].keeperMiss
+    ) {
+      const others = ALL_ZONES.filter((z) => z !== playerShot);
+      keeper = others[Math.floor(Math.random() * others.length)];
+      scored = true;
+      weatherKeeperMiss = true;
+    }
     // 🐙 Кракены: раз за матч — повторный удар после сейва
     let krakenReboundFlash = false;
     if (
@@ -700,6 +795,9 @@ function MatchPage() {
     } else {
       setAbilityFlash(null);
     }
+    // 🌦️ Погода важнее обычного флеша, если именно она решила исход.
+    if (weatherStrikerMiss) setAbilityFlash(WEATHER_EFFECT[weather].label + " — мимо");
+    else if (weatherKeeperMiss) setAbilityFlash(WEATHER_EFFECT[weather].label + " — вратарь обманут");
     // Бабочки (наши/соперника): 15% инверсия
     if (butterflies && Math.random() < 0.15) {
       scored = !scored;
@@ -1021,6 +1119,7 @@ function MatchPage() {
           gear={gear}
           sponsor={playerSponsor}
           ball={equippedBall}
+          weather={weather}
           onPickShot={
             !animating && phase === "player"
               ? (z) => handlePlayerShot(z)
@@ -2233,6 +2332,7 @@ function GoalScene({
   gear,
   sponsor,
   ball,
+  weather,
   onPickShot,
 }: {
   phase: Phase;
@@ -2242,13 +2342,9 @@ function GoalScene({
   gear: Gear;
   sponsor: Sponsor;
   ball: ShopItem;
+  weather: WeatherKind;
   onPickShot?: (z: Zone) => void;
 }) {
-  // Random weather/time-of-day condition picked once per match mount
-  const weather = useMemo<WeatherKind>(() => {
-    const kinds: WeatherKind[] = ["day", "sunset", "night", "rain", "storm", "snow", "fog"];
-    return kinds[Math.floor(Math.random() * kinds.length)];
-  }, []);
   // Animation: ball travels from striker spot to its zone after picking
   const [tick, setTick] = useState(0);
   // Kick animation: idle → wind-up → strike
