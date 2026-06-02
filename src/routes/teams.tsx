@@ -604,11 +604,11 @@ function TeamsPage() {
                   key={team.name}
                   className="group relative flex flex-col items-center justify-center gap-2 rounded-xl bg-black/50 px-4 py-5 text-white backdrop-blur-sm transition-all duration-200"
                   style={{
-                    border: `2px solid ${team.color}`,
+                    border: `2px solid ${owned ? team.color : "#6b21a8"}`,
                     boxShadow:
                       selected === team.name && owned
                         ? `0 0 0 4px #ccff00, 0 6px 0 rgba(0,0,0,0.35), 0 0 50px ${team.color}cc`
-                        : `0 6px 0 rgba(0,0,0,0.35), 0 0 40px ${team.color}77`,
+                        : `0 6px 0 rgba(0,0,0,0.35), 0 0 40px ${owned ? team.color : "#a855f7"}77`,
                     transform: selected === team.name && owned ? "scale(1.05)" : undefined,
                     opacity: owned ? 1 : 0.75,
                   }}
