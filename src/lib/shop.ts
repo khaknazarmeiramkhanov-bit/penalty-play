@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { syncPlayer } from "./leaderboard";
 
-export type ItemKind = "glove" | "boot" | "wristband" | "sock";
+export type ItemKind = "glove" | "boot" | "wristband" | "sock" | "ball";
 
 export type Rarity = "common" | "rare" | "legendary";
 
@@ -14,6 +14,8 @@ export type ShopItem = {
   // visual props applied to PlayerFigure
   color: string; // primary color
   accent?: string; // secondary highlight
+  // Optional pattern key for ball skins
+  pattern?: string;
 };
 
 export const ITEMS: ShopItem[] = [
@@ -283,13 +285,70 @@ export const ITEMS: ShopItem[] = [
   { id: "sock_nova", kind: "sock", name: "Сверхновая", price: 900, rarity: "legendary", color: "#4c1d95", accent: "#facc15" },
   { id: "sock_eclipse", kind: "sock", name: "Затмение", price: 1200, rarity: "legendary", color: "#020617", accent: "#f43f5e" },
   { id: "sock_aurora", kind: "sock", name: "Сияние", price: 1000, rarity: "legendary", color: "#164e63", accent: "#67e8f9" },
+  // Balls — generated below
+  ...buildBallItems(),
 ];
+
+// ---------------- Ball skins (100 combinations) ----------------
+const BALL_PATTERNS: { key: string; ru: string; priceMod: number }[] = [
+  { key: "classic", ru: "Классик", priceMod: 0 },
+  { key: "stripes", ru: "Полосы", priceMod: 20 },
+  { key: "swirl", ru: "Вихрь", priceMod: 40 },
+  { key: "star", ru: "Звезда", priceMod: 60 },
+  { key: "dots", ru: "Горошек", priceMod: 30 },
+  { key: "checker", ru: "Шахматы", priceMod: 50 },
+  { key: "flame", ru: "Пламя", priceMod: 80 },
+  { key: "gradient", ru: "Градиент", priceMod: 40 },
+  { key: "hex", ru: "Соты", priceMod: 70 },
+  { key: "ring", ru: "Кольца", priceMod: 50 },
+];
+
+const BALL_PALETTES: {
+  key: string;
+  name: string;
+  color: string;
+  accent: string;
+  rarity: Rarity;
+  price: number;
+}[] = [
+  { key: "classic", name: "Классика", color: "#ffffff", accent: "#0a0a0a", rarity: "common", price: 0 },
+  { key: "coal", name: "Уголь", color: "#0a0a0a", accent: "#ffffff", rarity: "common", price: 80 },
+  { key: "fire", name: "Огонь", color: "#ef4444", accent: "#facc15", rarity: "common", price: 140 },
+  { key: "ocean", name: "Океан", color: "#0ea5e9", accent: "#e0f2fe", rarity: "common", price: 120 },
+  { key: "forest", name: "Лес", color: "#16a34a", accent: "#dcfce7", rarity: "common", price: 120 },
+  { key: "sunset", name: "Закат", color: "#f97316", accent: "#fde68a", rarity: "rare", price: 240 },
+  { key: "galaxy", name: "Галактика", color: "#1e1b4b", accent: "#a78bfa", rarity: "rare", price: 300 },
+  { key: "neon", name: "Неон", color: "#a3e635", accent: "#0a0a0a", rarity: "rare", price: 320 },
+  { key: "gold", name: "Золото", color: "#facc15", accent: "#7c2d12", rarity: "legendary", price: 1000 },
+  { key: "void", name: "Пустота", color: "#020617", accent: "#22d3ee", rarity: "legendary", price: 1400 },
+];
+
+function buildBallItems(): ShopItem[] {
+  const items: ShopItem[] = [];
+  for (const pal of BALL_PALETTES) {
+    for (const pat of BALL_PATTERNS) {
+      const isDefault = pal.key === "classic" && pat.key === "classic";
+      items.push({
+        id: `ball_${pal.key}_${pat.key}`,
+        kind: "ball",
+        name: `${pal.name} · ${pat.ru}`,
+        price: isDefault ? 0 : pal.price + pat.priceMod,
+        rarity: pal.rarity,
+        color: pal.color,
+        accent: pal.accent,
+        pattern: pat.key,
+      });
+    }
+  }
+  return items;
+}
 
 export const DEFAULT_EQUIPPED: Record<ItemKind, string> = {
   glove: "glove_orange",
   boot: "boot_black",
   wristband: "band_white",
   sock: "sock_black",
+  ball: "ball_classic_classic",
 };
 
 // ---------------- Perks (бонусы за кристаллы) ----------------
