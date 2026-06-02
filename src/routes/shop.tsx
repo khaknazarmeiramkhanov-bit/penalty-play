@@ -73,6 +73,19 @@ function ShopPage() {
           🪙 гол +20 · сейв +15 · победа +100 &nbsp;·&nbsp; 💎 победа +1 · сухой матч +3
         </p>
 
+        {SECTIONS.filter((s) => s.kind === "ball").map((s) => (
+          <Section
+            key={s.kind}
+            title={s.title}
+            items={ITEMS.filter((i) => i.kind === s.kind)}
+            coins={inv.coins}
+            owned={inv.owned}
+            equipped={inv.equipped[s.kind]}
+            onBuy={inv.buy}
+            onEquip={inv.equip}
+          />
+        ))}
+
         <PerksSection
           perks={PERKS}
           levels={inv.perks}
@@ -87,7 +100,7 @@ function ShopPage() {
           onEquip={inv.equipSponsor}
         />
 
-        {SECTIONS.map((s) => (
+        {SECTIONS.filter((s) => s.kind !== "ball").map((s) => (
           <Section
             key={s.kind}
             title={s.title}
