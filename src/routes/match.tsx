@@ -2437,6 +2437,9 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
 
   const label = WEATHER_LABEL[weather];
 
+  // Stadium floodlights turn on for dark conditions
+  const isDark = weather === "night" || weather === "rain" || weather === "storm" || weather === "fog";
+
   // Pre-compute drop / flake positions
   const drops = useMemo(
     () =>
@@ -2543,6 +2546,81 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
         style={{ background: tint[weather], mixBlendMode: "multiply" }}
       />
 
+      {/* Stadium floodlights — turn on when the scene is dark */}
+      {isDark && (
+        <div className="pointer-events-none absolute inset-0 z-35 overflow-hidden">
+          {/* Left tower */}
+          <div
+            className="absolute"
+            style={{
+              top: "-2%",
+              left: "4%",
+              width: 14,
+              height: 10,
+              background: "linear-gradient(180deg, #fffce0 0%, #ffe066 100%)",
+              borderRadius: 2,
+              boxShadow: "0 0 18px 4px rgba(255,236,150,0.95), 0 0 40px 10px rgba(255,220,120,0.55)",
+              animation: "floodFlicker 5s ease-in-out infinite",
+            }}
+          />
+          {/* Right tower */}
+          <div
+            className="absolute"
+            style={{
+              top: "-2%",
+              right: "4%",
+              width: 14,
+              height: 10,
+              background: "linear-gradient(180deg, #fffce0 0%, #ffe066 100%)",
+              borderRadius: 2,
+              boxShadow: "0 0 18px 4px rgba(255,236,150,0.95), 0 0 40px 10px rgba(255,220,120,0.55)",
+              animation: "floodFlicker 5s -2.5s ease-in-out infinite",
+            }}
+          />
+          {/* Left beam — wide cone of light */}
+          <div
+            className="absolute"
+            style={{
+              top: "0%",
+              left: "0%",
+              width: "55%",
+              height: "100%",
+              background:
+                "conic-gradient(from 130deg at 8% 0%, rgba(255,240,180,0) 0deg, rgba(255,240,180,0.32) 8deg, rgba(255,240,180,0.18) 18deg, rgba(255,240,180,0) 28deg)",
+              mixBlendMode: "screen",
+              filter: "blur(2px)",
+              animation: "floodFlicker 5s ease-in-out infinite",
+            }}
+          />
+          {/* Right beam */}
+          <div
+            className="absolute"
+            style={{
+              top: "0%",
+              right: "0%",
+              width: "55%",
+              height: "100%",
+              background:
+                "conic-gradient(from 200deg at 92% 0%, rgba(255,240,180,0) 0deg, rgba(255,240,180,0.18) 10deg, rgba(255,240,180,0.32) 20deg, rgba(255,240,180,0) 28deg)",
+              mixBlendMode: "screen",
+              filter: "blur(2px)",
+              animation: "floodFlicker 5s -2.5s ease-in-out infinite",
+            }}
+          />
+          {/* Warm pool of light on the pitch under both beams */}
+          <div
+            className="absolute inset-x-0"
+            style={{
+              bottom: 0,
+              height: "55%",
+              background:
+                "radial-gradient(ellipse at 50% 100%, rgba(255,235,170,0.28) 0%, rgba(255,220,140,0.12) 40%, rgba(0,0,0,0) 75%)",
+              mixBlendMode: "screen",
+            }}
+          />
+        </div>
+      )}
+
       {/* Particles & special effects (above tint) */}
       <div className="pointer-events-none absolute inset-0 z-40 overflow-hidden">
         {(weather === "rain" || weather === "storm") &&
@@ -2647,6 +2725,15 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
           94% { opacity: 0; }
           96% { opacity: 0.6; }
           97% { opacity: 0; }
+        }
+        @keyframes floodFlicker {
+          0%, 100% { opacity: 1; }
+          47% { opacity: 1; }
+          48% { opacity: 0.75; }
+          49% { opacity: 1; }
+          92% { opacity: 1; }
+          93% { opacity: 0.6; }
+          94% { opacity: 1; }
         }
       `}</style>
     </>
