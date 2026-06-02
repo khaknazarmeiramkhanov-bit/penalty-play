@@ -2191,9 +2191,9 @@ function GoalScene({
       <div className="relative mt-2 w-full overflow-hidden rounded-b-lg" style={{ height: 180 }}>
         {/* Field with pitch lines */}
         <PitchLines />
-        {/* Fire effects in the corners of the field */}
-        <FieldFire side="left" />
-        <FieldFire side="right" />
+        {/* Electric energy effects in the corners of the field */}
+        <FieldLightning side="left" />
+        <FieldLightning side="right" />
         {/* Striker on the penalty spot */}
         <div
           key={`striker-${tick}`}
@@ -2243,34 +2243,33 @@ function GoalScene({
           75% { transform: translateX(-50%) rotate(-3deg) scale(1.02) translateY(-2px); }
           100% { transform: translateX(-50%) rotate(0deg) scale(1); }
         }
-        @keyframes flameFlicker {
-          0%, 100% {
-            transform: translateX(-50%) scale(1, 1) rotate(-2deg);
-            filter: hue-rotate(0deg) brightness(1);
-          }
-          25% {
-            transform: translateX(-50%) scale(1.1, 1.15) rotate(3deg);
-            filter: hue-rotate(-8deg) brightness(1.15);
-          }
-          50% {
-            transform: translateX(-50%) scale(0.92, 1.25) rotate(-4deg);
-            filter: hue-rotate(6deg) brightness(0.95);
-          }
-          75% {
-            transform: translateX(-50%) scale(1.05, 1.1) rotate(2deg);
-            filter: hue-rotate(-4deg) brightness(1.1);
-          }
+        @keyframes boltFlash {
+          0%, 92%, 100% { opacity: 0; transform: translateX(-50%) scaleY(0.8); filter: brightness(1); }
+          93% { opacity: 1; transform: translateX(-50%) scaleY(1); filter: brightness(1.8); }
+          95% { opacity: 0.2; transform: translateX(-48%) scaleY(0.95); }
+          97% { opacity: 1; transform: translateX(-52%) scaleY(1.05); filter: brightness(2); }
+          99% { opacity: 0.1; }
         }
-        @keyframes emberRise {
-          0% { transform: translate(-50%, 0) scale(1); opacity: 0.9; }
-          100% { transform: translate(calc(-50% + var(--drift, 0px)), -60px) scale(0.2); opacity: 0; }
+        @keyframes coreGlow {
+          0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(1); }
+          50% { opacity: 0.95; transform: translateX(-50%) scale(1.15); }
+        }
+        @keyframes sparkOrbit {
+          0% { transform: translate(-50%, 0) rotate(0deg) translateX(var(--radius, 14px)) scale(0.8); opacity: 0; }
+          15% { opacity: 1; }
+          85% { opacity: 1; }
+          100% { transform: translate(-50%, -30px) rotate(360deg) translateX(var(--radius, 14px)) scale(0.3); opacity: 0; }
+        }
+        @keyframes auraPulse {
+          0%, 100% { opacity: 0.35; transform: translateX(-50%) scale(0.9); }
+          50% { opacity: 0.7; transform: translateX(-50%) scale(1.2); }
         }
       `}</style>
     </div>
   );
 }
 
-function FieldFire({ side }: { side: "left" | "right" }) {
+function FieldLightning({ side }: { side: "left" | "right" }) {
   const positions = side === "left" ? [8, 22, 40] : [92, 78, 60];
   return (
     <div className="pointer-events-none absolute inset-0">
