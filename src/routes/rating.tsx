@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useInventory } from "@/lib/shop";
+import { useInventory, RATING_MILESTONES } from "@/lib/shop";
 import { useLeaderboard } from "@/lib/leaderboard";
 
 export const Route = createFileRoute("/rating")({
@@ -22,6 +22,9 @@ function RatingPage() {
   const inv = useInventory();
   const { rows, loading, myClientId } = useLeaderboard(50);
   const winRate = inv.matches > 0 ? ((inv.wins / inv.matches) * 100).toFixed(1) : "0.0";
+  const claimed = new Set(inv.ratingClaimed ?? []);
+  const currentRating = inv.rating ?? 1000;
+  const nextMilestone = RATING_MILESTONES.find((m) => !claimed.has(m.rating));
 
   const stats = [
     { label: "Рейтинг", value: inv.rating ?? 1000, icon: "📈" },
@@ -96,6 +99,75 @@ function RatingPage() {
                 backgroundColor: "#ccff00",
               }}
             />
+          </div>
+        </div>
+
+        {/* Rating milestones */}
+        <div className="flex flex-col gap-2 rounded-xl bg-black/40 p-4 backdrop-blur-sm">
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-sm font-black tracking-[0.2em] text-white uppercase">
+              📈 Награды рейтинга
+            </span>
+            <span className="text-[10px] tracking-wider text-white/50 uppercase">
+              {currentRating}
+            </span>
+          </div>
+          {nextMilestone && (
+            <div className="mb-1">
+              <div className="mb-1 flex items-center justify-between text-[10px] tracking-widest text-white/60 uppercase">
+                <span>До «{nextMilestone.title}»</span>
+                <span>
+                  {currentRating} / {nextMilestone.rating}
+                </span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-white/10">
+                <div
+                  className="h-2 rounded-full transition-all"
+                  style={{
+                    width: `${Math.min(100, (currentRating / nextMilestone.rating) * 100)}%`,
+                    backgroundColor: "#38bdf8",
+                  }}
+                />
+              </div>
+            </div>
+          )}
+          <div className="flex flex-col gap-1.5">
+            {RATING_MILESTONES.map((m) => {
+              const got = claimed.has(m.rating);
+              const reachable = currentRating >= m.rating;
+              return (
+                <div
+                  key={m.rating}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2"
+                  style={{
+                    background: got
+                      ? "linear-gradient(90deg, rgba(204,255,0,0.22), rgba(204,255,0,0.05))"
+                      : "rgba(255,255,255,0.05)",
+                    border: got
+                      ? "1.5px solid #ccff00"
+                      : "1px solid rgba(255,255,255,0.08)",
+                    opacity: got || reachable ? 1 : 0.6,
+                  }}
+                >
+                  <span className="text-xl">{m.icon}</span>
+                  <div className="flex flex-1 flex-col">
+                    <span className="text-sm font-black tracking-wide text-white">
+                      {m.title}
+                    </span>
+                    <span className="text-[10px] tracking-widest text-white/50 uppercase">
+                      Рейтинг {m.rating}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-end text-[11px] font-black text-white">
+                    <span>+{m.coins} 🪙</span>
+                    {m.crystals > 0 && <span>+{m.crystals} 💎</span>}
+                  </div>
+                  {got && (
+                    <span className="ml-1 text-base text-[#ccff00]">✓</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 

@@ -11,6 +11,7 @@ import {
   type Sponsor,
   type ShopItem,
 } from "@/lib/shop";
+import type { RatingMilestone } from "@/lib/shop";
 import { BallSvg } from "@/components/BallSvg";
 
 const searchSchema = z.object({
@@ -180,6 +181,7 @@ function MatchPage() {
   const inv = useInventory();
   const [ratingDelta, setRatingDelta] = useState<number | null>(null);
   const [ratingAfter, setRatingAfter] = useState<number | null>(null);
+  const [ratingClaimed, setRatingClaimed] = useState<RatingMilestone[]>([]);
   const playerSponsor = getSponsor(inv.sponsor);
   const tColor = teamColor(team);
   // Opponent: random team (different from player). Stable for the match;
@@ -723,9 +725,10 @@ function MatchPage() {
         inv.addWin();
         inv.advanceTournament();
         if (ranked) {
-          const after = inv.addRatingWin();
+          const res = inv.addRatingWin();
           setRatingDelta(30);
-          setRatingAfter(after);
+          setRatingAfter(res.rating);
+          setRatingClaimed(res.claimed);
         }
       } else if (playerScore < oppScore) {
         inv.addLoss();
@@ -767,6 +770,7 @@ function MatchPage() {
     oppPhoenixRebornArmed.current = false;
     setRatingDelta(null);
     setRatingAfter(null);
+    setRatingClaimed([]);
     setOppTeam(pickOpponent(team));
   }
 
@@ -928,6 +932,7 @@ function MatchPage() {
             ranked={ranked}
             ratingDelta={ratingDelta}
             ratingAfter={ratingAfter}
+            ratingClaimed={ratingClaimed}
           />
         )}
 
@@ -1078,6 +1083,7 @@ function OverBlock({
   ranked,
   ratingDelta,
   ratingAfter,
+  ratingClaimed,
 }: {
   team: string;
   playerScore: number;
@@ -1087,6 +1093,7 @@ function OverBlock({
   ranked?: boolean;
   ratingDelta?: number | null;
   ratingAfter?: number | null;
+  ratingClaimed?: RatingMilestone[];
 }) {
   const won = playerScore > oppScore;
   // stage here отражает СЛЕДУЮЩИЙ раунд турнира (уже обновлён после победы)
@@ -1133,6 +1140,32 @@ function OverBlock({
         >
           📈 Рейтинг: {ratingDelta > 0 ? `+${ratingDelta}` : ratingDelta} → {ratingAfter}
         </p>
+      )}
+      {ranked && ratingClaimed && ratingClaimed.length > 0 && (
+        <div className="flex flex-col items-stretch gap-2 w-full max-w-xs">
+          {ratingClaimed.map((m) => (
+            <div
+              key={m.rating}
+              className="flex items-center gap-3 rounded-xl px-3 py-2"
+              style={{
+                background: "linear-gradient(90deg, rgba(204,255,0,0.22), rgba(204,255,0,0.05))",
+                border: "1.5px solid #ccff00",
+              }}
+            >
+              <span className="text-2xl">{m.icon}</span>
+              <div className="flex flex-1 flex-col text-left">
+                <span className="text-[10px] font-black tracking-[0.2em] text-[#ccff00] uppercase">
+                  Награда {m.rating}
+                </span>
+                <span className="text-sm font-black text-white">{m.title}</span>
+              </div>
+              <div className="flex flex-col items-end text-xs font-black text-white">
+                <span>+{m.coins} 🪙</span>
+                {m.crystals > 0 && <span>+{m.crystals} 💎</span>}
+              </div>
+            </div>
+          ))}
+        </div>
       )}
       <div className="flex gap-3">
         <button
