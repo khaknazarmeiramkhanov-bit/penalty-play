@@ -765,6 +765,8 @@ function MatchPage() {
     oppReindeerFrostArmed.current = false;
     phoenixRebornArmed.current = false;
     oppPhoenixRebornArmed.current = false;
+    setRatingDelta(null);
+    setRatingAfter(null);
     setOppTeam(pickOpponent(team));
   }
 
