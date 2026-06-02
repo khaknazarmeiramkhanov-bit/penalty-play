@@ -2254,11 +2254,11 @@ function GoalScene({
           0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(1); }
           50% { opacity: 0.95; transform: translateX(-50%) scale(1.15); }
         }
-        @keyframes sparkOrbit {
-          0% { transform: translate(-50%, 0) rotate(0deg) translateX(var(--radius, 14px)) scale(0.8); opacity: 0; }
-          15% { opacity: 1; }
-          85% { opacity: 1; }
-          100% { transform: translate(-50%, -30px) rotate(360deg) translateX(var(--radius, 14px)) scale(0.3); opacity: 0; }
+        @keyframes sparkFloat {
+          0% { transform: translate(0, 0) scale(0.8); opacity: 0; }
+          20% { opacity: 1; }
+          80% { opacity: 0.8; }
+          100% { transform: translate(var(--drift, 0px), -70px) scale(0.2); opacity: 0; }
         }
         @keyframes auraPulse {
           0%, 100% { opacity: 0.35; transform: translateX(-50%) scale(0.9); }
@@ -2270,93 +2270,91 @@ function GoalScene({
 }
 
 function FieldLightning({ side }: { side: "left" | "right" }) {
-  const positions = side === "left" ? [8, 22, 40] : [92, 78, 60];
+  const horiz = side === "left" ? { left: "4%" } : { right: "4%" };
+  const delay = side === "left" ? 0 : 0.6;
   return (
-    <div className="pointer-events-none absolute inset-0">
-      {positions.map((leftPct, i) => (
-        <div
-          key={i}
-          className="absolute"
-          style={{ left: `${leftPct}%`, bottom: `${4 + (i % 2) * 6}px` }}
-        >
-          {/* Aura halo */}
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              bottom: -6,
-              width: 46,
-              height: 46,
-              transform: "translateX(-50%)",
-              background:
-                "radial-gradient(ellipse at center, rgba(140,170,255,0.55), rgba(80,60,220,0.3) 45%, transparent 75%)",
-              filter: "blur(5px)",
-              animation: `auraPulse ${1.4 + i * 0.2}s ease-in-out infinite`,
-              animationDelay: `${i * 0.15}s`,
-              mixBlendMode: "screen",
-            }}
-          />
-          {/* Energy core orb */}
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              bottom: 6,
-              width: 12,
-              height: 12,
-              borderRadius: "50%",
-              background:
-                "radial-gradient(circle at 35% 35%, #ffffff 0%, #b8d4ff 30%, #6a78ff 65%, #2a1f8a 100%)",
-              boxShadow:
-                "0 0 12px #7aa8ff, 0 0 22px rgba(120,90,255,0.8), 0 0 36px rgba(80,60,220,0.5)",
-              animation: `coreGlow ${1.2 + i * 0.15}s ease-in-out infinite`,
-              animationDelay: `${i * 0.1}s`,
-            }}
-          />
-          {/* Lightning bolt SVG */}
-          <svg
-            width="22"
-            height="34"
-            viewBox="0 0 22 34"
-            style={{
-              position: "absolute",
-              left: "50%",
-              bottom: 4,
-              transform: "translateX(-50%)",
-              animation: `boltFlash ${2.2 + i * 0.4}s linear infinite`,
-              animationDelay: `${i * 0.35}s`,
-              filter: "drop-shadow(0 0 4px #8ab4ff) drop-shadow(0 0 8px #6a4cff)",
-              mixBlendMode: "screen",
-            }}
-          >
-            <path
-              d="M13 0 L4 18 L10 18 L7 34 L18 14 L12 14 Z"
-              fill="#e8f0ff"
-              stroke="#a8c4ff"
-              strokeWidth="0.5"
-            />
-          </svg>
-          {/* Orbiting sparks */}
-          {[0, 1, 2, 3].map((e) => (
-            <span
-              key={e}
-              style={{
-                position: "absolute",
-                left: "50%",
-                bottom: 10,
-                width: 3,
-                height: 3,
-                borderRadius: "50%",
-                background: e % 2 === 0 ? "#b8d4ff" : "#c4a8ff",
-                boxShadow: "0 0 6px #8ab4ff, 0 0 10px #6a4cff",
-                ["--radius" as any]: `${10 + (e % 2) * 6}px`,
-                animation: `sparkOrbit ${1.4 + e * 0.3}s linear infinite`,
-                animationDelay: `${i * 0.2 + e * 0.35}s`,
-                opacity: 0,
-              }}
-            />
-          ))}
-        </div>
+    <div
+      className="pointer-events-none absolute"
+      style={{ ...horiz, bottom: 0, width: 70, height: 110 }}
+    >
+      {/* Ground glow puddle */}
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: -10,
+          width: 80,
+          height: 28,
+          transform: "translateX(-50%)",
+          background:
+            "radial-gradient(ellipse at center, rgba(150,180,255,0.65), rgba(80,60,220,0.35) 45%, transparent 75%)",
+          filter: "blur(6px)",
+          animation: `auraPulse 1.8s ease-in-out infinite`,
+          animationDelay: `${delay}s`,
+          mixBlendMode: "screen",
+        }}
+      />
+      {/* Vertical energy beam */}
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: 0,
+          width: 6,
+          height: 90,
+          transform: "translateX(-50%)",
+          background:
+            "linear-gradient(to top, rgba(180,200,255,0.9) 0%, rgba(140,120,255,0.7) 40%, rgba(120,80,255,0.3) 80%, transparent 100%)",
+          filter: "blur(2px)",
+          animation: `auraPulse 1.6s ease-in-out infinite`,
+          animationDelay: `${delay + 0.2}s`,
+          mixBlendMode: "screen",
+          borderRadius: 6,
+        }}
+      />
+      {/* Lightning bolt — big and centered */}
+      <svg
+        width="48"
+        height="100"
+        viewBox="0 0 48 100"
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: 0,
+          transform: "translateX(-50%)",
+          animation: `boltFlash 2.4s linear infinite`,
+          animationDelay: `${delay}s`,
+          filter:
+            "drop-shadow(0 0 4px #c8d8ff) drop-shadow(0 0 10px #8a6aff) drop-shadow(0 0 18px rgba(120,90,255,0.7))",
+        }}
+      >
+        <path
+          d="M28 2 L8 50 L20 50 L14 98 L42 42 L28 42 L34 2 Z"
+          fill="#f4f7ff"
+          stroke="#b8c8ff"
+          strokeWidth="1"
+          strokeLinejoin="round"
+        />
+      </svg>
+      {/* Floating sparks rising */}
+      {[0, 1, 2, 3, 4].map((e) => (
+        <span
+          key={e}
+          style={{
+            position: "absolute",
+            left: `${30 + (e * 11) % 40}%`,
+            bottom: 6,
+            width: 3,
+            height: 3,
+            borderRadius: "50%",
+            background: e % 2 === 0 ? "#d8e4ff" : "#b8a8ff",
+            boxShadow: "0 0 6px #a8c0ff, 0 0 12px #7a5cff",
+            ["--drift" as any]: `${(e - 2) * 6}px`,
+            animation: `sparkFloat ${1.8 + e * 0.3}s linear infinite`,
+            animationDelay: `${delay + e * 0.25}s`,
+            opacity: 0,
+          }}
+        />
       ))}
     </div>
   );
