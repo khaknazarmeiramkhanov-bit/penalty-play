@@ -317,6 +317,7 @@ export const TEAMS = [
 ];
 
 function TeamsPage() {
+  const { ranked } = Route.useSearch();
   const [selected, setSelected] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -536,7 +537,9 @@ function TeamsPage() {
         {canProceed && (
           <button
             type="button"
-            onClick={() => navigate({ to: "/match", search: { team: selected } })}
+            onClick={() =>
+              navigate({ to: "/match", search: { team: selected, ranked } })
+            }
             className="group relative inline-flex items-center justify-center rounded-xl px-10 py-4 text-lg font-black tracking-widest text-black uppercase transition-all duration-200 hover:scale-105 active:scale-95"
             style={{
               backgroundColor: "#ccff00",
