@@ -795,6 +795,9 @@ function MatchPage() {
     } else {
       setAbilityFlash(null);
     }
+    // 🌦️ Погода важнее обычного флеша, если именно она решила исход.
+    if (weatherStrikerMiss) setAbilityFlash(WEATHER_EFFECT[weather].label + " — мимо");
+    else if (weatherKeeperMiss) setAbilityFlash(WEATHER_EFFECT[weather].label + " — вратарь обманут");
     // Бабочки (наши/соперника): 15% инверсия
     if (butterflies && Math.random() < 0.15) {
       scored = !scored;
