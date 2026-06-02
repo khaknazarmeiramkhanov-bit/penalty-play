@@ -883,12 +883,22 @@ function MatchPage() {
               {(["1/16", "1/8", "1/4", "1/2", "Финал", "Чемпион"][inv.tournamentStage ?? 0])}
             </span>
           </div>
-          <Link
-            to="/shop"
+          <button
+            type="button"
+            onClick={() => {
+              if (ranked && !matchSettledRef.current) {
+                const ok = window.confirm(
+                  "Выйти из рейтингового матча? Будет засчитано поражение: −40 рейтинга.",
+                );
+                if (!ok) return;
+              }
+              forfeitIfNeeded();
+              navigate({ to: "/shop" });
+            }}
             className="rounded-lg bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.2em] text-white uppercase hover:bg-white/20"
           >
             Магазин →
-          </Link>
+          </button>
         </div>
 
         {/* Phase title */}
@@ -981,12 +991,13 @@ function MatchPage() {
           />
         )}
 
-        <Link
-          to="/teams"
+        <button
+          type="button"
+          onClick={() => handleExit("/teams")}
           className="mt-1 text-xs font-bold tracking-[0.2em] text-white/60 uppercase transition-colors hover:text-white"
         >
           ← Сменить команду
-        </Link>
+        </button>
       </div>
     </main>
   );
