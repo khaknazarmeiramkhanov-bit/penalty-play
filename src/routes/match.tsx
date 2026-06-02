@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { TEAMS } from "./teams";
@@ -208,6 +208,8 @@ function MatchPage() {
     sockAccent: resolveColor(equippedSock?.accent ?? tColor, tColor),
   };
   const winRewarded = useRef(false);
+  const matchSettledRef = useRef(false);
+  const navigate = useNavigate();
 
   const [round, setRound] = useState(1);
   const [phase, setPhase] = useState<Phase>("opponent");
@@ -718,6 +720,7 @@ function MatchPage() {
       inv.addMatch();
       if (!winRewarded.current && playerScore > oppScore) {
         winRewarded.current = true;
+        matchSettledRef.current = true;
         inv.addCoins(100);
         // Кристаллы за победу: +1 за матч, +2 если соперник не забил (сухой матч)
         const crystals = oppScore === 0 ? 3 : 1;
@@ -731,6 +734,7 @@ function MatchPage() {
           setRatingClaimed(res.claimed);
         }
       } else if (playerScore < oppScore) {
+        matchSettledRef.current = true;
         inv.addLoss();
         inv.resetTournament();
         if (ranked) {
@@ -738,6 +742,9 @@ function MatchPage() {
           setRatingDelta(-40);
           setRatingAfter(after);
         }
+      } else {
+        // ничья — матч считается завершённым без штрафа
+        matchSettledRef.current = true;
       }
       return;
     }
@@ -773,6 +780,44 @@ function MatchPage() {
     setRatingClaimed([]);
     setOppTeam(pickOpponent(team));
   }
+
+  // Засчитываем поражение, если игрок выходит из не завершённого
+  // рейтингового матча — иначе можно было бы «слиться» без потери рейтинга.
+  function forfeitIfNeeded() {
+    if (matchSettledRef.current) return;
+    matchSettledRef.current = true;
+    inv.addLoss();
+    inv.resetTournament();
+    if (ranked) inv.addRatingLoss();
+  }
+
+  function handleExit(to: "/" | "/teams") {
+    if (ranked && !matchSettledRef.current) {
+      const ok = window.confirm(
+        "Выйти из рейтингового матча? Будет засчитано поражение: −40 рейтинга.",
+      );
+      if (!ok) return;
+    }
+    forfeitIfNeeded();
+    navigate({ to, search: to === "/teams" ? { ranked } : undefined });
+  }
+
+  // Предупреждение при закрытии вкладки и автоштраф при размонтировании
+  useEffect(() => {
+    if (!ranked) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (matchSettledRef.current) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      // Если уходим до конца матча — фиксируем поражение
+      forfeitIfNeeded();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ranked]);
 
   const isSudden = round > MIN_ROUNDS;
 
@@ -838,12 +883,22 @@ function MatchPage() {
               {(["1/16", "1/8", "1/4", "1/2", "Финал", "Чемпион"][inv.tournamentStage ?? 0])}
             </span>
           </div>
-          <Link
-            to="/shop"
+          <button
+            type="button"
+            onClick={() => {
+              if (ranked && !matchSettledRef.current) {
+                const ok = window.confirm(
+                  "Выйти из рейтингового матча? Будет засчитано поражение: −40 рейтинга.",
+                );
+                if (!ok) return;
+              }
+              forfeitIfNeeded();
+              navigate({ to: "/shop" });
+            }}
             className="rounded-lg bg-white/10 px-3 py-1.5 text-[11px] font-black tracking-[0.2em] text-white uppercase hover:bg-white/20"
           >
             Магазин →
-          </Link>
+          </button>
         </div>
 
         {/* Phase title */}
@@ -936,12 +991,13 @@ function MatchPage() {
           />
         )}
 
-        <Link
-          to="/teams"
+        <button
+          type="button"
+          onClick={() => handleExit("/teams")}
           className="mt-1 text-xs font-bold tracking-[0.2em] text-white/60 uppercase transition-colors hover:text-white"
         >
           ← Сменить команду
-        </Link>
+        </button>
       </div>
     </main>
   );
