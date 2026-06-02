@@ -2437,6 +2437,9 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
 
   const label = WEATHER_LABEL[weather];
 
+  // Stadium floodlights turn on for dark conditions
+  const isDark = weather === "night" || weather === "rain" || weather === "storm" || weather === "fog";
+
   // Pre-compute drop / flake positions
   const drops = useMemo(
     () =>
