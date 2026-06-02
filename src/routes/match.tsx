@@ -720,6 +720,7 @@ function MatchPage() {
       inv.addMatch();
       if (!winRewarded.current && playerScore > oppScore) {
         winRewarded.current = true;
+        matchSettledRef.current = true;
         inv.addCoins(100);
         // Кристаллы за победу: +1 за матч, +2 если соперник не забил (сухой матч)
         const crystals = oppScore === 0 ? 3 : 1;
@@ -733,6 +734,7 @@ function MatchPage() {
           setRatingClaimed(res.claimed);
         }
       } else if (playerScore < oppScore) {
+        matchSettledRef.current = true;
         inv.addLoss();
         inv.resetTournament();
         if (ranked) {
@@ -740,6 +742,9 @@ function MatchPage() {
           setRatingDelta(-40);
           setRatingAfter(after);
         }
+      } else {
+        // ничья — матч считается завершённым без штрафа
+        matchSettledRef.current = true;
       }
       return;
     }
