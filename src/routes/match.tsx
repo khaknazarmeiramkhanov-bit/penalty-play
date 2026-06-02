@@ -2726,6 +2726,15 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
           96% { opacity: 0.6; }
           97% { opacity: 0; }
         }
+        @keyframes floodFlicker {
+          0%, 100% { opacity: 1; }
+          47% { opacity: 1; }
+          48% { opacity: 0.75; }
+          49% { opacity: 1; }
+          92% { opacity: 1; }
+          93% { opacity: 0.6; }
+          94% { opacity: 1; }
+        }
       `}</style>
     </>
   );
