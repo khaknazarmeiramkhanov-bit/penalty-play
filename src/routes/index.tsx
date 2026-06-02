@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useInventory } from "@/lib/shop";
+import { supabase } from "@/integrations/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -23,6 +25,26 @@ export const Route = createFileRoute("/")({
 function Index() {
   const inv = useInventory();
   const [nameInput, setNameInput] = useState("");
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        const name =
+          (session.user.user_metadata as { display_name?: string })?.display_name ||
+          session.user.email?.split("@")[0] ||
+          "Игрок";
+        if (!inv.playerName) inv.setPlayerName(name);
+      }
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [inv]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
 
   const handleSaveName = () => {
     const trimmed = nameInput.trim();
@@ -106,6 +128,26 @@ function Index() {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center gap-12 px-6 text-center">
+        {/* Auth chip */}
+        <div className="absolute top-4 right-4 flex gap-2">
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="rounded-lg border-2 border-white/20 bg-black/40 px-3 py-1.5 text-xs font-black tracking-widest text-white uppercase hover:border-[#ccff00] hover:text-[#ccff00]"
+            >
+              Выйти
+            </button>
+          ) : (
+            <Link
+              to="/auth"
+              className="rounded-lg border-2 border-[#ccff00]/60 bg-black/40 px-3 py-1.5 text-xs font-black tracking-widest text-[#ccff00] uppercase hover:border-[#ccff00]"
+              style={{ textShadow: "0 0 4px rgba(204,255,0,0.5)" }}
+            >
+              Войти
+            </Link>
+          )}
+        </div>
+
         {/* Title Lockup */}
         <div className="space-y-0">
           <h1
