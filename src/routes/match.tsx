@@ -2,9 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { TEAMS } from "./teams";
-import { useInventory, getItem, resolveColor, getSponsor, type Sponsor } from "@/lib/shop";
+import {
+  useInventory,
+  getItem,
+  resolveColor,
+  getSponsor,
+  DEFAULT_EQUIPPED,
+  type Sponsor,
+  type ShopItem,
+} from "@/lib/shop";
 import { BallSvg } from "@/components/BallSvg";
-import { DEFAULT_EQUIPPED } from "@/lib/shop";
 
 const searchSchema = z.object({ team: z.string().default("Команда") });
 
@@ -1999,7 +2006,7 @@ function GoalScene({
   oppColor: string;
   gear: Gear;
   sponsor: Sponsor;
-  ball: ReturnType<typeof getItem>;
+  ball: ShopItem;
   onPickShot?: (z: Zone) => void;
 }) {
   // Random weather/time-of-day condition picked once per match mount
@@ -2170,7 +2177,7 @@ function GoalScene({
         {finalBallPos && ballFly && (
           <div
             key={`ball-${tick}`}
-            className="absolute -translate-x-1/2 -translate-y-1/2 text-3xl"
+            className="absolute -translate-x-1/2 -translate-y-1/2"
             style={{
               left: finalBallPos.left,
               top: finalBallPos.top,
@@ -2178,7 +2185,7 @@ function GoalScene({
               animation: "ballFly 0.55s ease-out",
             }}
           >
-            ⚽
+            <BallSvg item={ball} size={36} />
           </div>
         )}
 
