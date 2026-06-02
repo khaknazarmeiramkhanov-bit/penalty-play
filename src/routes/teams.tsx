@@ -364,6 +364,15 @@ function TeamsPage() {
     return inv.ownedTeams.includes(team.name);
   };
 
+  const shuffledSecretTeams = useMemo(() => {
+    const secret = TEAMS.filter((t) => "secret" in t && t.secret);
+    for (let i = secret.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [secret[i], secret[j]] = [secret[j], secret[i]];
+    }
+    return secret;
+  }, []);
+
   const handleSelect = (team: (typeof TEAMS)[number]) => {
     if (team.special && !isTeamOwned(team)) return;
     setSelected(team.name);
