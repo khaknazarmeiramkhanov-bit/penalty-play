@@ -149,6 +149,94 @@ function Index() {
         </div>
       )}
 
+      {/* Daily Gift Modal */}
+      {dailyOpen && hydrated && inv.playerName && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div
+            className="w-full max-w-md rounded-2xl border-2 p-6 text-center"
+            style={{
+              backgroundColor: "#0a4a1f",
+              borderColor: "#ccff00",
+              boxShadow: "0 0 24px rgba(204,255,0,0.4)",
+            }}
+          >
+            <div className="mb-1 text-5xl">🎁</div>
+            <h2
+              className="mb-1 text-2xl font-black italic tracking-tight text-white uppercase"
+              style={{ textShadow: "0 3px 0 rgba(0,0,0,0.3)" }}
+            >
+              {dailyClaimed ? "Подарок получен!" : "Ежедневный подарок"}
+            </h2>
+            <p className="mb-4 text-xs font-bold tracking-widest text-white/60 uppercase">
+              {dailyClaimed
+                ? `День ${dailyClaimed.day} · приходи завтра за большим!`
+                : "Заходи каждый день — награды растут"}
+            </p>
+
+            {/* 7-day grid */}
+            <div className="mb-5 grid grid-cols-7 gap-1.5">
+              {DAILY_REWARDS.map((r, i) => {
+                const dayNum = i + 1;
+                const nextStreak = Math.min(7, (inv.dailyStreak ?? 0) + (inv.canClaimDaily ? 1 : 0));
+                const isClaimed = dailyClaimed ? dayNum <= dailyClaimed.day : dayNum <= (inv.dailyStreak ?? 0);
+                const isNext = !dailyClaimed && dayNum === nextStreak;
+                return (
+                  <div
+                    key={i}
+                    className="flex flex-col items-center justify-center gap-0.5 rounded-lg py-2 text-[10px] font-black text-white"
+                    style={{
+                      backgroundColor: isClaimed ? "#ccff00" : "rgba(255,255,255,0.06)",
+                      border: isNext ? "2px solid #ccff00" : "2px solid transparent",
+                      color: isClaimed ? "#0a4a1f" : "#fff",
+                      boxShadow: isNext ? "0 0 12px rgba(204,255,0,0.6)" : undefined,
+                      transform: isNext ? "scale(1.08)" : undefined,
+                    }}
+                  >
+                    <span className="opacity-70">Д{dayNum}</span>
+                    <span className="text-[11px]">{r.coins}🪙</span>
+                    {r.crystals > 0 && <span className="text-[10px]">{r.crystals}💎</span>}
+                  </div>
+                );
+              })}
+            </div>
+
+            {dailyClaimed ? (
+              <div className="mb-4 flex items-center justify-center gap-3 text-lg font-black text-white">
+                <span>+{dailyClaimed.coins} 🪙</span>
+                {dailyClaimed.crystals > 0 && <span>+{dailyClaimed.crystals} 💎</span>}
+              </div>
+            ) : null}
+
+            {dailyClaimed ? (
+              <button
+                onClick={() => {
+                  setDailyOpen(false);
+                  setDailyClaimed(null);
+                }}
+                className="w-full rounded-xl border-2 border-white/30 bg-white/10 px-6 py-3 text-sm font-black tracking-widest text-white uppercase transition-all hover:scale-105 active:scale-95"
+              >
+                Закрыть
+              </button>
+            ) : (
+              <button
+                onClick={handleClaimDaily}
+                className="w-full rounded-xl px-6 py-3 text-lg font-black tracking-widest uppercase transition-all hover:scale-105 active:scale-95"
+                style={{
+                  backgroundColor: "#000",
+                  color: "#ccff00",
+                  border: "2px solid #ccff00",
+                  boxShadow: "0 0 8px #ccff00, 0 0 16px #ccff00",
+                  animation: "neonPulse 2s ease-in-out infinite",
+                  textShadow: "0 0 4px #ccff00",
+                }}
+              >
+                Забрать
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center gap-12 px-6 text-center">
         {/* Auth chip */}
