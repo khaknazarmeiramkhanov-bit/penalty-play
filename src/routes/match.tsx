@@ -2540,11 +2540,14 @@ function GoalScene({
   // Вратарь во время удара делает короткий бросок в свою зону через CSS-анимацию,
   // но визуально всегда остаётся в центре ворот (анимация возвращает его обратно).
   const keeperPos = { left: "50%", top: "65%" };
-  const keeperCol = showAction
-    ? ZONES.find((z) => z.id === last!.keeper)?.col ?? 1
-    : 1;
-  // CSS-переменные для keyframes-броска
-  const diveDx = keeperCol === 0 ? "-90px" : keeperCol === 2 ? "90px" : "0px";
+  const keeperMeta = showAction
+    ? ZONES.find((z) => z.id === last!.keeper)
+    : undefined;
+  const keeperCol = keeperMeta?.col ?? 1;
+  const keeperRow = keeperMeta?.row ?? 1;
+  // Смещение для броска вратаря — в пикселях, чтобы реально долететь до зоны.
+  const diveDx = keeperCol === 0 ? "-160px" : keeperCol === 2 ? "160px" : "0px";
+  const diveDy = keeperRow === 0 ? "-90px" : "0px";
   const diveTilt = keeperCol === 0 ? "-75deg" : keeperCol === 2 ? "75deg" : "0deg";
 
   const strikerIsPlayer = last?.shooter === "player";
@@ -2676,6 +2679,7 @@ function GoalScene({
             transformOrigin: "center",
             // @ts-expect-error - CSS custom properties
             "--dive-dx": diveDx,
+            "--dive-dy": diveDy,
             "--dive-tilt": diveTilt,
             animation: ballFly ? "keeperDive 0.9s ease-out" : undefined,
           }}
@@ -2767,10 +2771,10 @@ function GoalScene({
           100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
         @keyframes keeperDive {
-          0%   { transform: translate(-50%, -50%) translateX(0) rotate(0deg); }
-          45%  { transform: translate(-50%, -50%) translateX(var(--dive-dx)) rotate(var(--dive-tilt)); }
-          70%  { transform: translate(-50%, -50%) translateX(var(--dive-dx)) rotate(var(--dive-tilt)); }
-          100% { transform: translate(-50%, -50%) translateX(0) rotate(0deg); }
+          0%   { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); }
+          45%  { transform: translate(-50%, -50%) translate(var(--dive-dx), var(--dive-dy)) rotate(var(--dive-tilt)); }
+          70%  { transform: translate(-50%, -50%) translate(var(--dive-dx), var(--dive-dy)) rotate(var(--dive-tilt)); }
+          100% { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); }
         }
         @keyframes fanBob {
           0%, 100% { transform: translateY(0); }
