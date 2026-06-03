@@ -19,6 +19,21 @@
 
 .wise-fade-up { animation: wiseFadeUp 0.5s ease-out both; }
 
+@keyframes bmwShine {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.bmw-shine {
+  background-image: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: bmwShine 3s linear infinite;
+}
+
+.bmw-stripe {
+  background: linear-gradient(90deg, #0066B1 0%, #0066B1 33%, #ffffff 33%, #ffffff 66%, #E22718 66%, #E22718 100%);
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /*
