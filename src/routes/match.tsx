@@ -727,12 +727,6 @@ function MatchPage() {
     const oppTigerSave = oppTigers && Math.random() < 0.2;
     const oppBadgerSave = oppBadgers && Math.random() < 0.15;
     const oppColossusSave = oppTeam === "Колоссы" && Math.random() < 0.35;
-    // Турнирная сложность: вратарь соперника берёт мяч только если
-    // угадал направление удара (никаких рандомных «магических» сейвов).
-    const oppStageSave =
-      stageOppExtraSave > 0 &&
-      keeper === playerShot &&
-      Math.random() < stageOppExtraSave;
     const oppAutoSave =
       !(
         condorHit ||
@@ -745,7 +739,7 @@ function MatchPage() {
         falconHit ||
         nibiruHit
       ) &&
-      (oppCrocSave || oppBearSave || oppTigerSave || oppBadgerSave || oppColossusSave || oppStageSave);
+      (oppCrocSave || oppBearSave || oppTigerSave || oppBadgerSave || oppColossusSave);
     if (oppAutoSave) keeper = playerShot; // принудительный сейв
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
