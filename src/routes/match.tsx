@@ -2654,11 +2654,11 @@ function GoalScene({
         {/* Goal line shadow at the bottom inside */}
         <div className="pointer-events-none absolute inset-x-2 bottom-0 h-3 bg-gradient-to-t from-black/55 to-transparent" />
 
-        {/* Keeper — стоит на линии ворот (ногами на земле) */}
+        {/* Keeper */}
         <div
           key={`keeper-${tick}`}
-          className="absolute -translate-x-1/2 transition-all duration-500 ease-out"
-          style={{ left: keeperPos.left, bottom: 0 }}
+          className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
+          style={{ left: keeperPos.left, top: keeperPos.top }}
         >
           <PlayerFigure
             color={keeperColor}
