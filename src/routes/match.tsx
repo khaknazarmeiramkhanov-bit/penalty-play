@@ -745,8 +745,8 @@ function MatchPage() {
     if (oppAutoSave) keeper = playerShot; // принудительный сейв
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
-    // Базовый шанс пробить мимо ворот стал ощутимо выше: попасть труднее.
-    const baseOff = Math.max(0.05, 0.28 - (inv.perks.accuracy ?? 0) * 0.02);
+    // Базовый шанс пробить мимо ворот — 15%.
+    const baseOff = Math.max(0.03, 0.15 - (inv.perks.accuracy ?? 0) * 0.02);
     const wolvesOff = oppWolves && Math.random() < 0.25;
     const phoenixSafe = phoenixes && phoenixRebornArmed.current;
     let offTarget =
