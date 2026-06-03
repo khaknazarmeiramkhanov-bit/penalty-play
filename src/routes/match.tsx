@@ -449,7 +449,10 @@ function MatchPage() {
     const oppKeeperBypass =
       oppCondorHit || oppFoxHit || oppIguanaHit || oppGorillaHit || oppCheetahHit ||
       oppZebraHit || oppFalconHit;
-    const offChance = wolves ? 0.25 : 0.1;
+    const offChance = Math.max(
+      0.02,
+      (wolves ? 0.25 : 0.1) - stageOppAccuracyBoost,
+    );
     const frostHit = frostForceOff && Math.random() < 0.4;
     const oppPhoenixSafe = oppTeam === "Фениксы" && oppPhoenixRebornArmed.current;
     // Призраки (у игрока): первый удар соперника в матче — мимо
