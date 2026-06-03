@@ -473,6 +473,7 @@ type Store = {
   ratingClaimed: number[]; // полученные награды-рейтинги
   dailyLastClaim: string | null; // YYYY-MM-DD последнего получения подарка
   dailyStreak: number; // текущая серия дней подряд (1..7, потом цикл)
+  achievementsClaimed: string[]; // id полученных достижений
 };
 
 const initial: Store = {
@@ -494,6 +495,7 @@ const initial: Store = {
   ratingClaimed: [],
   dailyLastClaim: null,
   dailyStreak: 0,
+  achievementsClaimed: [],
 };
 
 function read(): Store {
@@ -521,6 +523,7 @@ function read(): Store {
       ratingClaimed: parsed.ratingClaimed ?? initial.ratingClaimed,
       dailyLastClaim: parsed.dailyLastClaim ?? initial.dailyLastClaim,
       dailyStreak: parsed.dailyStreak ?? initial.dailyStreak,
+      achievementsClaimed: parsed.achievementsClaimed ?? initial.achievementsClaimed,
     };
   } catch {
     return initial;
