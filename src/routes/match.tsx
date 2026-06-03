@@ -261,8 +261,15 @@ function MatchPage() {
   const stageShort = STAGE_SHORT[matchStage];
   // Множитель наград: 1.0 → 3.0 от 1/16 к финалу
   const stageMul = 1 + matchStage * 0.5;
-  // Умность ИИ соперника: 35% → 65% (раньше доходило до 95% — ощущалось как чит)
-  const stageSmart = 0.35 + matchStage * 0.075;
+  // Умность ИИ соперника растёт по мере приближения к финалу:
+  // 1/16 → 40%, 1/8 → 55%, 1/4 → 68%, 1/2 → 80%, Финал → 90%.
+  const stageSmart = [0.40, 0.55, 0.68, 0.80, 0.90][matchStage] ?? 0.40;
+  // Дополнительный шанс автосейва у вратаря соперника (растёт к финалу):
+  // 0%, 5%, 10%, 18%, 28%.
+  const stageOppExtraSave = [0.00, 0.05, 0.10, 0.18, 0.28][matchStage] ?? 0;
+  // Снижение шанса промаха соперника мимо ворот (точнее бьёт к финалу):
+  // 0, -2%, -4%, -6%, -8% (минимум 2%).
+  const stageOppAccuracyBoost = [0.00, 0.02, 0.04, 0.06, 0.08][matchStage] ?? 0;
   const [ratingDelta, setRatingDelta] = useState<number | null>(null);
   const [ratingAfter, setRatingAfter] = useState<number | null>(null);
   const [ratingClaimed, setRatingClaimed] = useState<RatingMilestone[]>([]);
@@ -442,7 +449,10 @@ function MatchPage() {
     const oppKeeperBypass =
       oppCondorHit || oppFoxHit || oppIguanaHit || oppGorillaHit || oppCheetahHit ||
       oppZebraHit || oppFalconHit;
-    const offChance = wolves ? 0.25 : 0.1;
+    const offChance = Math.max(
+      0.02,
+      (wolves ? 0.25 : 0.1) - stageOppAccuracyBoost,
+    );
     const frostHit = frostForceOff && Math.random() < 0.4;
     const oppPhoenixSafe = oppTeam === "Фениксы" && oppPhoenixRebornArmed.current;
     // Призраки (у игрока): первый удар соперника в матче — мимо
@@ -717,6 +727,8 @@ function MatchPage() {
     const oppTigerSave = oppTigers && Math.random() < 0.2;
     const oppBadgerSave = oppBadgers && Math.random() < 0.15;
     const oppColossusSave = oppTeam === "Колоссы" && Math.random() < 0.35;
+    // Турнирная сложность: вратарь соперника к финалу всё чаще берёт мяч.
+    const oppStageSave = stageOppExtraSave > 0 && Math.random() < stageOppExtraSave;
     const oppAutoSave =
       !(
         condorHit ||
@@ -729,7 +741,7 @@ function MatchPage() {
         falconHit ||
         nibiruHit
       ) &&
-      (oppCrocSave || oppBearSave || oppTigerSave || oppBadgerSave || oppColossusSave);
+      (oppCrocSave || oppBearSave || oppTigerSave || oppBadgerSave || oppColossusSave || oppStageSave);
     if (oppAutoSave) keeper = playerShot; // принудительный сейв
     playerShotHistory.current = [...playerShotHistory.current, playerShot];
 
