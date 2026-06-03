@@ -919,6 +919,9 @@ function MatchPage() {
     setPhase("result");
     setResultLocked(true);
     window.setTimeout(() => setResultLocked(false), 4000);
+    if (scored) playGoalSound();
+    else if (offTarget) playMissSound();
+    else playSaveSound();
     if (scored) {
       // ⚔️ Викинги: первый гол приносит +2
       const vikingDouble = team === "Викинги" && !vikingsDoubleUsed.current;
