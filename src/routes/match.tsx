@@ -2507,46 +2507,34 @@ function GoalScene({
   // Kick animation: idle → wind-up → strike
   const [kickStage, setKickStage] = useState<"idle" | "windup" | "kick">("idle");
   const [ballFly, setBallFly] = useState(false);
-  // Вратарь прыгает только пока летит мяч, затем возвращается в центр.
-  const [keeperDiving, setKeeperDiving] = useState(false);
   useEffect(() => {
     if (phase === "result") {
       setTick((t) => t + 1);
       setBallFly(false);
-      setKeeperDiving(false);
       // Visible wind-up for 3 seconds, then strike + ball fly together
       setKickStage("windup");
       const t1 = window.setTimeout(() => {
         setKickStage("kick");
         setBallFly(true);
-        setKeeperDiving(true);
       }, 3000);
-      // После завершения полёта мяча вратарь возвращается в центр.
-      const t2 = window.setTimeout(() => {
-        setKeeperDiving(false);
-      }, 3000 + 600);
-      return () => {
-        window.clearTimeout(t1);
-        window.clearTimeout(t2);
-      };
+      return () => window.clearTimeout(t1);
     } else {
       setKickStage("idle");
       setBallFly(false);
-      setKeeperDiving(false);
     }
   }, [phase, last]);
 
   const showAction = phase === "result" && last;
   const ballPos = showAction ? zoneCoords(last!.shot) : null;
-  // Во время полёта мяча вратарь прыгает в свою зону, потом возвращается в центр.
-  const keeperZoneCoords =
-    showAction && keeperDiving ? zoneCoords(last!.keeper) : null;
-  const keeperPos = keeperZoneCoords ?? { left: "50%", top: "65%" };
-  const keeperCol =
-    showAction && keeperDiving
-      ? ZONES.find((z) => z.id === last!.keeper)?.col
-      : 1;
-  const keeperTilt = keeperCol === 0 ? -75 : keeperCol === 2 ? 75 : 0;
+  // Вратарь во время удара делает короткий бросок в свою зону через CSS-анимацию,
+  // но визуально всегда остаётся в центре ворот (анимация возвращает его обратно).
+  const keeperPos = { left: "50%", top: "65%" };
+  const keeperCol = showAction
+    ? ZONES.find((z) => z.id === last!.keeper)?.col ?? 1
+    : 1;
+  // CSS-переменные для keyframes-броска
+  const diveDx = keeperCol === 0 ? "-90px" : keeperCol === 2 ? "90px" : "0px";
+  const diveTilt = keeperCol === 0 ? "-75deg" : keeperCol === 2 ? "75deg" : "0deg";
 
   const strikerIsPlayer = last?.shooter === "player";
   // During action phases, striker color matches the active shooter
@@ -2669,12 +2657,16 @@ function GoalScene({
         {/* Keeper */}
         <div
           key={`keeper-${tick}`}
-          className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
+          className="absolute"
           style={{
             left: keeperPos.left,
             top: keeperPos.top,
-            transform: `translate(-50%, -50%) rotate(${keeperTilt}deg)`,
+            transform: "translate(-50%, -50%)",
             transformOrigin: "center",
+            // @ts-expect-error - CSS custom properties
+            "--dive-dx": diveDx,
+            "--dive-tilt": diveTilt,
+            animation: ballFly ? "keeperDive 0.9s ease-out" : undefined,
           }}
         >
           <PlayerFigure
@@ -2762,6 +2754,12 @@ function GoalScene({
           0% { transform: translate(-50%, 200px) scale(0.3); opacity: 0; }
           15% { opacity: 1; }
           100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        @keyframes keeperDive {
+          0%   { transform: translate(-50%, -50%) translateX(0) rotate(0deg); }
+          45%  { transform: translate(-50%, -50%) translateX(var(--dive-dx)) rotate(var(--dive-tilt)); }
+          70%  { transform: translate(-50%, -50%) translateX(var(--dive-dx)) rotate(var(--dive-tilt)); }
+          100% { transform: translate(-50%, -50%) translateX(0) rotate(0deg); }
         }
         @keyframes fanBob {
           0%, 100% { transform: translateY(0); }
