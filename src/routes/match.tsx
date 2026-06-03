@@ -2829,6 +2829,21 @@ function GoalScene({
           70%  { transform: translate(-50%, -50%) translate(var(--dive-dx), var(--dive-dy)) rotate(var(--dive-tilt)); }
           100% { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); }
         }
+        @keyframes outcomeFlashBg {
+          0%   { opacity: 0; }
+          20%  { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        @keyframes outcomeRing {
+          0%   { width: 40px; height: 40px; opacity: 0.9; border-width: 6px; }
+          100% { width: 520px; height: 520px; opacity: 0; border-width: 1px; }
+        }
+        @keyframes outcomePop {
+          0%   { transform: scale(0.2) rotate(-8deg); opacity: 0; }
+          40%  { transform: scale(1.25) rotate(2deg); opacity: 1; }
+          60%  { transform: scale(1.0) rotate(0deg); opacity: 1; }
+          100% { transform: scale(1.05) rotate(0deg); opacity: 1; }
+        }
         @keyframes fanBob {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-4px); }
