@@ -621,9 +621,6 @@ function MatchPage() {
     setPhase("result");
     setResultLocked(true);
     window.setTimeout(() => setResultLocked(false), 4000);
-    if (scored) playGoalSound();
-    else if (oppOffTargetFinal) playMissSound();
-    else playSaveSound();
     if (scored) {
       // Опп-Викинги: первый гол приносит +2
       const oppVikingDouble =
@@ -930,9 +927,6 @@ function MatchPage() {
     setPhase("result");
     setResultLocked(true);
     window.setTimeout(() => setResultLocked(false), 4000);
-    if (scored) playGoalSound();
-    else if (offTarget) playMissSound();
-    else playSaveSound();
     if (scored) {
       // ⚔️ Викинги: первый гол приносит +2
       const vikingDouble = team === "Викинги" && !vikingsDoubleUsed.current;
@@ -2518,20 +2512,36 @@ function GoalScene({
   // Kick animation: idle → wind-up → strike
   const [kickStage, setKickStage] = useState<"idle" | "windup" | "kick">("idle");
   const [ballFly, setBallFly] = useState(false);
+  // Большая надпись результата (ГОЛ/САЕЙВ/МИМО) появляется по прилёту мяча.
+  const [outcomeFlash, setOutcomeFlash] = useState(false);
   useEffect(() => {
     if (phase === "result") {
       setTick((t) => t + 1);
       setBallFly(false);
+      setOutcomeFlash(false);
       // Visible wind-up for 3 seconds, then strike + ball fly together
       setKickStage("windup");
       const t1 = window.setTimeout(() => {
         setKickStage("kick");
         setBallFly(true);
       }, 3000);
-      return () => window.clearTimeout(t1);
+      // Мяч долетает примерно через 0.55с — играем звук и показываем надпись.
+      const t2 = window.setTimeout(() => {
+        setOutcomeFlash(true);
+        if (last) {
+          if (last.scored) playGoalSound();
+          else if (last.offTarget) playMissSound();
+          else playSaveSound();
+        }
+      }, 3000 + 500);
+      return () => {
+        window.clearTimeout(t1);
+        window.clearTimeout(t2);
+      };
     } else {
       setKickStage("idle");
       setBallFly(false);
+      setOutcomeFlash(false);
     }
   }, [phase, last]);
 
@@ -2727,6 +2737,49 @@ function GoalScene({
             }}
           />
         )}
+        {/* Outcome flash — big banner with shockwave when the ball lands */}
+        {showAction && outcomeFlash && (() => {
+          const isGoal = last!.scored;
+          const isMiss = last!.offTarget;
+          const text = isGoal ? "ГОЛ!" : isMiss ? "МИМО!" : "САЕЙВ!";
+          const color = isGoal ? "#22c55e" : isMiss ? "#f59e0b" : "#38bdf8";
+          return (
+            <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center overflow-hidden">
+              {/* Coloured flash */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `radial-gradient(ellipse at center, ${color}55 0%, ${color}22 35%, transparent 70%)`,
+                  animation: "outcomeFlashBg 0.7s ease-out",
+                }}
+              />
+              {/* Shockwave ring */}
+              <div
+                className="absolute rounded-full"
+                style={{
+                  width: 40,
+                  height: 40,
+                  border: `4px solid ${color}`,
+                  animation: "outcomeRing 0.7s ease-out forwards",
+                }}
+              />
+              {/* Big text */}
+              <span
+                className="relative font-black tracking-wider"
+                style={{
+                  fontSize: 64,
+                  color,
+                  textShadow:
+                    "0 4px 0 rgba(0,0,0,0.45), 0 0 24px rgba(0,0,0,0.5)",
+                  WebkitTextStroke: "2px rgba(0,0,0,0.55)",
+                  animation: "outcomePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                }}
+              >
+                {text}
+              </span>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Pitch in front of the goal */}
@@ -2775,6 +2828,21 @@ function GoalScene({
           45%  { transform: translate(-50%, -50%) translate(var(--dive-dx), var(--dive-dy)) rotate(var(--dive-tilt)); }
           70%  { transform: translate(-50%, -50%) translate(var(--dive-dx), var(--dive-dy)) rotate(var(--dive-tilt)); }
           100% { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); }
+        }
+        @keyframes outcomeFlashBg {
+          0%   { opacity: 0; }
+          20%  { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        @keyframes outcomeRing {
+          0%   { width: 40px; height: 40px; opacity: 0.9; border-width: 6px; }
+          100% { width: 520px; height: 520px; opacity: 0; border-width: 1px; }
+        }
+        @keyframes outcomePop {
+          0%   { transform: scale(0.2) rotate(-8deg); opacity: 0; }
+          40%  { transform: scale(1.25) rotate(2deg); opacity: 1; }
+          60%  { transform: scale(1.0) rotate(0deg); opacity: 1; }
+          100% { transform: scale(1.05) rotate(0deg); opacity: 1; }
         }
         @keyframes fanBob {
           0%, 100% { transform: translateY(0); }
