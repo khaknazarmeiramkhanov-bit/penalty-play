@@ -264,6 +264,12 @@ function MatchPage() {
   // Умность ИИ соперника растёт по мере приближения к финалу:
   // 1/16 → 40%, 1/8 → 55%, 1/4 → 68%, 1/2 → 80%, Финал → 90%.
   const stageSmart = [0.40, 0.55, 0.68, 0.80, 0.90][matchStage] ?? 0.40;
+  // Дополнительный шанс автосейва у вратаря соперника (растёт к финалу):
+  // 0%, 5%, 10%, 18%, 28%.
+  const stageOppExtraSave = [0.00, 0.05, 0.10, 0.18, 0.28][matchStage] ?? 0;
+  // Снижение шанса промаха соперника мимо ворот (точнее бьёт к финалу):
+  // 0, -2%, -4%, -6%, -8% (минимум 2%).
+  const stageOppAccuracyBoost = [0.00, 0.02, 0.04, 0.06, 0.08][matchStage] ?? 0;
   const [ratingDelta, setRatingDelta] = useState<number | null>(null);
   const [ratingAfter, setRatingAfter] = useState<number | null>(null);
   const [ratingClaimed, setRatingClaimed] = useState<RatingMilestone[]>([]);
