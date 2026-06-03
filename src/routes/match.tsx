@@ -15,6 +15,61 @@ import type { RatingMilestone } from "@/lib/shop";
 import { BallSvg } from "@/components/BallSvg";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
+// ===== Звуки матча (Web Audio API, без ассетов) =====
+let _audioCtx: AudioContext | null = null;
+function getAudioCtx(): AudioContext | null {
+  if (typeof window === "undefined") return null;
+  try {
+    if (!_audioCtx) {
+      const Ctor = (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
+      _audioCtx = new Ctor();
+    }
+    if (_audioCtx.state === "suspended") _audioCtx.resume().catch(() => {});
+    return _audioCtx;
+  } catch {
+    return null;
+  }
+}
+function tone(
+  freq: number,
+  duration: number,
+  type: OscillatorType = "sine",
+  gain = 0.15,
+  startOffset = 0,
+  freqEnd?: number,
+) {
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  const t0 = ctx.currentTime + startOffset;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t0);
+  if (freqEnd !== undefined) osc.frequency.exponentialRampToValueAtTime(Math.max(1, freqEnd), t0 + duration);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(gain, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+  osc.connect(g).connect(ctx.destination);
+  osc.start(t0);
+  osc.stop(t0 + duration + 0.02);
+}
+function playGoalSound() {
+  // Фанфары победы
+  tone(523.25, 0.18, "triangle", 0.22, 0);
+  tone(659.25, 0.18, "triangle", 0.22, 0.12);
+  tone(783.99, 0.35, "triangle", 0.25, 0.24);
+  tone(1046.5, 0.5, "sawtooth", 0.18, 0.36);
+}
+function playMissSound() {
+  // Грустное "вомп-вомп"
+  tone(330, 0.25, "sawtooth", 0.18, 0, 220);
+  tone(220, 0.45, "sawtooth", 0.18, 0.22, 130);
+}
+function playSaveSound() {
+  // Резкий "блок" вратаря
+  tone(180, 0.12, "square", 0.18, 0, 90);
+}
+
 const searchSchema = z.object({
   team: z.string().default("Команда"),
   ranked: z.coerce.boolean().optional().default(false),
