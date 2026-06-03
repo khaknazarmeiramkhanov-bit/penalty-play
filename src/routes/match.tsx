@@ -261,8 +261,9 @@ function MatchPage() {
   const stageShort = STAGE_SHORT[matchStage];
   // Множитель наград: 1.0 → 3.0 от 1/16 к финалу
   const stageMul = 1 + matchStage * 0.5;
-  // Умность ИИ соперника: 35% → 65% (раньше доходило до 95% — ощущалось как чит)
-  const stageSmart = 0.35 + matchStage * 0.075;
+  // Умность ИИ соперника растёт по мере приближения к финалу:
+  // 1/16 → 40%, 1/8 → 55%, 1/4 → 68%, 1/2 → 80%, Финал → 90%.
+  const stageSmart = [0.40, 0.55, 0.68, 0.80, 0.90][matchStage] ?? 0.40;
   const [ratingDelta, setRatingDelta] = useState<number | null>(null);
   const [ratingAfter, setRatingAfter] = useState<number | null>(null);
   const [ratingClaimed, setRatingClaimed] = useState<RatingMilestone[]>([]);
