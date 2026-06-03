@@ -26,6 +26,13 @@ function Index() {
   const inv = useInventory();
   const [nameInput, setNameInput] = useState("");
   const [user, setUser] = useState<User | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Ждём гидратацию localStorage перед показом модалки имени,
+  // иначе модалка мигает на каждом заходе пока useInventory читает store.
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
@@ -40,7 +47,9 @@ function Index() {
       }
     });
     return () => sub.subscription.unsubscribe();
-  }, [inv]);
+    // намеренно без [inv] — иначе listener пере-подписывается на каждом ре-рендере
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -82,7 +91,7 @@ function Index() {
       />
 
       {/* Name Input Modal */}
-      {!inv.playerName && (
+      {hydrated && !inv.playerName && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div
             className="w-full max-w-sm rounded-2xl border-2 border-white/10 p-8 text-center"
