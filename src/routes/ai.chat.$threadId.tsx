@@ -68,9 +68,8 @@ function ChatWindow({
     }
   }, [status, messages, threadId]);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const text = input.trim();
+  const onSubmit = async (message: { text: string }) => {
+    const text = (message.text ?? input).trim();
     if (!text) return;
     setInput("");
     await sendMessage({ text });
