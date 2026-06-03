@@ -206,8 +206,8 @@ function MatchPage() {
   const stageShort = STAGE_SHORT[matchStage];
   // Множитель наград: 1.0 → 3.0 от 1/16 к финалу
   const stageMul = 1 + matchStage * 0.5;
-  // Умность ИИ соперника: 55% → 95%
-  const stageSmart = 0.55 + matchStage * 0.1;
+  // Умность ИИ соперника: 35% → 65% (раньше доходило до 95% — ощущалось как чит)
+  const stageSmart = 0.35 + matchStage * 0.075;
   const [ratingDelta, setRatingDelta] = useState<number | null>(null);
   const [ratingAfter, setRatingAfter] = useState<number | null>(null);
   const [ratingClaimed, setRatingClaimed] = useState<RatingMilestone[]>([]);
@@ -312,7 +312,14 @@ function MatchPage() {
     if (phase !== "opponent") return;
     const lionsDumb = team === "Львы" || team === "Носороги";
     const smart = !lionsDumb && Math.random() < stageSmart;
-    pendingOppShot.current = smart ? leastUsed(playerGuessHistory.current) : randomZone();
+    // Даже в "умном" режиме нужна доля случайности — иначе соперник
+    // всегда уходит в самую редкую для игрока зону и это читерски ощущается.
+    // 60% — целенаправленный выбор по истории, 40% — чистый рандом.
+    if (smart && Math.random() < 0.6 && playerGuessHistory.current.length >= 2) {
+      pendingOppShot.current = leastUsed(playerGuessHistory.current);
+    } else {
+      pendingOppShot.current = randomZone();
+    }
     if (team === "Совы") {
       // 70% правдивая, 30% случайная (возможно ложная)
       owlHintZone.current = Math.random() < 0.7 ? pendingOppShot.current : randomZone();
