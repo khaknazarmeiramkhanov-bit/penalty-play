@@ -1145,7 +1145,8 @@ function MatchPage() {
           </div>
           <div className="text-[10px] font-medium tracking-widest text-white/70 uppercase">
             Награда: {Math.round(100 * stageMul)} 🪙
-            {matchStage > 0 && ` · +${matchStage + (matchStage === 4 ? 2 : 0)} 💎`}
+            {matchStage >= 2 &&
+              ` · +${matchStage >= 4 ? 3 : matchStage >= 3 ? 2 : 1} 💎`}
             {" · ИИ "}
             {Math.round(stageSmart * 100)}%
           </div>
