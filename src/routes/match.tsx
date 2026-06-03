@@ -2755,6 +2755,12 @@ function GoalScene({
           15% { opacity: 1; }
           100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
+        @keyframes keeperDive {
+          0%   { transform: translate(-50%, -50%) translateX(0) rotate(0deg); }
+          45%  { transform: translate(-50%, -50%) translateX(var(--dive-dx)) rotate(var(--dive-tilt)); }
+          70%  { transform: translate(-50%, -50%) translateX(var(--dive-dx)) rotate(var(--dive-tilt)); }
+          100% { transform: translate(-50%, -50%) translateX(0) rotate(0deg); }
+        }
         @keyframes fanBob {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-4px); }
