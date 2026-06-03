@@ -731,6 +731,19 @@ export function useInventory() {
     return { day: nextStreak, ...reward };
   }, []);
 
+  const claimAchievement = useCallback((id: string) => {
+    const ach = ACHIEVEMENTS.find((a) => a.id === id);
+    if (!ach) return false;
+    const next = read();
+    if ((next.achievementsClaimed ?? []).includes(id)) return false;
+    if (!achievementUnlocked(ach, next)) return false;
+    next.coins += ach.coins;
+    next.crystals += ach.crystals;
+    next.achievementsClaimed = [...(next.achievementsClaimed ?? []), id];
+    write(next);
+    return true;
+  }, []);
+
   const reset = useCallback(() => write(initial), []);
 
   return {
@@ -752,6 +765,7 @@ export function useInventory() {
     setPlayerName,
     claimDaily,
     canClaimDaily: store.dailyLastClaim !== todayKey(),
+    claimAchievement,
     reset,
   };
 }
