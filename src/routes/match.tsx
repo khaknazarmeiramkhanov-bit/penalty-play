@@ -13,6 +13,7 @@ import {
 } from "@/lib/shop";
 import type { RatingMilestone } from "@/lib/shop";
 import { BallSvg } from "@/components/BallSvg";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const searchSchema = z.object({
   team: z.string().default("Команда"),
