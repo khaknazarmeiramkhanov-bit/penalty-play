@@ -2512,7 +2512,7 @@ function GoalScene({
   // Kick animation: idle → wind-up → strike
   const [kickStage, setKickStage] = useState<"idle" | "windup" | "kick">("idle");
   const [ballFly, setBallFly] = useState(false);
-  // Большая надпись результата (ГОЛ/САЕЙВ/МИМО) появляется по прилёту мяча.
+  // Большая надпись результата (ГОЛ/СЕЙВ/МИМО) появляется по прилёту мяча.
   const [outcomeFlash, setOutcomeFlash] = useState(false);
   useEffect(() => {
     if (phase === "result") {
@@ -2741,7 +2741,7 @@ function GoalScene({
         {showAction && outcomeFlash && (() => {
           const isGoal = last!.scored;
           const isMiss = last!.offTarget;
-          const text = isGoal ? "ГОЛ!" : isMiss ? "МИМО!" : "САЕЙВ!";
+          const text = isGoal ? "ГОЛ!" : isMiss ? "МИМО!" : "СЕЙВ!";
           const color = isGoal ? "#22c55e" : isMiss ? "#f59e0b" : "#38bdf8";
           return (
             <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center overflow-hidden">
