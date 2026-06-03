@@ -2528,10 +2528,13 @@ function GoalScene({
   const ballPos = showAction ? zoneCoords(last!.shot) : null;
   // Вратарь прыгает ТОЛЬКО когда летит мяч — иначе по позиции вратаря
   // до удара можно было угадать, в какую сторону он пойдёт.
+  // Вратарь не «летает» по вертикали — только смещается влево/вправо
+  // в направлении выбранной зоны, оставаясь стоять на линии ворот.
+  const KEEPER_TOP = "65%";
   const keeperPos =
     showAction && ballFly
-      ? zoneCoords(last!.keeper)
-      : { left: "50%", top: "65%" };
+      ? { left: zoneCoords(last!.keeper).left, top: KEEPER_TOP }
+      : { left: "50%", top: KEEPER_TOP };
 
   const strikerIsPlayer = last?.shooter === "player";
   // During action phases, striker color matches the active shooter
