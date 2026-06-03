@@ -29,19 +29,13 @@ export async function syncPlayer(stats: {
   matches: number;
 }) {
   const client_id = getClientId();
-  await supabase
-    .from("players")
-    .upsert(
-      {
-        client_id,
-        name: stats.name.slice(0, 20),
-        wins: stats.wins,
-        losses: stats.losses,
-        matches: stats.matches,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "client_id" },
-    );
+  await supabase.rpc("upsert_player_stats", {
+    p_client_id: client_id,
+    p_name: stats.name.slice(0, 20),
+    p_wins: stats.wins,
+    p_losses: stats.losses,
+    p_matches: stats.matches,
+  });
 }
 
 export function useLeaderboard(limit = 50) {
