@@ -195,6 +195,19 @@ function MatchPage() {
   const { team, ranked } = Route.useSearch();
   const { ability, abilityDesc } = teamAbility(team);
   const inv = useInventory();
+  // Стадия фиксируется на момент старта матча — продвижение после победы
+  // не должно менять параметры текущего матча.
+  const [matchStage] = useState<number>(() => Math.min(inv.tournamentStage ?? 0, 4));
+  const STAGE_LABELS_FULL = ["1/16 финала", "1/8 финала", "1/4 финала", "Полуфинал", "ФИНАЛ"];
+  const STAGE_SHORT = ["1/16", "1/8", "1/4", "1/2", "ФИНАЛ"];
+  const STAGE_COLORS = ["#94a3b8", "#7dd3fc", "#a3e635", "#fbbf24", "#f43f5e"];
+  const stageColor = STAGE_COLORS[matchStage];
+  const stageLabel = STAGE_LABELS_FULL[matchStage];
+  const stageShort = STAGE_SHORT[matchStage];
+  // Множитель наград: 1.0 → 3.0 от 1/16 к финалу
+  const stageMul = 1 + matchStage * 0.5;
+  // Умность ИИ соперника: 55% → 95%
+  const stageSmart = 0.55 + matchStage * 0.1;
   const [ratingDelta, setRatingDelta] = useState<number | null>(null);
   const [ratingAfter, setRatingAfter] = useState<number | null>(null);
   const [ratingClaimed, setRatingClaimed] = useState<RatingMilestone[]>([]);
@@ -298,13 +311,13 @@ function MatchPage() {
   useEffect(() => {
     if (phase !== "opponent") return;
     const lionsDumb = team === "Львы" || team === "Носороги";
-    const smart = !lionsDumb && Math.random() < 0.7;
+    const smart = !lionsDumb && Math.random() < stageSmart;
     pendingOppShot.current = smart ? leastUsed(playerGuessHistory.current) : randomZone();
     if (team === "Совы") {
       // 70% правдивая, 30% случайная (возможно ложная)
       owlHintZone.current = Math.random() < 0.7 ? pendingOppShot.current : randomZone();
     }
-  }, [phase, team, round]);
+  }, [phase, team, round, stageSmart]);
 
   const oppHint = useMemo(() => {
     if (phase !== "opponent" || !pendingOppShot.current) return null;
