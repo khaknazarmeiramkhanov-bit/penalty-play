@@ -3034,7 +3034,7 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
     sunset:
       "linear-gradient(180deg, rgba(255,120,40,0.28) 0%, rgba(255,80,120,0.18) 50%, rgba(80,30,80,0.25) 100%)",
     night:
-      "linear-gradient(180deg, rgba(8,12,40,0.55) 0%, rgba(10,20,55,0.55) 100%)",
+      "linear-gradient(180deg, rgba(5,8,28,0.70) 0%, rgba(8,16,48,0.62) 55%, rgba(12,22,60,0.55) 100%)",
     rain:
       "linear-gradient(180deg, rgba(40,55,75,0.45) 0%, rgba(30,45,65,0.45) 100%)",
     storm:
@@ -3073,11 +3073,32 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
   );
   const stars = useMemo(
     () =>
-      Array.from({ length: 40 }, () => ({
+      Array.from({ length: 90 }, () => ({
         left: Math.random() * 100,
-        top: Math.random() * 40,
-        size: 1 + Math.random() * 2,
-        delay: Math.random() * 3,
+        top: Math.random() * 55,
+        size: 0.8 + Math.random() * 2.4,
+        delay: Math.random() * 3.2,
+        // Чуть разная яркость и длительность мерцания.
+        opacity: 0.55 + Math.random() * 0.45,
+        twinkle: 1.6 + Math.random() * 2.6,
+        // Редкая «голубая/жёлтая» подсветка.
+        hue:
+          Math.random() < 0.12
+            ? "#cfe0ff"
+            : Math.random() < 0.08
+              ? "#fff2c2"
+              : "#ffffff",
+      })),
+    [],
+  );
+  // Метеоры для ночи — несколько падающих звёзд с разной задержкой.
+  const meteors = useMemo(
+    () =>
+      Array.from({ length: 3 }, (_, i) => ({
+        top: 5 + Math.random() * 25,
+        left: 30 + Math.random() * 50,
+        delay: i * 7 + Math.random() * 4,
+        duration: 1.4 + Math.random() * 0.6,
       })),
     [],
   );
@@ -3118,33 +3139,122 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
         )}
         {(weather === "night" || weather === "storm") && (
           <>
+            {/* Луна с гало и кратерами */}
             <div
-              className="absolute rounded-full"
+              className="absolute"
               style={{
-                top: "8%",
-                left: "12%",
-                width: 44,
-                height: 44,
-                background:
-                  "radial-gradient(circle at 35% 35%, #f5f1e0 0%, #cfc8a8 60%, rgba(120,110,80,0) 78%)",
-                boxShadow: "0 0 40px rgba(240,235,200,0.55)",
+                top: "7%",
+                left: "11%",
+                width: 72,
+                height: 72,
               }}
-            />
+            >
+              {/* Внешнее гало */}
+              <div
+                className="absolute inset-[-60%] rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(220,230,255,0.35) 0%, rgba(180,200,255,0.12) 40%, rgba(120,140,200,0) 70%)",
+                  filter: "blur(8px)",
+                }}
+              />
+              {/* Диск луны */}
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(circle at 35% 32%, #fbfaf0 0%, #ecebda 45%, #b8b8a4 78%, #8a8a7a 100%)",
+                  boxShadow:
+                    "0 0 30px rgba(240,240,255,0.6), 0 0 80px rgba(180,200,255,0.35), inset -8px -10px 20px rgba(40,40,60,0.35)",
+                }}
+              />
+              {/* Кратеры */}
+              <div
+                className="absolute rounded-full"
+                style={{
+                  top: "28%",
+                  left: "22%",
+                  width: 10,
+                  height: 10,
+                  background: "radial-gradient(circle at 35% 35%, #c9c8b3, #8c8b78)",
+                  opacity: 0.55,
+                }}
+              />
+              <div
+                className="absolute rounded-full"
+                style={{
+                  top: "55%",
+                  left: "48%",
+                  width: 7,
+                  height: 7,
+                  background: "radial-gradient(circle at 35% 35%, #c9c8b3, #8c8b78)",
+                  opacity: 0.5,
+                }}
+              />
+              <div
+                className="absolute rounded-full"
+                style={{
+                  top: "62%",
+                  left: "22%",
+                  width: 5,
+                  height: 5,
+                  background: "radial-gradient(circle at 35% 35%, #c9c8b3, #8c8b78)",
+                  opacity: 0.45,
+                }}
+              />
+            </div>
             {weather === "night" &&
               stars.map((s, i) => (
                 <div
                   key={i}
-                  className="absolute rounded-full bg-white"
+                  className="absolute rounded-full"
                   style={{
                     left: `${s.left}%`,
                     top: `${s.top}%`,
                     width: s.size,
                     height: s.size,
-                    animation: `starTwinkle 2.4s ${s.delay}s ease-in-out infinite`,
-                    boxShadow: "0 0 4px rgba(255,255,255,0.9)",
+                    background: s.hue,
+                    opacity: s.opacity,
+                    animation: `starTwinkle ${s.twinkle}s ${s.delay}s ease-in-out infinite`,
+                    boxShadow: `0 0 ${2 + s.size * 2}px ${s.hue}`,
                   }}
                 />
               ))}
+            {/* Метеоры — редкие падающие звёзды */}
+            {weather === "night" &&
+              meteors.map((m, i) => (
+                <div
+                  key={`meteor-${i}`}
+                  className="absolute"
+                  style={{
+                    top: `${m.top}%`,
+                    left: `${m.left}%`,
+                    width: 90,
+                    height: 2,
+                    background:
+                      "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(220,230,255,0.85) 80%, #ffffff 100%)",
+                    transform: "rotate(20deg)",
+                    transformOrigin: "right center",
+                    filter: "drop-shadow(0 0 4px rgba(200,220,255,0.9))",
+                    opacity: 0,
+                    animation: `meteorFall ${m.duration}s ${m.delay}s ease-in infinite`,
+                  }}
+                />
+              ))}
+            {/* Тонкая дымка Млечного пути */}
+            {weather === "night" && (
+              <div
+                className="absolute inset-x-0"
+                style={{
+                  top: "5%",
+                  height: "35%",
+                  background:
+                    "linear-gradient(110deg, rgba(140,170,230,0) 0%, rgba(170,190,240,0.10) 35%, rgba(200,180,240,0.14) 55%, rgba(160,180,230,0.08) 75%, rgba(140,170,230,0) 100%)",
+                  filter: "blur(14px)",
+                  mixBlendMode: "screen",
+                }}
+              />
+            )}
           </>
         )}
       </div>
@@ -3158,6 +3268,48 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
       {/* Stadium floodlights — turn on when the scene is dark */}
       {isDark && (
         <div className="pointer-events-none absolute inset-0 z-35 overflow-hidden">
+          {/* Дополнительные ночные прожекторы по углам поля для объёма */}
+          {weather === "night" && (
+            <>
+              <div
+                className="absolute"
+                style={{
+                  top: "0%",
+                  left: "-5%",
+                  width: "70%",
+                  height: "100%",
+                  background:
+                    "radial-gradient(ellipse at 12% -10%, rgba(255,240,190,0.22) 0%, rgba(255,235,180,0.10) 30%, rgba(255,235,180,0) 55%)",
+                  mixBlendMode: "screen",
+                  filter: "blur(2px)",
+                }}
+              />
+              <div
+                className="absolute"
+                style={{
+                  top: "0%",
+                  right: "-5%",
+                  width: "70%",
+                  height: "100%",
+                  background:
+                    "radial-gradient(ellipse at 88% -10%, rgba(255,240,190,0.22) 0%, rgba(255,235,180,0.10) 30%, rgba(255,235,180,0) 55%)",
+                  mixBlendMode: "screen",
+                  filter: "blur(2px)",
+                }}
+              />
+              {/* Холодная лунная подсветка сверху */}
+              <div
+                className="absolute inset-x-0"
+                style={{
+                  top: 0,
+                  height: "35%",
+                  background:
+                    "linear-gradient(180deg, rgba(160,190,255,0.18) 0%, rgba(160,190,255,0) 100%)",
+                  mixBlendMode: "screen",
+                }}
+              />
+            </>
+          )}
           {/* Left tower */}
           <div
             className="absolute"
@@ -3321,8 +3473,15 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
           100% { transform: translate(var(--drift, 0px), 120vh) rotate(360deg); }
         }
         @keyframes starTwinkle {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 1; }
+          0%, 100% { opacity: 0.25; transform: scale(0.85); }
+          50% { opacity: 1; transform: scale(1.1); }
+        }
+        @keyframes meteorFall {
+          0%   { opacity: 0; transform: translate(0, 0) rotate(20deg); }
+          5%   { opacity: 1; }
+          25%  { opacity: 1; transform: translate(-180px, 70px) rotate(20deg); }
+          35%  { opacity: 0; transform: translate(-260px, 100px) rotate(20deg); }
+          100% { opacity: 0; transform: translate(-260px, 100px) rotate(20deg); }
         }
         @keyframes fogDrift {
           0% { transform: translateX(-10%); }
