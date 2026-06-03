@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { useInventory } from "@/lib/shop";
+import { useInventory, DAILY_REWARDS } from "@/lib/shop";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
@@ -27,12 +27,26 @@ function Index() {
   const [nameInput, setNameInput] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [dailyOpen, setDailyOpen] = useState(false);
+  const [dailyClaimed, setDailyClaimed] = useState<{ day: number; coins: number; crystals: number } | null>(null);
 
   // Ждём гидратацию localStorage перед показом модалки имени,
   // иначе модалка мигает на каждом заходе пока useInventory читает store.
   useEffect(() => {
     setHydrated(true);
   }, []);
+
+  // Автоматически открываем подарок раз в день, как только имя введено
+  useEffect(() => {
+    if (hydrated && inv.playerName && inv.canClaimDaily) {
+      setDailyOpen(true);
+    }
+  }, [hydrated, inv.playerName, inv.canClaimDaily]);
+
+  const handleClaimDaily = () => {
+    const reward = inv.claimDaily();
+    if (reward) setDailyClaimed(reward);
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
