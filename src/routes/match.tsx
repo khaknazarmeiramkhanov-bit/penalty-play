@@ -2545,11 +2545,9 @@ function GoalScene({
     : undefined;
   const keeperCol = keeperMeta?.col ?? 1;
   const keeperRow = keeperMeta?.row ?? 1;
-  // CSS-переменные для keyframes-броска — теперь вратарь реально долетает до зоны.
-  // Зоны: left=18%, center=50%, right=82% → смещение ±32% ширины ворот.
-  const diveDx = keeperCol === 0 ? "-32%" : keeperCol === 2 ? "32%" : "0%";
-  // Верхний ряд (row=0) → top=30%, нижний (row=1) → top=65% → −35% по высоте.
-  const diveDy = keeperRow === 0 ? "-50%" : "0%";
+  // Смещение для броска вратаря — в пикселях, чтобы реально долететь до зоны.
+  const diveDx = keeperCol === 0 ? "-160px" : keeperCol === 2 ? "160px" : "0px";
+  const diveDy = keeperRow === 0 ? "-90px" : "0px";
   const diveTilt = keeperCol === 0 ? "-75deg" : keeperCol === 2 ? "75deg" : "0deg";
 
   const strikerIsPlayer = last?.shooter === "player";
