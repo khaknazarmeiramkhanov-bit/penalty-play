@@ -471,6 +471,8 @@ type Store = {
   tournamentTitles: number; // сколько раз дошёл до чемпиона
   rating: number; // рейтинг в рейтинговых матчах
   ratingClaimed: number[]; // полученные награды-рейтинги
+  dailyLastClaim: string | null; // YYYY-MM-DD последнего получения подарка
+  dailyStreak: number; // текущая серия дней подряд (1..7, потом цикл)
 };
 
 const initial: Store = {
@@ -490,6 +492,8 @@ const initial: Store = {
   tournamentTitles: 0,
   rating: 1000,
   ratingClaimed: [],
+  dailyLastClaim: null,
+  dailyStreak: 0,
 };
 
 function read(): Store {
@@ -515,6 +519,8 @@ function read(): Store {
       tournamentTitles: parsed.tournamentTitles ?? initial.tournamentTitles,
       rating: parsed.rating ?? initial.rating,
       ratingClaimed: parsed.ratingClaimed ?? initial.ratingClaimed,
+      dailyLastClaim: parsed.dailyLastClaim ?? initial.dailyLastClaim,
+      dailyStreak: parsed.dailyStreak ?? initial.dailyStreak,
     };
   } catch {
     return initial;
@@ -706,6 +712,22 @@ export function useInventory() {
     write(next);
   }, []);
 
+  const claimDaily = useCallback(() => {
+    const next = read();
+    const today = todayKey();
+    if (next.dailyLastClaim === today) return null;
+    const yesterday = yesterdayKey();
+    const continuing = next.dailyLastClaim === yesterday;
+    const nextStreak = continuing ? Math.min(7, (next.dailyStreak ?? 0) + 1) : 1;
+    const reward = DAILY_REWARDS[nextStreak - 1];
+    next.coins += reward.coins;
+    next.crystals += reward.crystals;
+    next.dailyStreak = nextStreak;
+    next.dailyLastClaim = today;
+    write(next);
+    return { day: nextStreak, ...reward };
+  }, []);
+
   const reset = useCallback(() => write(initial), []);
 
   return {
@@ -725,8 +747,32 @@ export function useInventory() {
     addRatingLoss,
     equipSponsor,
     setPlayerName,
+    claimDaily,
+    canClaimDaily: store.dailyLastClaim !== todayKey(),
     reset,
   };
+}
+
+// ---------------- Daily rewards ----------------
+export const DAILY_REWARDS: { coins: number; crystals: number }[] = [
+  { coins: 50, crystals: 0 },
+  { coins: 80, crystals: 0 },
+  { coins: 120, crystals: 1 },
+  { coins: 150, crystals: 1 },
+  { coins: 200, crystals: 2 },
+  { coins: 250, crystals: 2 },
+  { coins: 400, crystals: 5 },
+];
+
+function todayKey(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function yesterdayKey(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export function resolveColor(raw: string, teamColor: string): string {
