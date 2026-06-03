@@ -15,7 +15,7 @@ export const Route = createFileRoute("/")({
     links: [
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,900;1,900&display=swap",
       },
     ],
   }),
@@ -54,50 +54,71 @@ function Index() {
 
   return (
     <main
-      className="relative flex min-h-dvh w-full flex-col items-center justify-center overflow-hidden bg-background text-foreground"
-      style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
+      className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden"
+      style={{ backgroundColor: "#0d5c2a", fontFamily: "'Kanit', sans-serif" }}
     >
-      {/* Soft gradient backdrop */}
+      {/* Pitch Decorative Elements */}
+      <div className="pointer-events-none absolute inset-0 opacity-20">
+        <div className="absolute top-0 left-1/2 h-px w-full -translate-x-1/2 bg-white" />
+        <div
+          className="absolute bottom-0 left-1/2 h-1/2 w-full -translate-x-1/2 rounded-t-[100%] border-t-2 border-white"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%)",
+          }}
+        />
+      </div>
+
+      {/* Subtle Vignette */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           backgroundImage:
-            "radial-gradient(60% 50% at 50% 0%, rgba(37,99,235,0.10) 0%, transparent 70%)",
+            "radial-gradient(circle at center, transparent 0%, transparent 60%, rgba(0,0,0,0.3) 100%)",
         }}
       />
 
       {/* Name Input Modal */}
       {!inv.playerName && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="name-dialog-title"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4 wise-fade-up"
-        >
-          <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 text-center shadow-xl">
-            <h2 id="name-dialog-title" className="mb-2 text-2xl font-bold tracking-tight text-foreground">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div
+            className="w-full max-w-sm rounded-2xl border-2 border-white/10 p-8 text-center"
+            style={{ backgroundColor: "#0a4a1f" }}
+          >
+            <h2
+              className="mb-2 text-3xl font-black italic tracking-tighter text-white uppercase"
+              style={{ textShadow: "0 3px 0 rgba(0,0,0,0.3)" }}
+            >
               Как вас зовут?
             </h2>
-            <p className="mb-6 text-sm text-muted-foreground">
+            <p className="mb-6 text-sm text-white/60">
               Введите имя для вашего аккаунта
             </p>
-            <label htmlFor="player-name" className="sr-only">Никнейм</label>
             <input
-              id="player-name"
               type="text"
               value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
               maxLength={20}
               placeholder="Ваш никнейм"
-              className="mb-4 w-full rounded-xl border border-input bg-background px-4 py-3 text-center text-base font-medium text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
+              className="mb-4 w-full rounded-xl border-2 border-white/20 bg-white/10 px-4 py-3 text-center text-lg font-bold text-white placeholder-white/30 outline-none focus:border-[#ccff00]"
               autoFocus
             />
             <button
-              type="button"
               onClick={handleSaveName}
               disabled={!nameInput.trim()}
-              className="w-full rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/30"
+              className="w-full rounded-xl px-6 py-3 text-lg font-black tracking-widest uppercase transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
+              style={{
+                backgroundColor: "#000",
+                color: "#ccff00",
+                border: "2px solid #ccff00",
+                boxShadow: "0 0 8px #ccff00, 0 0 16px #ccff00, 0 0 24px #ccff00",
+                animation: "neonPulse 2s ease-in-out infinite",
+                textShadow: "0 0 4px #ccff00, 0 0 8px #ccff00",
+              }}
             >
               Играть
             </button>
@@ -106,105 +127,107 @@ function Index() {
       )}
 
       {/* Content */}
-      <div className="relative z-10 mx-auto flex w-full max-w-md flex-col gap-8 px-6 py-12 wise-fade-up">
-        {/* Top bar */}
-        <header className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div
-              aria-hidden="true"
-              className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground font-bold"
-            >
-              ⚽
-            </div>
-            <span className="text-base font-semibold tracking-tight">Пенальти</span>
-          </div>
+      <div className="relative z-10 flex flex-col items-center gap-12 px-6 text-center">
+        {/* Auth chip */}
+        <div className="absolute top-4 right-4 flex gap-2">
           {user ? (
             <button
-              type="button"
               onClick={handleLogout}
-              className="rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition hover:border-primary hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+              className="rounded-lg border-2 border-white/20 bg-black/40 px-3 py-1.5 text-xs font-black tracking-widest text-white uppercase hover:border-[#ccff00] hover:text-[#ccff00]"
             >
               Выйти
             </button>
           ) : (
             <Link
               to="/auth"
-              className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary transition hover:bg-primary/10 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+              className="rounded-lg border-2 border-[#ccff00]/60 bg-black/40 px-3 py-1.5 text-xs font-black tracking-widest text-[#ccff00] uppercase hover:border-[#ccff00]"
+              style={{ textShadow: "0 0 4px rgba(204,255,0,0.5)" }}
             >
               Войти
             </Link>
           )}
-        </header>
+        </div>
 
-        {/* Hero card */}
-        <section
-          aria-labelledby="hero-title"
-          className="rounded-2xl border border-border bg-card p-8 text-center shadow-sm"
-        >
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-primary">
-            Готовы к удару?
-          </p>
+        {/* Title Lockup */}
+        <div className="space-y-0">
           <h1
-            id="hero-title"
-            className="mb-3 text-4xl font-bold tracking-tight text-foreground sm:text-5xl"
+            className="select-none text-7xl font-black italic leading-none tracking-tighter text-white uppercase"
+            style={{
+              textShadow: "0 4px 0 rgba(0,0,0,0.3)",
+            }}
           >
             Пенальти
           </h1>
-          <p className="mx-auto mb-8 max-w-xs text-sm leading-relaxed text-muted-foreground">
-            Соберите команду, выберите тактику и победите соперника в серии пенальти.
-          </p>
+          <div
+            className="h-1.5 w-full shadow-lg"
+            style={{
+              backgroundColor: "#ccff00",
+              transform: "skewX(-12deg)",
+            }}
+          />
+        </div>
 
-          {inv.playerName && (
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-1.5 text-sm">
-              <span className="text-muted-foreground">Игрок:</span>
-              <span className="font-semibold text-foreground">{inv.playerName}</span>
-            </div>
-          )}
-
-          <div className="flex flex-col gap-3">
-            <Link
-              to="/teams"
-              className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/30"
+        {/* Player Name Display */}
+        {inv.playerName && (
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-xs font-bold tracking-widest text-white/50 uppercase">
+              Игрок
+            </span>
+            <span
+              className="text-2xl font-black italic tracking-tight text-white"
+              style={{ textShadow: "0 2px 0 rgba(0,0,0,0.3)" }}
             >
-              Начать игру
-            </Link>
-            <Link
-              to="/teams"
-              search={{ ranked: true }}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-all duration-200 hover:border-primary hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
-            >
-              Рейтинговый матч
-              <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-                {inv.rating ?? 1000}
-              </span>
-            </Link>
+              {inv.playerName}
+            </span>
           </div>
-        </section>
+        )}
 
-        {/* Secondary card */}
-        <Link
-          to="/rating"
-          className="group flex items-center justify-between rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
-        >
-          <div className="flex items-center gap-3">
-            <div
-              aria-hidden="true"
-              className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary"
-            >
-              📊
-            </div>
-            <div className="text-left">
-              <div className="text-sm font-semibold text-foreground">Таблица рейтинга</div>
-              <div className="text-xs text-muted-foreground">Лучшие игроки сезона</div>
-            </div>
-          </div>
-          <span
-            aria-hidden="true"
-            className="text-muted-foreground transition group-hover:translate-x-1 group-hover:text-primary"
+        {/* Action Buttons */}
+        <div className="flex flex-col items-center gap-4">
+          <Link
+            to="/teams"
+            className="group relative inline-flex items-center justify-center rounded-xl px-10 py-5 text-xl font-black tracking-widest uppercase transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{
+              backgroundColor: "#e0ff33",
+              color: "#111111",
+              border: "2px solid #e0ff33",
+              boxShadow: "0 0 12px #e0ff33, 0 0 28px #e0ff33, 0 0 48px #e0ff33",
+              animation: "neonPulse 2s ease-in-out infinite",
+            }}
           >
-            →
-          </span>
-        </Link>
+            <span className="relative">Начать</span>
+          </Link>
+
+          <Link
+            to="/teams"
+            search={{ ranked: true }}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-[#38bdf8] bg-black/40 px-8 py-3 text-sm font-black tracking-widest uppercase backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{
+              color: "#38bdf8",
+              boxShadow: "0 0 8px rgba(56,189,248,0.4)",
+              textShadow: "0 0 4px rgba(56,189,248,0.5)",
+            }}
+          >
+            📈 Рейтинговый матч · {inv.rating ?? 1000}
+          </Link>
+
+          <Link
+            to="/rating"
+            className="inline-flex items-center justify-center rounded-xl border-2 border-[#ccff00]/50 bg-black/40 px-8 py-3 text-sm font-black tracking-widest uppercase backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:border-[#ccff00] active:scale-95"
+            style={{
+              color: "#ccff00",
+              boxShadow: "0 0 6px rgba(204,255,0,0.3)",
+              textShadow: "0 0 4px rgba(204,255,0,0.5)",
+            }}
+          >
+            📊 Рейтинг
+          </Link>
+        </div>
+
+        {/* Subtext */}
+        <p className="text-xs font-medium tracking-[0.2em] text-white/60 uppercase">
+          Приготовьтесь к удару
+        </p>
       </div>
     </main>
   );
