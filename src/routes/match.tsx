@@ -2657,12 +2657,16 @@ function GoalScene({
         {/* Keeper */}
         <div
           key={`keeper-${tick}`}
-          className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
+          className="absolute"
           style={{
             left: keeperPos.left,
             top: keeperPos.top,
-            transform: `translate(-50%, -50%) rotate(${keeperTilt}deg)`,
+            transform: "translate(-50%, -50%)",
             transformOrigin: "center",
+            // @ts-expect-error - CSS custom properties
+            "--dive-dx": diveDx,
+            "--dive-tilt": diveTilt,
+            animation: ballFly ? "keeperDive 0.9s ease-out" : undefined,
           }}
         >
           <PlayerFigure
