@@ -3268,6 +3268,48 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
       {/* Stadium floodlights — turn on when the scene is dark */}
       {isDark && (
         <div className="pointer-events-none absolute inset-0 z-35 overflow-hidden">
+          {/* Дополнительные ночные прожекторы по углам поля для объёма */}
+          {weather === "night" && (
+            <>
+              <div
+                className="absolute"
+                style={{
+                  top: "0%",
+                  left: "-5%",
+                  width: "70%",
+                  height: "100%",
+                  background:
+                    "radial-gradient(ellipse at 12% -10%, rgba(255,240,190,0.22) 0%, rgba(255,235,180,0.10) 30%, rgba(255,235,180,0) 55%)",
+                  mixBlendMode: "screen",
+                  filter: "blur(2px)",
+                }}
+              />
+              <div
+                className="absolute"
+                style={{
+                  top: "0%",
+                  right: "-5%",
+                  width: "70%",
+                  height: "100%",
+                  background:
+                    "radial-gradient(ellipse at 88% -10%, rgba(255,240,190,0.22) 0%, rgba(255,235,180,0.10) 30%, rgba(255,235,180,0) 55%)",
+                  mixBlendMode: "screen",
+                  filter: "blur(2px)",
+                }}
+              />
+              {/* Холодная лунная подсветка сверху */}
+              <div
+                className="absolute inset-x-0"
+                style={{
+                  top: 0,
+                  height: "35%",
+                  background:
+                    "linear-gradient(180deg, rgba(160,190,255,0.18) 0%, rgba(160,190,255,0) 100%)",
+                  mixBlendMode: "screen",
+                }}
+              />
+            </>
+          )}
           {/* Left tower */}
           <div
             className="absolute"
