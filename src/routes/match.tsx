@@ -3473,8 +3473,15 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
           100% { transform: translate(var(--drift, 0px), 120vh) rotate(360deg); }
         }
         @keyframes starTwinkle {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 1; }
+          0%, 100% { opacity: 0.25; transform: scale(0.85); }
+          50% { opacity: 1; transform: scale(1.1); }
+        }
+        @keyframes meteorFall {
+          0%   { opacity: 0; transform: translate(0, 0) rotate(20deg); }
+          5%   { opacity: 1; }
+          25%  { opacity: 1; transform: translate(-180px, 70px) rotate(20deg); }
+          35%  { opacity: 0; transform: translate(-260px, 100px) rotate(20deg); }
+          100% { opacity: 0; transform: translate(-260px, 100px) rotate(20deg); }
         }
         @keyframes fogDrift {
           0% { transform: translateX(-10%); }
