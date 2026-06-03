@@ -3073,11 +3073,32 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
   );
   const stars = useMemo(
     () =>
-      Array.from({ length: 40 }, () => ({
+      Array.from({ length: 90 }, () => ({
         left: Math.random() * 100,
-        top: Math.random() * 40,
-        size: 1 + Math.random() * 2,
-        delay: Math.random() * 3,
+        top: Math.random() * 55,
+        size: 0.8 + Math.random() * 2.4,
+        delay: Math.random() * 3.2,
+        // Чуть разная яркость и длительность мерцания.
+        opacity: 0.55 + Math.random() * 0.45,
+        twinkle: 1.6 + Math.random() * 2.6,
+        // Редкая «голубая/жёлтая» подсветка.
+        hue:
+          Math.random() < 0.12
+            ? "#cfe0ff"
+            : Math.random() < 0.08
+              ? "#fff2c2"
+              : "#ffffff",
+      })),
+    [],
+  );
+  // Метеоры для ночи — несколько падающих звёзд с разной задержкой.
+  const meteors = useMemo(
+    () =>
+      Array.from({ length: 3 }, (_, i) => ({
+        top: 5 + Math.random() * 25,
+        left: 30 + Math.random() * 50,
+        delay: i * 7 + Math.random() * 4,
+        duration: 1.4 + Math.random() * 0.6,
       })),
     [],
   );
