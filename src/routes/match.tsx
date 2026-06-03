@@ -1070,14 +1070,18 @@ function MatchPage() {
             </div>
           )}
           <div
-            className="flex items-center gap-2 rounded-lg bg-black/40 px-3 py-1.5 font-black text-white"
-            style={{ border: "2px solid #ffd700" }}
-            title="Стадия турнира"
+            className="flex items-center gap-2 rounded-lg px-3 py-1.5 font-black text-black"
+            style={{
+              backgroundColor: stageColor,
+              border: `2px solid ${stageColor}`,
+              boxShadow: `0 0 8px ${stageColor}, 0 0 16px ${stageColor}80`,
+              animation: matchStage >= 3 ? "neonPulse 1.6s ease-in-out infinite" : undefined,
+            }}
+            title={`Стадия турнира · награда x${stageMul}`}
           >
-            <span className="text-base">🏆</span>
-            <span className="text-xs tracking-[0.15em] uppercase">
-              {(["1/16", "1/8", "1/4", "1/2", "Финал", "Чемпион"][inv.tournamentStage ?? 0])}
-            </span>
+            <span className="text-base">{matchStage === 4 ? "👑" : "🏆"}</span>
+            <span className="text-xs tracking-[0.15em] uppercase">{stageShort}</span>
+            <span className="text-[10px] tracking-wider opacity-70">x{stageMul}</span>
           </div>
           <button
             type="button"
@@ -1095,6 +1099,35 @@ function MatchPage() {
           >
             Магазин →
           </button>
+        </div>
+
+        {/* Stage banner — стадия турнира должна ощущаться */}
+        <div
+          className="relative z-20 w-full overflow-hidden rounded-xl px-4 py-2 text-center"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${stageColor}33, transparent)`,
+            border: `2px solid ${stageColor}`,
+            boxShadow: `0 0 12px ${stageColor}66`,
+          }}
+        >
+          <div
+            className="text-[10px] font-bold tracking-[0.3em] uppercase"
+            style={{ color: stageColor }}
+          >
+            Стадия турнира
+          </div>
+          <div
+            className="text-lg font-black italic tracking-tight uppercase sm:text-xl"
+            style={{ color: stageColor, textShadow: `0 0 8px ${stageColor}80` }}
+          >
+            {stageLabel}
+          </div>
+          <div className="text-[10px] font-medium tracking-widest text-white/70 uppercase">
+            Награда: {Math.round(100 * stageMul)} 🪙
+            {matchStage > 0 && ` · +${matchStage + (matchStage === 4 ? 2 : 0)} 💎`}
+            {" · ИИ "}
+            {Math.round(stageSmart * 100)}%
+          </div>
         </div>
 
         {/* Phase title */}
