@@ -2737,6 +2737,49 @@ function GoalScene({
             }}
           />
         )}
+        {/* Outcome flash — big banner with shockwave when the ball lands */}
+        {showAction && outcomeFlash && (() => {
+          const isGoal = last!.scored;
+          const isMiss = last!.offTarget;
+          const text = isGoal ? "ГОЛ!" : isMiss ? "МИМО!" : "САЕЙВ!";
+          const color = isGoal ? "#22c55e" : isMiss ? "#f59e0b" : "#38bdf8";
+          return (
+            <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center overflow-hidden">
+              {/* Coloured flash */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `radial-gradient(ellipse at center, ${color}55 0%, ${color}22 35%, transparent 70%)`,
+                  animation: "outcomeFlashBg 0.7s ease-out",
+                }}
+              />
+              {/* Shockwave ring */}
+              <div
+                className="absolute rounded-full"
+                style={{
+                  width: 40,
+                  height: 40,
+                  border: `4px solid ${color}`,
+                  animation: "outcomeRing 0.7s ease-out forwards",
+                }}
+              />
+              {/* Big text */}
+              <span
+                className="relative font-black tracking-wider"
+                style={{
+                  fontSize: 64,
+                  color,
+                  textShadow:
+                    "0 4px 0 rgba(0,0,0,0.45), 0 0 24px rgba(0,0,0,0.5)",
+                  WebkitTextStroke: "2px rgba(0,0,0,0.55)",
+                  animation: "outcomePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                }}
+              >
+                {text}
+              </span>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Pitch in front of the goal */}
