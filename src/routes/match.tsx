@@ -2507,28 +2507,46 @@ function GoalScene({
   // Kick animation: idle → wind-up → strike
   const [kickStage, setKickStage] = useState<"idle" | "windup" | "kick">("idle");
   const [ballFly, setBallFly] = useState(false);
+  // Вратарь прыгает только пока летит мяч, затем возвращается в центр.
+  const [keeperDiving, setKeeperDiving] = useState(false);
   useEffect(() => {
     if (phase === "result") {
       setTick((t) => t + 1);
       setBallFly(false);
+      setKeeperDiving(false);
       // Visible wind-up for 3 seconds, then strike + ball fly together
       setKickStage("windup");
       const t1 = window.setTimeout(() => {
         setKickStage("kick");
         setBallFly(true);
+        setKeeperDiving(true);
       }, 3000);
-      return () => window.clearTimeout(t1);
+      // После завершения полёта мяча вратарь возвращается в центр.
+      const t2 = window.setTimeout(() => {
+        setKeeperDiving(false);
+      }, 3000 + 600);
+      return () => {
+        window.clearTimeout(t1);
+        window.clearTimeout(t2);
+      };
     } else {
       setKickStage("idle");
       setBallFly(false);
+      setKeeperDiving(false);
     }
   }, [phase, last]);
 
   const showAction = phase === "result" && last;
   const ballPos = showAction ? zoneCoords(last!.shot) : null;
-  // Вратарь всегда остаётся на месте после удара.
-  const keeperPos = { left: "50%", top: "65%" };
-  const keeperTilt = 0;
+  // Во время полёта мяча вратарь прыгает в свою зону, потом возвращается в центр.
+  const keeperZoneCoords =
+    showAction && keeperDiving ? zoneCoords(last!.keeper) : null;
+  const keeperPos = keeperZoneCoords ?? { left: "50%", top: "65%" };
+  const keeperCol =
+    showAction && keeperDiving
+      ? ZONES.find((z) => z.id === last!.keeper)?.col
+      : 1;
+  const keeperTilt = keeperCol === 0 ? -75 : keeperCol === 2 ? 75 : 0;
 
   const strikerIsPlayer = last?.shooter === "player";
   // During action phases, striker color matches the active shooter
