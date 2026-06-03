@@ -2540,11 +2540,16 @@ function GoalScene({
   // Вратарь во время удара делает короткий бросок в свою зону через CSS-анимацию,
   // но визуально всегда остаётся в центре ворот (анимация возвращает его обратно).
   const keeperPos = { left: "50%", top: "65%" };
-  const keeperCol = showAction
-    ? ZONES.find((z) => z.id === last!.keeper)?.col ?? 1
-    : 1;
-  // CSS-переменные для keyframes-броска
-  const diveDx = keeperCol === 0 ? "-90px" : keeperCol === 2 ? "90px" : "0px";
+  const keeperMeta = showAction
+    ? ZONES.find((z) => z.id === last!.keeper)
+    : undefined;
+  const keeperCol = keeperMeta?.col ?? 1;
+  const keeperRow = keeperMeta?.row ?? 1;
+  // CSS-переменные для keyframes-броска — теперь вратарь реально долетает до зоны.
+  // Зоны: left=18%, center=50%, right=82% → смещение ±32% ширины ворот.
+  const diveDx = keeperCol === 0 ? "-32%" : keeperCol === 2 ? "32%" : "0%";
+  // Верхний ряд (row=0) → top=30%, нижний (row=1) → top=65% → −35% по высоте.
+  const diveDy = keeperRow === 0 ? "-50%" : "0%";
   const diveTilt = keeperCol === 0 ? "-75deg" : keeperCol === 2 ? "75deg" : "0deg";
 
   const strikerIsPlayer = last?.shooter === "player";
