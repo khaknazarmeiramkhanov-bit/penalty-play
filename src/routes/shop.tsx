@@ -325,55 +325,39 @@ function Preview({ item }: { item: ShopItem }) {
         </defs>
         {item.kind === "glove" && (
           <g>
+            <defs>
+              <linearGradient id={`gl-${item.id}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor={color === "url(#rg)" ? "#fff" : color} stopOpacity="1" />
+                <stop offset="1" stopColor="#000" stopOpacity="0.35" />
+              </linearGradient>
+            </defs>
+            {/* palm shadow */}
             <path
-              d="M14 10 Q14 4 20 4 L34 4 Q40 4 40 10 L40 20 Q42 22 42 26 L42 32 Q42 36 38 36 L16 36 Q12 36 12 32 L12 18 Q12 14 14 12 Z"
-              fill={color}
+              d="M16 14 Q16 9 21 9 L35 9 Q40 9 40 14 L40 24 Q42 26 42 30 L42 33 Q42 35 40 35 L18 35 Q14 35 14 31 L14 20 Q14 16 16 14 Z"
+              fill="#000"
+              opacity="0.25"
+              transform="translate(1.5,1.5)"
+            />
+            {/* fingers */}
+            <path d="M17 14 Q17 5 21 5 Q25 5 25 14 Z" fill={color} stroke="#0a0a0a" strokeWidth="0.8" />
+            <path d="M24 13 Q24 3 28 3 Q32 3 32 13 Z" fill={color} stroke="#0a0a0a" strokeWidth="0.8" />
+            <path d="M31 13 Q31 4 35 4 Q39 4 39 13 Z" fill={color} stroke="#0a0a0a" strokeWidth="0.8" />
+            <path d="M38 14 Q38 7 41 7 Q44 7 44 14 Z" fill={color} stroke="#0a0a0a" strokeWidth="0.8" />
+            {/* palm */}
+            <path
+              d="M14 16 Q14 12 18 12 L40 12 Q44 12 44 16 L44 26 Q46 28 46 31 L46 33 Q46 35 44 35 L16 35 Q12 35 12 31 L12 20 Q12 17 14 16 Z"
+              fill={`url(#gl-${item.id})`}
               stroke="#0a0a0a"
               strokeWidth="1"
             />
-            <rect
-              x="18"
-              y="6"
-              width="3"
-              height="14"
-              rx="1.5"
-              fill={color}
-              stroke="#0a0a0a"
-              strokeWidth="0.6"
-            />
-            <rect
-              x="24"
-              y="4"
-              width="3"
-              height="16"
-              rx="1.5"
-              fill={color}
-              stroke="#0a0a0a"
-              strokeWidth="0.6"
-            />
-            <rect
-              x="30"
-              y="5"
-              width="3"
-              height="15"
-              rx="1.5"
-              fill={color}
-              stroke="#0a0a0a"
-              strokeWidth="0.6"
-            />
-            <rect
-              x="36"
-              y="8"
-              width="3"
-              height="12"
-              rx="1.5"
-              fill={color}
-              stroke="#0a0a0a"
-              strokeWidth="0.6"
-            />
-            <path d="M14 28 L40 28" stroke={accent} strokeWidth="1.5" />
-            <rect x="12" y="32" width="30" height="4" fill="#0a0a0a" />
-            <rect x="12" y="32" width="30" height="1.5" fill={accent} />
+            {/* stitching */}
+            <path d="M16 22 Q29 20 44 22" stroke={accent} strokeWidth="0.6" fill="none" strokeDasharray="1.5 1" opacity="0.8" />
+            <path d="M16 28 Q29 30 44 28" stroke={accent} strokeWidth="0.8" fill="none" />
+            {/* cuff */}
+            <rect x="12" y="33" width="34" height="3" rx="1" fill="#0a0a0a" />
+            <rect x="12" y="33" width="34" height="1" fill={accent} />
+            {/* highlight */}
+            <path d="M18 14 Q18 13 20 13 L26 13" stroke="#fff" strokeWidth="0.6" opacity="0.5" fill="none" />
           </g>
         )}
         {item.kind === "boot" && (
