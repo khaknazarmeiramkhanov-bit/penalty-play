@@ -3034,7 +3034,7 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
     sunset:
       "linear-gradient(180deg, rgba(255,120,40,0.28) 0%, rgba(255,80,120,0.18) 50%, rgba(80,30,80,0.25) 100%)",
     night:
-      "linear-gradient(180deg, rgba(8,12,40,0.55) 0%, rgba(10,20,55,0.55) 100%)",
+      "linear-gradient(180deg, rgba(5,8,28,0.70) 0%, rgba(8,16,48,0.62) 55%, rgba(12,22,60,0.55) 100%)",
     rain:
       "linear-gradient(180deg, rgba(40,55,75,0.45) 0%, rgba(30,45,65,0.45) 100%)",
     storm:
