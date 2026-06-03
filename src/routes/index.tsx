@@ -333,6 +333,18 @@ function Index() {
           >
             📊 Рейтинг
           </Link>
+
+          <Link
+            to="/achievements"
+            className="inline-flex items-center justify-center rounded-xl border-2 border-[#ffd700]/60 bg-black/40 px-8 py-3 text-sm font-black tracking-widest uppercase backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:border-[#ffd700] active:scale-95"
+            style={{
+              color: "#ffd700",
+              boxShadow: "0 0 6px rgba(255,215,0,0.3)",
+              textShadow: "0 0 4px rgba(255,215,0,0.5)",
+            }}
+          >
+            🏆 Достижения
+          </Link>
         </div>
 
         {/* Subtext */}

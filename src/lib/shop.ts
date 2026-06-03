@@ -473,6 +473,7 @@ type Store = {
   ratingClaimed: number[]; // полученные награды-рейтинги
   dailyLastClaim: string | null; // YYYY-MM-DD последнего получения подарка
   dailyStreak: number; // текущая серия дней подряд (1..7, потом цикл)
+  achievementsClaimed: string[]; // id полученных достижений
 };
 
 const initial: Store = {
@@ -494,6 +495,7 @@ const initial: Store = {
   ratingClaimed: [],
   dailyLastClaim: null,
   dailyStreak: 0,
+  achievementsClaimed: [],
 };
 
 function read(): Store {
@@ -521,6 +523,7 @@ function read(): Store {
       ratingClaimed: parsed.ratingClaimed ?? initial.ratingClaimed,
       dailyLastClaim: parsed.dailyLastClaim ?? initial.dailyLastClaim,
       dailyStreak: parsed.dailyStreak ?? initial.dailyStreak,
+      achievementsClaimed: parsed.achievementsClaimed ?? initial.achievementsClaimed,
     };
   } catch {
     return initial;
@@ -728,6 +731,19 @@ export function useInventory() {
     return { day: nextStreak, ...reward };
   }, []);
 
+  const claimAchievement = useCallback((id: string) => {
+    const ach = ACHIEVEMENTS.find((a) => a.id === id);
+    if (!ach) return false;
+    const next = read();
+    if ((next.achievementsClaimed ?? []).includes(id)) return false;
+    if (!achievementUnlocked(ach, next)) return false;
+    next.coins += ach.coins;
+    next.crystals += ach.crystals;
+    next.achievementsClaimed = [...(next.achievementsClaimed ?? []), id];
+    write(next);
+    return true;
+  }, []);
+
   const reset = useCallback(() => write(initial), []);
 
   return {
@@ -749,6 +765,7 @@ export function useInventory() {
     setPlayerName,
     claimDaily,
     canClaimDaily: store.dailyLastClaim !== todayKey(),
+    claimAchievement,
     reset,
   };
 }
@@ -780,3 +797,82 @@ export function resolveColor(raw: string, teamColor: string): string {
   if (raw === "RAINBOW") return "url(#rainbowGrad)";
   return raw;
 }
+
+// ---------------- Achievements ----------------
+export type AchievementDifficulty = "easy" | "medium" | "hard" | "legendary";
+
+export type Achievement = {
+  id: string;
+  name: string;
+  desc: string;
+  icon: string;
+  difficulty: AchievementDifficulty;
+  coins: number;
+  crystals: number;
+  /** Progress (0..1) given the store state */
+  progress: (s: AchievementCheckState) => number;
+};
+
+export type AchievementCheckState = {
+  wins: number;
+  losses: number;
+  matches: number;
+  coins: number;
+  crystals: number;
+  spentCoins: number;
+  owned: string[];
+  ownedTeams: string[];
+  rating: number;
+  tournamentTitles: number;
+  dailyStreak: number;
+};
+
+function ratio(value: number, target: number): number {
+  if (target <= 0) return 1;
+  return Math.max(0, Math.min(1, value / target));
+}
+
+export const ACHIEVEMENTS: Achievement[] = [
+  // ---- EASY ----
+  { id: "first_match", name: "Первый удар", desc: "Сыграй 1 матч", icon: "⚽", difficulty: "easy", coins: 50, crystals: 0, progress: (s) => ratio(s.matches, 1) },
+  { id: "first_win", name: "Первая победа", desc: "Выиграй 1 матч", icon: "🥇", difficulty: "easy", coins: 80, crystals: 0, progress: (s) => ratio(s.wins, 1) },
+  { id: "buy_first", name: "Шопоголик", desc: "Купи любой предмет", icon: "🛍️", difficulty: "easy", coins: 60, crystals: 0, progress: (s) => ratio(s.spentCoins, 1) },
+  { id: "daily_3", name: "Постоянный гость", desc: "Получи подарок 3 дня подряд", icon: "📅", difficulty: "easy", coins: 100, crystals: 1, progress: (s) => ratio(s.dailyStreak, 3) },
+  { id: "wins_5", name: "На разогреве", desc: "Выиграй 5 матчей", icon: "🔥", difficulty: "easy", coins: 150, crystals: 1, progress: (s) => ratio(s.wins, 5) },
+
+  // ---- MEDIUM ----
+  { id: "wins_25", name: "Опытный боец", desc: "Выиграй 25 матчей", icon: "💪", difficulty: "medium", coins: 400, crystals: 3, progress: (s) => ratio(s.wins, 25) },
+  { id: "matches_50", name: "Марафонец", desc: "Сыграй 50 матчей", icon: "🏃", difficulty: "medium", coins: 300, crystals: 2, progress: (s) => ratio(s.matches, 50) },
+  { id: "collector_10", name: "Коллекционер", desc: "Соберит 10 предметов", icon: "🎨", difficulty: "medium", coins: 350, crystals: 3, progress: (s) => ratio(s.owned.length, 10) },
+  { id: "rating_1300", name: "Профессионал", desc: "Достигни рейтинга 1300", icon: "⭐", difficulty: "medium", coins: 500, crystals: 4, progress: (s) => ratio(s.rating, 1300) },
+  { id: "teams_3", name: "Транcфер", desc: "Купи 3 команды", icon: "🤝", difficulty: "medium", coins: 400, crystals: 3, progress: (s) => ratio(s.ownedTeams.length, 3) },
+  { id: "tournament_1", name: "Чемпион турнира", desc: "Дойди до титула чемпиона", icon: "🏆", difficulty: "medium", coins: 600, crystals: 5, progress: (s) => ratio(s.tournamentTitles, 1) },
+
+  // ---- HARD ----
+  { id: "wins_100", name: "Сотня", desc: "Выиграй 100 матчей", icon: "💯", difficulty: "hard", coins: 1500, crystals: 10, progress: (s) => ratio(s.wins, 100) },
+  { id: "rating_1750", name: "Эксперт", desc: "Достигни рейтинга 1750", icon: "💎", difficulty: "hard", coins: 1500, crystals: 12, progress: (s) => ratio(s.rating, 1750) },
+  { id: "collector_30", name: "Магнат", desc: "Собери 30 предметов", icon: "👑", difficulty: "hard", coins: 1200, crystals: 10, progress: (s) => ratio(s.owned.length, 30) },
+  { id: "tournament_3", name: "Трёхкратный", desc: "Стань чемпионом 3 раза", icon: "🏅", difficulty: "hard", coins: 1800, crystals: 12, progress: (s) => ratio(s.tournamentTitles, 3) },
+  { id: "daily_7", name: "Неделя без пропуска", desc: "Получай подарок 7 дней подряд", icon: "📆", difficulty: "hard", coins: 1000, crystals: 8, progress: (s) => ratio(s.dailyStreak, 7) },
+
+  // ---- LEGENDARY ----
+  { id: "rating_2000", name: "Элита", desc: "Рейтинг 2000+", icon: "🌟", difficulty: "legendary", coins: 5000, crystals: 25, progress: (s) => ratio(s.rating, 2000) },
+  { id: "rating_2500", name: "Легенда стадиона", desc: "Рейтинг 2500+", icon: "🔮", difficulty: "legendary", coins: 10000, crystals: 50, progress: (s) => ratio(s.rating, 2500) },
+  { id: "wins_500", name: "Бессмертный", desc: "Выиграй 500 матчей", icon: "⚡", difficulty: "legendary", coins: 8000, crystals: 40, progress: (s) => ratio(s.wins, 500) },
+  { id: "tournament_10", name: "Король арены", desc: "10 титулов чемпиона", icon: "👑", difficulty: "legendary", coins: 12000, crystals: 60, progress: (s) => ratio(s.tournamentTitles, 10) },
+];
+
+function achievementUnlocked(a: Achievement, s: AchievementCheckState): boolean {
+  return a.progress(s) >= 1;
+}
+
+export function isAchievementUnlocked(a: Achievement, s: AchievementCheckState): boolean {
+  return achievementUnlocked(a, s);
+}
+
+export const DIFFICULTY_META: Record<AchievementDifficulty, { label: string; color: string }> = {
+  easy: { label: "Лёгкое", color: "#a3e635" },
+  medium: { label: "Среднее", color: "#38bdf8" },
+  hard: { label: "Сложное", color: "#f59e0b" },
+  legendary: { label: "Легендарное", color: "#f43f5e" },
+};
