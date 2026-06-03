@@ -2773,10 +2773,10 @@ function GoalScene({
           100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
         @keyframes keeperDive {
-          0%   { transform: translate(-50%, -50%) translateX(0) rotate(0deg); }
-          45%  { transform: translate(-50%, -50%) translateX(var(--dive-dx)) rotate(var(--dive-tilt)); }
-          70%  { transform: translate(-50%, -50%) translateX(var(--dive-dx)) rotate(var(--dive-tilt)); }
-          100% { transform: translate(-50%, -50%) translateX(0) rotate(0deg); }
+          0%   { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); }
+          45%  { transform: translate(-50%, -50%) translate(var(--dive-dx), var(--dive-dy)) rotate(var(--dive-tilt)); }
+          70%  { transform: translate(-50%, -50%) translate(var(--dive-dx), var(--dive-dy)) rotate(var(--dive-tilt)); }
+          100% { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); }
         }
         @keyframes fanBob {
           0%, 100% { transform: translateY(0); }
