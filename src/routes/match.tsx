@@ -2681,6 +2681,7 @@ function GoalScene({
             transformOrigin: "center",
             // @ts-expect-error - CSS custom properties
             "--dive-dx": diveDx,
+            "--dive-dy": diveDy,
             "--dive-tilt": diveTilt,
             animation: ballFly ? "keeperDive 0.9s ease-out" : undefined,
           }}
