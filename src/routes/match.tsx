@@ -2535,14 +2535,12 @@ function GoalScene({
       ? zoneCoords(last!.keeper)
       : { left: "50%", top: "65%" };
   // Наклон вратаря: при прыжке в левый/правый угол он «лежит» в воздухе.
-  const keeperZone = showAction && ballFly ? last!.keeper : null;
-  const keeperTilt = !keeperZone
-    ? 0
-    : keeperZone.col === 0
-      ? -75
-      : keeperZone.col === 2
-        ? 75
-        : 0;
+  const keeperZoneId = showAction && ballFly ? last!.keeper : null;
+  const keeperCol = keeperZoneId
+    ? ZONES.find((z) => z.id === keeperZoneId)?.col
+    : undefined;
+  const keeperTilt =
+    keeperCol === 0 ? -75 : keeperCol === 2 ? 75 : 0;
 
   const strikerIsPlayer = last?.shooter === "player";
   // During action phases, striker color matches the active shooter
