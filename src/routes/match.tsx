@@ -2518,20 +2518,36 @@ function GoalScene({
   // Kick animation: idle → wind-up → strike
   const [kickStage, setKickStage] = useState<"idle" | "windup" | "kick">("idle");
   const [ballFly, setBallFly] = useState(false);
+  // Большая надпись результата (ГОЛ/САЕЙВ/МИМО) появляется по прилёту мяча.
+  const [outcomeFlash, setOutcomeFlash] = useState(false);
   useEffect(() => {
     if (phase === "result") {
       setTick((t) => t + 1);
       setBallFly(false);
+      setOutcomeFlash(false);
       // Visible wind-up for 3 seconds, then strike + ball fly together
       setKickStage("windup");
       const t1 = window.setTimeout(() => {
         setKickStage("kick");
         setBallFly(true);
       }, 3000);
-      return () => window.clearTimeout(t1);
+      // Мяч долетает примерно через 0.55с — играем звук и показываем надпись.
+      const t2 = window.setTimeout(() => {
+        setOutcomeFlash(true);
+        if (last) {
+          if (last.scored) playGoalSound();
+          else if (last.offTarget) playMissSound();
+          else playSaveSound();
+        }
+      }, 3000 + 500);
+      return () => {
+        window.clearTimeout(t1);
+        window.clearTimeout(t2);
+      };
     } else {
       setKickStage("idle");
       setBallFly(false);
+      setOutcomeFlash(false);
     }
   }, [phase, last]);
 
