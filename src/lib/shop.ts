@@ -771,14 +771,15 @@ export function useInventory() {
 }
 
 // ---------------- Daily rewards ----------------
+// Кристаллы — премиум-валюта, дают только в конце недели за серию.
 export const DAILY_REWARDS: { coins: number; crystals: number }[] = [
   { coins: 50, crystals: 0 },
   { coins: 80, crystals: 0 },
-  { coins: 120, crystals: 1 },
+  { coins: 120, crystals: 0 },
   { coins: 150, crystals: 1 },
-  { coins: 200, crystals: 2 },
-  { coins: 250, crystals: 2 },
-  { coins: 400, crystals: 5 },
+  { coins: 200, crystals: 0 },
+  { coins: 250, crystals: 1 },
+  { coins: 400, crystals: 3 },
 ];
 
 function todayKey(): string {
