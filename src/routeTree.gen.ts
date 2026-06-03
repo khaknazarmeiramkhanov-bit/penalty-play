@@ -18,7 +18,10 @@ import { Route as AiRouteImport } from './routes/ai'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AiIndexRouteImport } from './routes/ai.index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AiStatsRouteImport } from './routes/ai.stats'
+import { Route as AiSettingsRouteImport } from './routes/ai.settings'
 import { Route as AiChatIndexRouteImport } from './routes/ai.chat.index'
+import { Route as AiChatThreadIdRouteImport } from './routes/ai.chat.$threadId'
 
 const TeamsRoute = TeamsRouteImport.update({
   id: '/teams',
@@ -65,9 +68,24 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiStatsRoute = AiStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => AiRoute,
+} as any)
+const AiSettingsRoute = AiSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AiRoute,
+} as any)
 const AiChatIndexRoute = AiChatIndexRouteImport.update({
   id: '/chat/',
   path: '/chat/',
+  getParentRoute: () => AiRoute,
+} as any)
+const AiChatThreadIdRoute = AiChatThreadIdRouteImport.update({
+  id: '/chat/$threadId',
+  path: '/chat/$threadId',
   getParentRoute: () => AiRoute,
 } as any)
 
@@ -79,8 +97,11 @@ export interface FileRoutesByFullPath {
   '/rating': typeof RatingRoute
   '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
+  '/ai/settings': typeof AiSettingsRoute
+  '/ai/stats': typeof AiStatsRoute
   '/api/chat': typeof ApiChatRoute
   '/ai/': typeof AiIndexRoute
+  '/ai/chat/$threadId': typeof AiChatThreadIdRoute
   '/ai/chat/': typeof AiChatIndexRoute
 }
 export interface FileRoutesByTo {
@@ -90,8 +111,11 @@ export interface FileRoutesByTo {
   '/rating': typeof RatingRoute
   '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
+  '/ai/settings': typeof AiSettingsRoute
+  '/ai/stats': typeof AiStatsRoute
   '/api/chat': typeof ApiChatRoute
   '/ai': typeof AiIndexRoute
+  '/ai/chat/$threadId': typeof AiChatThreadIdRoute
   '/ai/chat': typeof AiChatIndexRoute
 }
 export interface FileRoutesById {
@@ -103,8 +127,11 @@ export interface FileRoutesById {
   '/rating': typeof RatingRoute
   '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
+  '/ai/settings': typeof AiSettingsRoute
+  '/ai/stats': typeof AiStatsRoute
   '/api/chat': typeof ApiChatRoute
   '/ai/': typeof AiIndexRoute
+  '/ai/chat/$threadId': typeof AiChatThreadIdRoute
   '/ai/chat/': typeof AiChatIndexRoute
 }
 export interface FileRouteTypes {
@@ -117,8 +144,11 @@ export interface FileRouteTypes {
     | '/rating'
     | '/shop'
     | '/teams'
+    | '/ai/settings'
+    | '/ai/stats'
     | '/api/chat'
     | '/ai/'
+    | '/ai/chat/$threadId'
     | '/ai/chat/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -128,8 +158,11 @@ export interface FileRouteTypes {
     | '/rating'
     | '/shop'
     | '/teams'
+    | '/ai/settings'
+    | '/ai/stats'
     | '/api/chat'
     | '/ai'
+    | '/ai/chat/$threadId'
     | '/ai/chat'
   id:
     | '__root__'
@@ -140,8 +173,11 @@ export interface FileRouteTypes {
     | '/rating'
     | '/shop'
     | '/teams'
+    | '/ai/settings'
+    | '/ai/stats'
     | '/api/chat'
     | '/ai/'
+    | '/ai/chat/$threadId'
     | '/ai/chat/'
   fileRoutesById: FileRoutesById
 }
@@ -221,6 +257,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai/stats': {
+      id: '/ai/stats'
+      path: '/stats'
+      fullPath: '/ai/stats'
+      preLoaderRoute: typeof AiStatsRouteImport
+      parentRoute: typeof AiRoute
+    }
+    '/ai/settings': {
+      id: '/ai/settings'
+      path: '/settings'
+      fullPath: '/ai/settings'
+      preLoaderRoute: typeof AiSettingsRouteImport
+      parentRoute: typeof AiRoute
+    }
     '/ai/chat/': {
       id: '/ai/chat/'
       path: '/chat'
@@ -228,16 +278,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AiChatIndexRouteImport
       parentRoute: typeof AiRoute
     }
+    '/ai/chat/$threadId': {
+      id: '/ai/chat/$threadId'
+      path: '/chat/$threadId'
+      fullPath: '/ai/chat/$threadId'
+      preLoaderRoute: typeof AiChatThreadIdRouteImport
+      parentRoute: typeof AiRoute
+    }
   }
 }
 
 interface AiRouteChildren {
+  AiSettingsRoute: typeof AiSettingsRoute
+  AiStatsRoute: typeof AiStatsRoute
   AiIndexRoute: typeof AiIndexRoute
+  AiChatThreadIdRoute: typeof AiChatThreadIdRoute
   AiChatIndexRoute: typeof AiChatIndexRoute
 }
 
 const AiRouteChildren: AiRouteChildren = {
+  AiSettingsRoute: AiSettingsRoute,
+  AiStatsRoute: AiStatsRoute,
   AiIndexRoute: AiIndexRoute,
+  AiChatThreadIdRoute: AiChatThreadIdRoute,
   AiChatIndexRoute: AiChatIndexRoute,
 }
 
