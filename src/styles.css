@@ -160,3 +160,122 @@
     color: var(--color-foreground);
   }
 }
+
+/* ============================================================
+ * Cohere AI — futuristic green/glass theme (scoped)
+ * ============================================================ */
+
+.cohere-app {
+  --background: oklch(0.16 0.02 165);
+  --foreground: oklch(0.97 0.01 160);
+  --card: oklch(0.2 0.03 170);
+  --card-foreground: oklch(0.97 0.01 160);
+  --popover: oklch(0.18 0.03 170);
+  --popover-foreground: oklch(0.97 0.01 160);
+  --primary: oklch(0.78 0.19 158);
+  --primary-foreground: oklch(0.15 0.02 165);
+  --secondary: oklch(0.25 0.03 170);
+  --secondary-foreground: oklch(0.97 0.01 160);
+  --muted: oklch(0.22 0.02 170);
+  --muted-foreground: oklch(0.72 0.02 165);
+  --accent: oklch(0.28 0.05 165);
+  --accent-foreground: oklch(0.97 0.01 160);
+  --destructive: oklch(0.65 0.21 22);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.78 0.19 158 / 18%);
+  --input: oklch(0.78 0.19 158 / 22%);
+  --ring: oklch(0.78 0.19 158);
+  --sidebar: oklch(0.12 0.02 170 / 0.65);
+  --sidebar-foreground: oklch(0.95 0.01 160);
+  --sidebar-primary: oklch(0.78 0.19 158);
+  --sidebar-primary-foreground: oklch(0.15 0.02 165);
+  --sidebar-accent: oklch(0.78 0.19 158 / 12%);
+  --sidebar-accent-foreground: oklch(0.95 0.01 160);
+  --sidebar-border: oklch(0.78 0.19 158 / 12%);
+  --sidebar-ring: oklch(0.78 0.19 158);
+
+  background:
+    radial-gradient(1200px 600px at 10% -10%, oklch(0.3 0.12 165 / 0.35), transparent 60%),
+    radial-gradient(900px 500px at 100% 20%, oklch(0.32 0.1 170 / 0.28), transparent 60%),
+    linear-gradient(180deg, oklch(0.1 0.02 170), oklch(0.08 0.01 170));
+  color: oklch(0.97 0.01 160);
+}
+
+.cohere-app .cohere-sidebar {
+  background:
+    linear-gradient(180deg, oklch(0.12 0.02 170 / 0.85), oklch(0.08 0.01 170 / 0.85));
+  backdrop-filter: blur(18px);
+}
+
+.cohere-app .cohere-card {
+  position: relative;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: linear-gradient(160deg, rgba(16, 185, 129, 0.05), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 12px 40px -20px rgba(16, 185, 129, 0.35);
+  transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+}
+.cohere-app .cohere-card:hover {
+  border-color: rgba(16, 185, 129, 0.35);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 18px 60px -20px rgba(16, 185, 129, 0.55);
+}
+
+.cohere-app .cohere-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: oklch(0.85 0.14 160);
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  backdrop-filter: blur(10px);
+}
+
+.cohere-app .cohere-ghost {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: oklch(0.92 0.05 160);
+}
+.cohere-app .cohere-ghost:hover {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: oklch(0.97 0.05 160);
+}
+
+.cohere-app .cohere-input {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: white;
+}
+.cohere-app .cohere-input:focus-visible {
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.cohere-app .cohere-prompt {
+  border-radius: 1rem;
+  background: linear-gradient(160deg, rgba(16, 185, 129, 0.06), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.05), 0 18px 60px -30px rgba(16, 185, 129, 0.45);
+  backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+.cohere-app .cohere-prompt:focus-within {
+  border-color: rgba(16, 185, 129, 0.55);
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2), 0 18px 60px -25px rgba(16, 185, 129, 0.7);
+}
+
+.cohere-app .cohere-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 185, 129, 0.35) transparent;
+}
