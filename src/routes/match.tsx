@@ -907,7 +907,8 @@ function MatchPage() {
         inv.addCrystals(baseCrystals + stageBonus);
         inv.addWin();
         inv.advanceTournament();
-        if (ranked) {
+        if (ranked && !ratingChangedRef.current) {
+          ratingChangedRef.current = true;
           const res = inv.addRatingWin();
           setRatingDelta(30);
           setRatingAfter(res.rating);
