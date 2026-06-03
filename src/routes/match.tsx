@@ -2534,6 +2534,13 @@ function GoalScene({
     showAction && ballFly
       ? zoneCoords(last!.keeper)
       : { left: "50%", top: "65%" };
+  // Наклон вратаря: при прыжке в левый/правый угол он «лежит» в воздухе.
+  const keeperZoneId = showAction && ballFly ? last!.keeper : null;
+  const keeperCol = keeperZoneId
+    ? ZONES.find((z) => z.id === keeperZoneId)?.col
+    : undefined;
+  const keeperTilt =
+    keeperCol === 0 ? -75 : keeperCol === 2 ? 75 : 0;
 
   const strikerIsPlayer = last?.shooter === "player";
   // During action phases, striker color matches the active shooter
@@ -2657,7 +2664,12 @@ function GoalScene({
         <div
           key={`keeper-${tick}`}
           className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
-          style={{ left: keeperPos.left, top: keeperPos.top }}
+          style={{
+            left: keeperPos.left,
+            top: keeperPos.top,
+            transform: `translate(-50%, -50%) rotate(${keeperTilt}deg)`,
+            transformOrigin: "center",
+          }}
         >
           <PlayerFigure
             color={keeperColor}
