@@ -900,11 +900,14 @@ function MatchPage() {
         matchSettledRef.current = true;
         // Награды масштабируются со стадией турнира (1/16 → Финал = x1 → x3)
         inv.addCoins(Math.round(100 * stageMul));
-        // Кристаллы: базово +1 (+2 за сухой матч), +1 на каждой стадии после 1/16,
-        // +2 на финале сверху — победа в финале должна ощущаться.
-        const baseCrystals = oppScore === 0 ? 3 : 1;
-        const stageBonus = matchStage + (matchStage === 4 ? 2 : 0);
-        inv.addCrystals(baseCrystals + stageBonus);
+        // Кристаллы — редкая премиум-валюта.
+        // Обычная победа не даёт кристаллов; их можно получить только за:
+        //  • сухой матч (без пропущенных): +1
+        //  • поздние стадии турнира: +1 на 1/4, +2 на 1/2, +3 в финале
+        const dryBonus = oppScore === 0 ? 1 : 0;
+        const stageBonus = matchStage >= 4 ? 3 : matchStage >= 3 ? 2 : matchStage >= 2 ? 1 : 0;
+        const totalCrystals = dryBonus + stageBonus;
+        if (totalCrystals > 0) inv.addCrystals(totalCrystals);
         inv.addWin();
         inv.advanceTournament();
         if (ranked && !ratingChangedRef.current) {
@@ -1142,7 +1145,8 @@ function MatchPage() {
           </div>
           <div className="text-[10px] font-medium tracking-widest text-white/70 uppercase">
             Награда: {Math.round(100 * stageMul)} 🪙
-            {matchStage > 0 && ` · +${matchStage + (matchStage === 4 ? 2 : 0)} 💎`}
+            {matchStage >= 2 &&
+              ` · +${matchStage >= 4 ? 3 : matchStage >= 3 ? 2 : 1} 💎`}
             {" · ИИ "}
             {Math.round(stageSmart * 100)}%
           </div>
