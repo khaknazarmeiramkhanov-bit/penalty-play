@@ -888,10 +888,13 @@ function MatchPage() {
       if (!winRewarded.current && playerScore > oppScore) {
         winRewarded.current = true;
         matchSettledRef.current = true;
-        inv.addCoins(100);
-        // Кристаллы за победу: +1 за матч, +2 если соперник не забил (сухой матч)
-        const crystals = oppScore === 0 ? 3 : 1;
-        inv.addCrystals(crystals);
+        // Награды масштабируются со стадией турнира (1/16 → Финал = x1 → x3)
+        inv.addCoins(Math.round(100 * stageMul));
+        // Кристаллы: базово +1 (+2 за сухой матч), +1 на каждой стадии после 1/16,
+        // +2 на финале сверху — победа в финале должна ощущаться.
+        const baseCrystals = oppScore === 0 ? 3 : 1;
+        const stageBonus = matchStage + (matchStage === 4 ? 2 : 0);
+        inv.addCrystals(baseCrystals + stageBonus);
         inv.addWin();
         inv.advanceTournament();
         if (ranked) {
