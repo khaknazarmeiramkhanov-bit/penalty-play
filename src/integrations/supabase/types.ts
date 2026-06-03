@@ -94,16 +94,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      upsert_player_stats: {
-        Args: {
-          p_client_id: string
-          p_losses: number
-          p_matches: number
-          p_name: string
-          p_wins: number
-        }
-        Returns: undefined
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
