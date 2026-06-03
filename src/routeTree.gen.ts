@@ -15,6 +15,7 @@ import { Route as RatingRouteImport } from './routes/rating'
 import { Route as MatchRouteImport } from './routes/match'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const TeamsRoute = TeamsRouteImport.update({
   id: '/teams',
@@ -46,6 +47,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/rating': typeof RatingRoute
   '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/rating': typeof RatingRoute
   '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,13 +79,29 @@ export interface FileRoutesById {
   '/rating': typeof RatingRoute
   '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/match' | '/rating' | '/shop' | '/teams'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/match'
+    | '/rating'
+    | '/shop'
+    | '/teams'
+    | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/match' | '/rating' | '/shop' | '/teams'
-  id: '__root__' | '/' | '/auth' | '/match' | '/rating' | '/shop' | '/teams'
+  to: '/' | '/auth' | '/match' | '/rating' | '/shop' | '/teams' | '/api/chat'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/match'
+    | '/rating'
+    | '/shop'
+    | '/teams'
+    | '/api/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -87,6 +111,7 @@ export interface RootRouteChildren {
   RatingRoute: typeof RatingRoute
   ShopRoute: typeof ShopRoute
   TeamsRoute: typeof TeamsRoute
+  ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -133,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -143,6 +175,7 @@ const rootRouteChildren: RootRouteChildren = {
   RatingRoute: RatingRoute,
   ShopRoute: ShopRoute,
   TeamsRoute: TeamsRoute,
+  ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
