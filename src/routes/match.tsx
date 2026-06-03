@@ -238,6 +238,9 @@ function MatchPage() {
   };
   const winRewarded = useRef(false);
   const matchSettledRef = useRef(false);
+  // Защита от двойного изменения рейтинга в одном матче
+  // (на случай повторного срабатывания unmount-cleanup или race-condition)
+  const ratingChangedRef = useRef(false);
   const navigate = useNavigate();
 
   const [round, setRound] = useState(1);
@@ -914,7 +917,8 @@ function MatchPage() {
         matchSettledRef.current = true;
         inv.addLoss();
         inv.resetTournament();
-        if (ranked) {
+        if (ranked && !ratingChangedRef.current) {
+          ratingChangedRef.current = true;
           const after = inv.addRatingLoss();
           setRatingDelta(-40);
           setRatingAfter(after);
@@ -958,6 +962,9 @@ function MatchPage() {
     setRatingAfter(null);
     setRatingClaimed([]);
     setOppTeam(pickOpponent(team));
+    // Сбрасываем флаги завершения матча — это новый матч
+    matchSettledRef.current = false;
+    ratingChangedRef.current = false;
   }
 
   // Засчитываем поражение, если игрок выходит из не завершённого
@@ -967,7 +974,10 @@ function MatchPage() {
     matchSettledRef.current = true;
     inv.addLoss();
     inv.resetTournament();
-    if (ranked) inv.addRatingLoss();
+    if (ranked && !ratingChangedRef.current) {
+      ratingChangedRef.current = true;
+      inv.addRatingLoss();
+    }
   }
 
   function handleExit(to: "/" | "/teams") {
