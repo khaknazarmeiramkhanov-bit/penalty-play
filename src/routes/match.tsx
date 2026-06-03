@@ -621,9 +621,6 @@ function MatchPage() {
     setPhase("result");
     setResultLocked(true);
     window.setTimeout(() => setResultLocked(false), 4000);
-    if (scored) playGoalSound();
-    else if (oppOffTargetFinal) playMissSound();
-    else playSaveSound();
     if (scored) {
       // Опп-Викинги: первый гол приносит +2
       const oppVikingDouble =
