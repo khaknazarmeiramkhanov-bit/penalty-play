@@ -14,8 +14,11 @@ import { Route as ShopRouteImport } from './routes/shop'
 import { Route as RatingRouteImport } from './routes/rating'
 import { Route as MatchRouteImport } from './routes/match'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AiRouteImport } from './routes/ai'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AiIndexRouteImport } from './routes/ai.index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AiChatIndexRouteImport } from './routes/ai.chat.index'
 
 const TeamsRoute = TeamsRouteImport.update({
   id: '/teams',
@@ -42,25 +45,43 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiRoute = AiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AiIndexRoute = AiIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AiRoute,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiChatIndexRoute = AiChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => AiRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai': typeof AiRouteWithChildren
   '/auth': typeof AuthRoute
   '/match': typeof MatchRoute
   '/rating': typeof RatingRoute
   '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
   '/api/chat': typeof ApiChatRoute
+  '/ai/': typeof AiIndexRoute
+  '/ai/chat/': typeof AiChatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,31 +91,37 @@ export interface FileRoutesByTo {
   '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
   '/api/chat': typeof ApiChatRoute
+  '/ai': typeof AiIndexRoute
+  '/ai/chat': typeof AiChatIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai': typeof AiRouteWithChildren
   '/auth': typeof AuthRoute
   '/match': typeof MatchRoute
   '/rating': typeof RatingRoute
   '/shop': typeof ShopRoute
   '/teams': typeof TeamsRoute
   '/api/chat': typeof ApiChatRoute
+  '/ai/': typeof AiIndexRoute
+  '/ai/chat/': typeof AiChatIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai'
     | '/auth'
     | '/match'
     | '/rating'
     | '/shop'
     | '/teams'
     | '/api/chat'
+    | '/ai/'
+    | '/ai/chat/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/match' | '/rating' | '/shop' | '/teams' | '/api/chat'
-  id:
-    | '__root__'
+  to:
     | '/'
     | '/auth'
     | '/match'
@@ -102,10 +129,25 @@ export interface FileRouteTypes {
     | '/shop'
     | '/teams'
     | '/api/chat'
+    | '/ai'
+    | '/ai/chat'
+  id:
+    | '__root__'
+    | '/'
+    | '/ai'
+    | '/auth'
+    | '/match'
+    | '/rating'
+    | '/shop'
+    | '/teams'
+    | '/api/chat'
+    | '/ai/'
+    | '/ai/chat/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiRoute: typeof AiRouteWithChildren
   AuthRoute: typeof AuthRoute
   MatchRoute: typeof MatchRoute
   RatingRoute: typeof RatingRoute
@@ -151,12 +193,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai': {
+      id: '/ai'
+      path: '/ai'
+      fullPath: '/ai'
+      preLoaderRoute: typeof AiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/ai/': {
+      id: '/ai/'
+      path: '/'
+      fullPath: '/ai/'
+      preLoaderRoute: typeof AiIndexRouteImport
+      parentRoute: typeof AiRoute
     }
     '/api/chat': {
       id: '/api/chat'
@@ -165,11 +221,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai/chat/': {
+      id: '/ai/chat/'
+      path: '/chat'
+      fullPath: '/ai/chat/'
+      preLoaderRoute: typeof AiChatIndexRouteImport
+      parentRoute: typeof AiRoute
+    }
   }
 }
 
+interface AiRouteChildren {
+  AiIndexRoute: typeof AiIndexRoute
+  AiChatIndexRoute: typeof AiChatIndexRoute
+}
+
+const AiRouteChildren: AiRouteChildren = {
+  AiIndexRoute: AiIndexRoute,
+  AiChatIndexRoute: AiChatIndexRoute,
+}
+
+const AiRouteWithChildren = AiRoute._addFileChildren(AiRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiRoute: AiRouteWithChildren,
   AuthRoute: AuthRoute,
   MatchRoute: MatchRoute,
   RatingRoute: RatingRoute,
@@ -180,3 +256,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
