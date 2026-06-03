@@ -2526,21 +2526,9 @@ function GoalScene({
 
   const showAction = phase === "result" && last;
   const ballPos = showAction ? zoneCoords(last!.shot) : null;
-  // Вратарь прыгает ТОЛЬКО когда летит мяч — иначе по позиции вратаря
-  // до удара можно было угадать, в какую сторону он пойдёт.
-  // Вратарь прыгает в выбранную зону (по обеим осям), чтобы было видно,
-  // действительно ли он дотянулся до мяча. До удара стоит по центру.
-  const keeperPos =
-    showAction && ballFly
-      ? zoneCoords(last!.keeper)
-      : { left: "50%", top: "65%" };
-  // Наклон вратаря: при прыжке в левый/правый угол он «лежит» в воздухе.
-  const keeperZoneId = showAction && ballFly ? last!.keeper : null;
-  const keeperCol = keeperZoneId
-    ? ZONES.find((z) => z.id === keeperZoneId)?.col
-    : undefined;
-  const keeperTilt =
-    keeperCol === 0 ? -75 : keeperCol === 2 ? 75 : 0;
+  // Вратарь всегда остаётся на месте после удара.
+  const keeperPos = { left: "50%", top: "65%" };
+  const keeperTilt = 0;
 
   const strikerIsPlayer = last?.shooter === "player";
   // During action phases, striker color matches the active shooter
