@@ -11,7 +11,7 @@ This is a TanStack Start SSR app built with Vite and Nitro. The Vercel build nee
 - Root directory: repository root
 - Node.js version: 22.x
 
-`vercel.json` intentionally stays minimal and only sets install/build commands. `nitro.config.ts` sets `preset: "vercel"`.
+`vercel.json` intentionally stays minimal and only sets install/build commands. `vite.config.ts` enables Nitro with `preset: "vercel"`, so `npm run build` generates `.vercel/output` for Vercel.
 
 ## Environment Variables
 

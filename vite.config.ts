@@ -7,9 +7,19 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  nitro: {
+    preset: "vercel",
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
+  },
+  vite: {
+    server: {
+      // The local browser/proxy stack can send malformed compressed HMR frames
+      // (WS_ERR_UNEXPECTED_RSV_1). Production builds are unaffected.
+      hmr: false,
+    },
   },
 });

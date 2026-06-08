@@ -498,35 +498,51 @@ const initial: Store = {
   achievementsClaimed: [],
 };
 
+function cloneInitial(): Store {
+  return {
+    ...initial,
+    owned: [...initial.owned],
+    equipped: { ...initial.equipped },
+    perks: { ...initial.perks },
+    ownedTeams: [...initial.ownedTeams],
+    ratingClaimed: [...initial.ratingClaimed],
+    achievementsClaimed: [...initial.achievementsClaimed],
+  };
+}
+
+function safeNumber(value: unknown, fallback: number, min = 0): number {
+  return typeof value === "number" && Number.isFinite(value) && value >= min ? value : fallback;
+}
+
 function read(): Store {
-  if (typeof window === "undefined") return initial;
+  if (typeof window === "undefined") return cloneInitial();
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return initial;
+    if (!raw) return cloneInitial();
     const parsed = JSON.parse(raw) as Partial<Store>;
     return {
-      coins: parsed.coins ?? initial.coins,
-      crystals: parsed.crystals ?? initial.crystals,
+      coins: safeNumber(parsed.coins, initial.coins),
+      crystals: safeNumber(parsed.crystals, initial.crystals),
       owned: Array.from(new Set([...initial.owned, ...(parsed.owned ?? [])])),
       equipped: { ...DEFAULT_EQUIPPED, ...(parsed.equipped ?? {}) },
       perks: { ...initial.perks, ...(parsed.perks ?? {}) },
       ownedTeams: parsed.ownedTeams ?? initial.ownedTeams,
-      wins: parsed.wins ?? initial.wins,
-      losses: parsed.losses ?? initial.losses,
-      matches: parsed.matches ?? initial.matches,
-      spentCoins: parsed.spentCoins ?? initial.spentCoins,
+      wins: safeNumber(parsed.wins, initial.wins),
+      losses: safeNumber(parsed.losses, initial.losses),
+      matches: safeNumber(parsed.matches, initial.matches),
+      spentCoins: safeNumber(parsed.spentCoins, initial.spentCoins),
       sponsor: parsed.sponsor ?? initial.sponsor,
       playerName: parsed.playerName ?? initial.playerName,
-      tournamentStage: parsed.tournamentStage ?? initial.tournamentStage,
-      tournamentTitles: parsed.tournamentTitles ?? initial.tournamentTitles,
-      rating: parsed.rating ?? initial.rating,
+      tournamentStage: safeNumber(parsed.tournamentStage, initial.tournamentStage),
+      tournamentTitles: safeNumber(parsed.tournamentTitles, initial.tournamentTitles),
+      rating: safeNumber(parsed.rating, initial.rating),
       ratingClaimed: parsed.ratingClaimed ?? initial.ratingClaimed,
       dailyLastClaim: parsed.dailyLastClaim ?? initial.dailyLastClaim,
-      dailyStreak: parsed.dailyStreak ?? initial.dailyStreak,
+      dailyStreak: Math.min(7, safeNumber(parsed.dailyStreak, initial.dailyStreak)),
       achievementsClaimed: parsed.achievementsClaimed ?? initial.achievementsClaimed,
     };
   } catch {
-    return initial;
+    return cloneInitial();
   }
 }
 
@@ -744,7 +760,7 @@ export function useInventory() {
     return true;
   }, []);
 
-  const reset = useCallback(() => write(initial), []);
+  const reset = useCallback(() => write(cloneInitial()), []);
 
   return {
     ...store,
