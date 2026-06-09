@@ -242,12 +242,17 @@ function Index() {
         {/* Auth chip */}
         <div className="absolute top-4 right-4 flex gap-2">
           {user ? (
-            <button
-              onClick={handleLogout}
-              className="rounded-lg border-2 border-white/20 bg-black/40 px-3 py-1.5 text-xs font-black tracking-widest text-white uppercase hover:border-[#ccff00] hover:text-[#ccff00]"
-            >
-              Выйти
-            </button>
+            <div className="flex max-w-[calc(100vw-2rem)] items-center gap-2 rounded-lg border-2 border-white/20 bg-black/40 px-3 py-1.5">
+              <span className="max-w-[46vw] truncate text-xs font-black tracking-wide text-white uppercase">
+                {user.email}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="shrink-0 text-xs font-black tracking-widest text-white uppercase hover:text-[#ccff00]"
+              >
+                Выйти
+              </button>
+            </div>
           ) : (
             <Link
               to="/auth"
