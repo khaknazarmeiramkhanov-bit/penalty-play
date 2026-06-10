@@ -21,7 +21,9 @@ function getAudioCtx(): AudioContext | null {
   if (typeof window === "undefined") return null;
   try {
     if (!_audioCtx) {
-      const Ctor = (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
+      const Ctor =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       _audioCtx = new Ctor();
     }
     if (_audioCtx.state === "suspended") _audioCtx.resume().catch(() => {});
@@ -45,7 +47,8 @@ function tone(
   const g = ctx.createGain();
   osc.type = type;
   osc.frequency.setValueAtTime(freq, t0);
-  if (freqEnd !== undefined) osc.frequency.exponentialRampToValueAtTime(Math.max(1, freqEnd), t0 + duration);
+  if (freqEnd !== undefined)
+    osc.frequency.exponentialRampToValueAtTime(Math.max(1, freqEnd), t0 + duration);
   g.gain.setValueAtTime(0.0001, t0);
   g.gain.exponentialRampToValueAtTime(gain, t0 + 0.02);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
@@ -79,17 +82,14 @@ const OPPONENT_FALLBACK_COLOR = "#dc2626";
 
 // Влияние погоды на игру: шанс промаха бьющего и шанс,
 // что вратарь прыгнет не туда (обзор/скользко/слепит).
-const WEATHER_EFFECT: Record<
-  WeatherKind,
-  { off: number; keeperMiss: number; label: string }
-> = {
+const WEATHER_EFFECT: Record<WeatherKind, { off: number; keeperMiss: number; label: string }> = {
   day: { off: 0.05, keeperMiss: 0.05, label: "☀️ Палящее солнце мешает" },
-  sunset: { off: 0.10, keeperMiss: 0.10, label: "🌅 Закат слепит" },
+  sunset: { off: 0.1, keeperMiss: 0.1, label: "🌅 Закат слепит" },
   night: { off: 0.08, keeperMiss: 0.15, label: "🌙 Темнота мешает" },
   rain: { off: 0.12, keeperMiss: 0.12, label: "🌧️ Скользкое поле" },
   storm: { off: 0.18, keeperMiss: 0.15, label: "⛈️ Буря сбивает удар" },
-  snow: { off: 0.12, keeperMiss: 0.10, label: "❄️ Снег мешает игре" },
-  fog: { off: 0.08, keeperMiss: 0.20, label: "🌫️ Туман — плохая видимость" },
+  snow: { off: 0.12, keeperMiss: 0.1, label: "❄️ Снег мешает игре" },
+  fog: { off: 0.08, keeperMiss: 0.2, label: "🌫️ Туман — плохая видимость" },
 };
 
 function pickOpponent(playerTeam: string): string {
@@ -252,24 +252,29 @@ function MatchPage() {
   const inv = useInventory();
   // Стадия фиксируется на момент старта матча — продвижение после победы
   // не должно менять параметры текущего матча.
-  const [matchStage] = useState<number>(() => Math.min(inv.tournamentStage ?? 0, 4));
+  const [matchStage, setMatchStage] = useState<number | null>(null);
+  useEffect(() => {
+    if (!inv.hydrated || matchStage !== null) return;
+    setMatchStage(Math.min(inv.tournamentStage ?? 0, 4));
+  }, [inv.hydrated, inv.tournamentStage, matchStage]);
+  const activeMatchStage = matchStage ?? 0;
   const STAGE_LABELS_FULL = ["1/16 финала", "1/8 финала", "1/4 финала", "Полуфинал", "ФИНАЛ"];
   const STAGE_SHORT = ["1/16", "1/8", "1/4", "1/2", "ФИНАЛ"];
   const STAGE_COLORS = ["#94a3b8", "#7dd3fc", "#a3e635", "#fbbf24", "#f43f5e"];
-  const stageColor = STAGE_COLORS[matchStage];
-  const stageLabel = STAGE_LABELS_FULL[matchStage];
-  const stageShort = STAGE_SHORT[matchStage];
+  const stageColor = STAGE_COLORS[activeMatchStage];
+  const stageLabel = STAGE_LABELS_FULL[activeMatchStage];
+  const stageShort = STAGE_SHORT[activeMatchStage];
   // Множитель наград: 1.0 → 3.0 от 1/16 к финалу
-  const stageMul = 1 + matchStage * 0.5;
+  const stageMul = 1 + activeMatchStage * 0.5;
   // Умность ИИ соперника растёт по мере приближения к финалу:
   // 1/16 → 40%, 1/8 → 55%, 1/4 → 68%, 1/2 → 80%, Финал → 90%.
-  const stageSmart = [0.40, 0.55, 0.68, 0.80, 0.90][matchStage] ?? 0.40;
+  const stageSmart = [0.4, 0.55, 0.68, 0.8, 0.9][activeMatchStage] ?? 0.4;
   // Дополнительный шанс автосейва у вратаря соперника (растёт к финалу):
   // 0%, 5%, 10%, 18%, 28%.
-  const stageOppExtraSave = [0.00, 0.05, 0.10, 0.18, 0.28][matchStage] ?? 0;
+  const stageOppExtraSave = [0.0, 0.05, 0.1, 0.18, 0.28][activeMatchStage] ?? 0;
   // Снижение шанса промаха соперника мимо ворот (точнее бьёт к финалу):
   // 0, -2%, -4%, -6%, -8% (минимум 2%).
-  const stageOppAccuracyBoost = [0.00, 0.02, 0.04, 0.06, 0.08][matchStage] ?? 0;
+  const stageOppAccuracyBoost = [0.0, 0.02, 0.04, 0.06, 0.08][activeMatchStage] ?? 0;
   const [ratingDelta, setRatingDelta] = useState<number | null>(null);
   const [ratingAfter, setRatingAfter] = useState<number | null>(null);
   const [ratingClaimed, setRatingClaimed] = useState<RatingMilestone[]>([]);
@@ -285,8 +290,7 @@ function MatchPage() {
   const equippedBoot = getItem(inv.equipped.boot);
   const equippedBand = getItem(inv.equipped.wristband);
   const equippedSock = getItem(inv.equipped.sock);
-  const equippedBall =
-    getItem(inv.equipped.ball) ?? getItem(DEFAULT_EQUIPPED.ball)!;
+  const equippedBall = getItem(inv.equipped.ball) ?? getItem(DEFAULT_EQUIPPED.ball)!;
   const tGlove = teamGlove(team);
   const gear = {
     gloveColor: resolveColor(equippedGlove?.color ?? tGlove.color, tColor),
@@ -318,15 +322,7 @@ function MatchPage() {
   // — у бьющего повышается шанс промаха мимо ворот;
   // — вратарь может прыгнуть не в ту сторону (плохая видимость / скользко).
   const [weather] = useState<WeatherKind>(() => {
-    const kinds: WeatherKind[] = [
-      "day",
-      "sunset",
-      "night",
-      "rain",
-      "storm",
-      "snow",
-      "fog",
-    ];
+    const kinds: WeatherKind[] = ["day", "sunset", "night", "rain", "storm", "snow", "fog"];
     return kinds[Math.floor(Math.random() * kinds.length)];
   });
 
@@ -441,23 +437,22 @@ function MatchPage() {
     const oppGorillaHit = oppTeam === "Гориллы" && shotMeta.row === 1 && Math.random() < 0.3;
     const oppCheetahHit = oppTeam === "Гепарды" && Math.random() < 0.3;
     // Зебры (у соперника): каждый 3-й удар — гарантия
-    const oppZebraHit =
-      oppTeam === "Зебры" && (oppShotHistory.current.length % 3 === 0);
+    const oppZebraHit = oppTeam === "Зебры" && oppShotHistory.current.length % 3 === 0;
     // Соколы (у соперника): по углам +30%
-    const oppFalconHit =
-      oppTeam === "Соколы" && shotMeta.col !== 1 && Math.random() < 0.3;
+    const oppFalconHit = oppTeam === "Соколы" && shotMeta.col !== 1 && Math.random() < 0.3;
     const oppKeeperBypass =
-      oppCondorHit || oppFoxHit || oppIguanaHit || oppGorillaHit || oppCheetahHit ||
-      oppZebraHit || oppFalconHit;
-    const offChance = Math.max(
-      0.02,
-      (wolves ? 0.25 : 0.1) - stageOppAccuracyBoost,
-    );
+      oppCondorHit ||
+      oppFoxHit ||
+      oppIguanaHit ||
+      oppGorillaHit ||
+      oppCheetahHit ||
+      oppZebraHit ||
+      oppFalconHit;
+    const offChance = Math.max(0.02, (wolves ? 0.25 : 0.1) - stageOppAccuracyBoost);
     const frostHit = frostForceOff && Math.random() < 0.4;
     const oppPhoenixSafe = oppTeam === "Фениксы" && oppPhoenixRebornArmed.current;
     // Призраки (у игрока): первый удар соперника в матче — мимо
-    const ghostFearForce =
-      team === "Призраки" && !ghostFearUsed.current;
+    const ghostFearForce = team === "Призраки" && !ghostFearUsed.current;
     // Черепахи (у игрока): после гола соперника — следующий удар мимо
     const turtleForce = team === "Черепахи" && turtleArmed.current;
     let offTarget =
@@ -516,11 +511,8 @@ function MatchPage() {
     let scored = !oppOffTargetFinal && shot !== effectiveKeeper;
     // 🌦️ Погода: вратарь хуже видит/держит мяч — шанс «обмануть» вратаря.
     let oppWeatherKeeper = false;
-    let keeperWasSavedByPlayer = !oppOffTargetFinal && !scored && !autoSave;
-    if (
-      keeperWasSavedByPlayer &&
-      Math.random() < WEATHER_EFFECT[weather].keeperMiss
-    ) {
+    const keeperWasSavedByPlayer = !oppOffTargetFinal && !scored && !autoSave;
+    if (keeperWasSavedByPlayer && Math.random() < WEATHER_EFFECT[weather].keeperMiss) {
       scored = true;
       oppWeatherKeeper = true;
     }
@@ -555,9 +547,7 @@ function MatchPage() {
     } else if (scored && team === "Архангелы" && archangelCancels.current < 2) {
       archangelCancels.current += 1;
       scored = false;
-      setAbilityFlash(
-        `😇 Святой щит! Гол отменён (${archangelCancels.current}/2)`,
-      );
+      setAbilityFlash(`😇 Святой щит! Гол отменён (${archangelCancels.current}/2)`);
     } else if (autoSave && colossusSave) {
       setAbilityFlash("🗿 Каменный щит! Автосейв");
     } else if (frostHit) {
@@ -608,7 +598,8 @@ function MatchPage() {
     // 🌦️ Погода берёт верх над обычным сообщением, если именно она
     // решила исход удара.
     if (oppWeatherMiss) setAbilityFlash(WEATHER_EFFECT[weather].label + " — соперник мимо");
-    else if (oppWeatherKeeper) setAbilityFlash(WEATHER_EFFECT[weather].label + " — вратарь обманут");
+    else if (oppWeatherKeeper)
+      setAbilityFlash(WEATHER_EFFECT[weather].label + " — вратарь обманут");
     if (frostForceOff) reindeerFrostArmed.current = false;
     if (oppFoxFintArmed.current) oppFoxFintArmed.current = false;
     if (oppIguanaArmed.current) oppIguanaArmed.current = false;
@@ -617,14 +608,19 @@ function MatchPage() {
     if (ghostFearForce) ghostFearUsed.current = true;
     if (turtleForce) turtleArmed.current = false;
 
-    setLast({ shooter: "opponent", shot, keeper: effectiveKeeper, scored, offTarget: oppOffTargetFinal });
+    setLast({
+      shooter: "opponent",
+      shot,
+      keeper: effectiveKeeper,
+      scored,
+      offTarget: oppOffTargetFinal,
+    });
     setPhase("result");
     setResultLocked(true);
     window.setTimeout(() => setResultLocked(false), 4000);
     if (scored) {
       // Опп-Викинги: первый гол приносит +2
-      const oppVikingDouble =
-        oppTeam === "Викинги" && !oppVikingsDoubleUsed.current;
+      const oppVikingDouble = oppTeam === "Викинги" && !oppVikingsDoubleUsed.current;
       if (oppVikingDouble) oppVikingsDoubleUsed.current = true;
       setOppScore((s) => s + (oppVikingDouble ? 2 : 1));
       if (oppVikingDouble) setAbilityFlash(`${oppEmoji} ${oppTeam}: двойной гол!`);
@@ -661,8 +657,7 @@ function MatchPage() {
     const cheetahs = team === "Гепарды"; // 30% вратарь не успевает
     const phoenixes = team === "Фениксы"; // после промаха — следующий точно в створ
     // Призраки (у соперника): первый твой удар в матче — мимо
-    const oppGhostFearForce =
-      oppTeam === "Призраки" && !oppGhostFearUsed.current;
+    const oppGhostFearForce = oppTeam === "Призраки" && !oppGhostFearUsed.current;
     // Черепахи (у соперника): после нашего гола — наш следующий удар мимо
     const oppTurtleForce = oppTeam === "Черепахи" && oppTurtleArmed.current;
 
@@ -694,11 +689,9 @@ function MatchPage() {
     // Гепарды: вратарь не успевает
     const cheetahHit = cheetahs && Math.random() < 0.3;
     // Зебры: каждый 3-й удар — гарантированный гол
-    const zebraHit =
-      team === "Зебры" && (playerShotHistory.current.length % 3 === 0);
+    const zebraHit = team === "Зебры" && playerShotHistory.current.length % 3 === 0;
     // Соколы: боковые углы — +30% обмануть вратаря
-    const falconHit =
-      team === "Соколы" && shotMeta.col !== 1 && Math.random() < 0.3;
+    const falconHit = team === "Соколы" && shotMeta.col !== 1 && Math.random() < 0.3;
     // 🪐 Нибиру: 50% обмануть вратаря в любой зоне
     const nibiruHit = team === "Нибиру" && Math.random() < 0.5;
     // Перк "Удар по углам" — общий шанс что вратарь прыгнет не туда
@@ -748,18 +741,18 @@ function MatchPage() {
       oppGhostFearForce || oppTurtleForce
         ? true
         : dragons ||
-      condorHit ||
-      iguanaHit ||
-      foxHit ||
-      perkGoalHit ||
-      gorillaHit ||
-      cheetahHit ||
-      zebraHit ||
-      falconHit ||
-      nibiruHit ||
-      phoenixSafe
-        ? false
-        : oppFrostHit || wolvesOff || Math.random() < baseOff;
+            condorHit ||
+            iguanaHit ||
+            foxHit ||
+            perkGoalHit ||
+            gorillaHit ||
+            cheetahHit ||
+            zebraHit ||
+            falconHit ||
+            nibiruHit ||
+            phoenixSafe
+          ? false
+          : oppFrostHit || wolvesOff || Math.random() < baseOff;
     // 🌦️ Погода мешает и тебе: дополнительный шанс пробить мимо,
     // если способность не гарантирует попадание в створ.
     let weatherStrikerMiss = false;
@@ -813,12 +806,7 @@ function MatchPage() {
     }
     // 🐙 Кракены: раз за матч — повторный удар после сейва
     let krakenReboundFlash = false;
-    if (
-      team === "Кракены" &&
-      !krakenReboundUsed.current &&
-      !offTarget &&
-      !scored
-    ) {
+    if (team === "Кракены" && !krakenReboundUsed.current && !offTarget && !scored) {
       krakenReboundUsed.current = true;
       const others = ALL_ZONES.filter((z) => z !== playerShot);
       keeper = others[Math.floor(Math.random() * others.length)];
@@ -851,9 +839,7 @@ function MatchPage() {
     } else if (nibiruHit && scored) {
       setAbilityFlash("🪐 Гравитация! Мяч искривил траекторию");
     } else if (scorpionRecover) {
-      setAbilityFlash(
-        scored ? "🦂 Жало! Закрутка — гол" : "🦂 Жало! Закрутка спасена вратарём",
-      );
+      setAbilityFlash(scored ? "🦂 Жало! Закрутка — гол" : "🦂 Жало! Закрутка спасена вратарём");
     } else if (krakenReboundFlash) {
       setAbilityFlash(scored ? "🐙 Второй шанс! Гол с добивания" : "🐙 Второй шанс... мимо");
     } else if (oppGhostFearForce) {
@@ -887,7 +873,8 @@ function MatchPage() {
     }
     // 🌦️ Погода важнее обычного флеша, если именно она решила исход.
     if (weatherStrikerMiss) setAbilityFlash(WEATHER_EFFECT[weather].label + " — мимо");
-    else if (weatherKeeperMiss) setAbilityFlash(WEATHER_EFFECT[weather].label + " — вратарь обманут");
+    else if (weatherKeeperMiss)
+      setAbilityFlash(WEATHER_EFFECT[weather].label + " — вратарь обманут");
     // Бабочки (наши/соперника): 15% инверсия
     if (butterflies && Math.random() < 0.15) {
       scored = !scored;
@@ -906,9 +893,7 @@ function MatchPage() {
     if (scored && oppTeam === "Архангелы" && oppArchangelCancels.current < 2) {
       oppArchangelCancels.current += 1;
       scored = false;
-      setAbilityFlash(
-        `${oppEmoji} ${oppTeam}: святой щит (${oppArchangelCancels.current}/2)`,
-      );
+      setAbilityFlash(`${oppEmoji} ${oppTeam}: святой щит (${oppArchangelCancels.current}/2)`);
     }
     // Способность всегда тратится, попала она или нет
     if (iguanaShot) iguanaArmed.current = false;
@@ -971,7 +956,8 @@ function MatchPage() {
         //  • сухой матч (без пропущенных): +1
         //  • поздние стадии турнира: +1 на 1/4, +2 на 1/2, +3 в финале
         const dryBonus = oppScore === 0 ? 1 : 0;
-        const stageBonus = matchStage >= 4 ? 3 : matchStage >= 3 ? 2 : matchStage >= 2 ? 1 : 0;
+        const stageBonus =
+          activeMatchStage >= 4 ? 3 : activeMatchStage >= 3 ? 2 : activeMatchStage >= 2 ? 1 : 0;
         const totalCrystals = dryBonus + stageBonus;
         if (totalCrystals > 0) inv.addCrystals(totalCrystals);
         inv.addWin();
@@ -1078,6 +1064,19 @@ function MatchPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ranked]);
 
+  if (!inv.hydrated || matchStage === null) {
+    return (
+      <main
+        className="flex min-h-screen w-full items-center justify-center px-4 text-center"
+        style={{ backgroundColor: "#0d5c2a", fontFamily: "'Kanit', sans-serif" }}
+      >
+        <div className="rounded-xl bg-black/40 px-6 py-4 text-sm font-black tracking-[0.2em] text-white uppercase">
+          Загрузка матча...
+        </div>
+      </main>
+    );
+  }
+
   const isSudden = round > MIN_ROUNDS;
 
   return (
@@ -1123,14 +1122,28 @@ function MatchPage() {
                   {WEATHER_EFFECT[weather].label}
                 </span>
                 <span className="text-[10px] font-bold tracking-wider text-white/70">
-                  −{Math.round(WEATHER_EFFECT[weather].off * 100)}% удар / −{Math.round(WEATHER_EFFECT[weather].keeperMiss * 100)}% вратарь
+                  −{Math.round(WEATHER_EFFECT[weather].off * 100)}% удар / −
+                  {Math.round(WEATHER_EFFECT[weather].keeperMiss * 100)}% вратарь
                 </span>
               </div>
             </TooltipTrigger>
-            <TooltipContent side="bottom" className="max-w-[260px] space-y-1 border-2 border-blue-400 bg-black/90 text-center text-white">
+            <TooltipContent
+              side="bottom"
+              className="max-w-[260px] space-y-1 border-2 border-blue-400 bg-black/90 text-center text-white"
+            >
               <p className="text-xs font-bold text-blue-300">Погодные штрафы перед ударом</p>
-              <p className="text-[11px]">Шанс промаха бьющего: <span className="font-bold text-red-400">+{Math.round(WEATHER_EFFECT[weather].off * 100)}%</span></p>
-              <p className="text-[11px]">Шанс, что вратарь ошибётся: <span className="font-bold text-red-400">+{Math.round(WEATHER_EFFECT[weather].keeperMiss * 100)}%</span></p>
+              <p className="text-[11px]">
+                Шанс промаха бьющего:{" "}
+                <span className="font-bold text-red-400">
+                  +{Math.round(WEATHER_EFFECT[weather].off * 100)}%
+                </span>
+              </p>
+              <p className="text-[11px]">
+                Шанс, что вратарь ошибётся:{" "}
+                <span className="font-bold text-red-400">
+                  +{Math.round(WEATHER_EFFECT[weather].keeperMiss * 100)}%
+                </span>
+              </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -1151,9 +1164,7 @@ function MatchPage() {
               title="Рейтинг"
             >
               <span className="text-base">📈</span>
-              <span className="text-xs tracking-[0.15em] uppercase">
-                {inv.rating ?? 1000}
-              </span>
+              <span className="text-xs tracking-[0.15em] uppercase">{inv.rating ?? 1000}</span>
             </div>
           )}
           <div
@@ -1162,11 +1173,11 @@ function MatchPage() {
               backgroundColor: stageColor,
               border: `2px solid ${stageColor}`,
               boxShadow: `0 0 8px ${stageColor}, 0 0 16px ${stageColor}80`,
-              animation: matchStage >= 3 ? "neonPulse 1.6s ease-in-out infinite" : undefined,
+              animation: activeMatchStage >= 3 ? "neonPulse 1.6s ease-in-out infinite" : undefined,
             }}
             title={`Стадия турнира · награда x${stageMul}`}
           >
-            <span className="text-base">{matchStage === 4 ? "👑" : "🏆"}</span>
+            <span className="text-base">{activeMatchStage === 4 ? "👑" : "🏆"}</span>
             <span className="text-xs tracking-[0.15em] uppercase">{stageShort}</span>
             <span className="text-[10px] tracking-wider opacity-70">x{stageMul}</span>
           </div>
@@ -1211,8 +1222,8 @@ function MatchPage() {
           </div>
           <div className="text-[10px] font-medium tracking-widest text-white/70 uppercase">
             Награда: {Math.round(100 * stageMul)} 🪙
-            {matchStage >= 2 &&
-              ` · +${matchStage >= 4 ? 3 : matchStage >= 3 ? 2 : 1} 💎`}
+            {activeMatchStage >= 2 &&
+              ` · +${activeMatchStage >= 4 ? 3 : activeMatchStage >= 3 ? 2 : 1} 💎`}
             {" · ИИ "}
             {Math.round(stageSmart * 100)}%
           </div>
@@ -1894,6 +1905,7 @@ function PlayerFigure({
   size = 44,
   emotion = "neutral",
   kicking = false,
+  motion = "idle",
   gear = DEFAULT_GEAR,
   sponsor,
 }: {
@@ -1902,6 +1914,7 @@ function PlayerFigure({
   size?: number;
   emotion?: "neutral" | "happy" | "sad";
   kicking?: boolean;
+  motion?: "idle" | "windup" | "kick" | "ready" | "dive";
   gear?: Gear;
   sponsor?: Sponsor;
 }) {
@@ -1941,6 +1954,11 @@ function PlayerFigure({
   const usesRainbowBand = bandColor.includes("rainbowGrad");
   const resolvedBand = usesRainbowBand ? `url(#${rainbowId})` : bandColor;
   const browTilt = emotion === "sad" ? -10 : emotion === "happy" ? 8 : 0;
+  const rigClass = `player-rig player-rig-${pose} player-rig-${motion} player-rig-${emotion}`;
+  const headClass = `player-head player-head-${motion} player-head-${emotion}`;
+  const torsoClass = `player-torso player-torso-${motion}`;
+  const armsClass = `player-arms player-arms-${pose} player-arms-${motion}`;
+  const legsClass = `player-legs player-legs-${pose} player-legs-${motion}`;
 
   return (
     <svg
@@ -1973,485 +1991,520 @@ function PlayerFigure({
       </defs>
 
       {/* ground shadow */}
-      <ellipse cx="45" cy="126" rx="24" ry="3" fill="rgba(0,0,0,0.35)" />
-
-      {/* === HEAD === */}
-      {/* Hair back layer (varies by style) */}
-      {hairStyle === "sidepart" && (
-        <path d="M33 18 Q33 7 45 7 Q57 7 57 18 L57 24 L33 24 Z" fill={hair} />
-      )}
-      {hairStyle === "slickback" && (
-        <path d="M32 18 Q32 5 45 5 Q58 5 58 18 L60 24 L58 28 L32 28 L30 24 Z" fill={hair} />
-      )}
-      {hairStyle === "short" && (
-        <path d="M32 18 Q32 7 45 7 Q58 7 58 18 L58 24 L32 24 Z" fill={hair} />
-      )}
-      {hairStyle === "mohawk" && (
-        <path d="M42 4 Q45 0 48 4 L48 18 L42 18 Z" fill={hair} />
-      )}
-      {hairStyle === "buzz" && (
-        <path d="M34 16 Q34 9 45 9 Q56 9 56 16 L56 20 L34 20 Z" fill={hair} opacity="0.9" />
-      )}
-      {/* bald: no hair layer; add a subtle highlight later */}
-      {/* Face */}
-      <path
-        d="M34 18 Q34 11 45 11 Q56 11 56 18 L56 26 Q56 33 45 33 Q34 33 34 26 Z"
-        fill={`url(#${skinId})`}
+      <ellipse
+        className={`player-shadow player-shadow-${motion}`}
+        cx="45"
+        cy="126"
+        rx="24"
+        ry="3"
+        fill="rgba(0,0,0,0.35)"
       />
-      {/* Jaw shade */}
-      <path d="M37 28 Q45 32 53 28 L53 30 Q45 33.5 37 30 Z" fill={skinShade} opacity="0.5" />
-      {/* Hair fringe over forehead (style-dependent) */}
-      {hairStyle === "short" && (
-        <path d="M33 18 Q40 12 47 16 Q52 14 57 18 L56 21 Q50 18 46 20 Q40 17 34 22 Z" fill={hair} />
-      )}
-      {hairStyle === "slickback" && (
-        <path d="M33 18 Q40 10 45 12 Q50 10 57 18 L56 22 Q50 18 45 20 Q40 18 34 22 Z" fill={hair} />
-      )}
-      {hairStyle === "sidepart" && (
-        <path d="M34 18 Q40 14 45 16 Q50 14 56 18 L55 21 L45 19 Q40 17 35 22 Z" fill={hair} />
-      )}
-      {hairStyle === "buzz" && (
-        <path d="M35 17 Q45 14 55 17 L55 19 Q45 17 35 19 Z" fill={hair} opacity="0.7" />
-      )}
-      {hairStyle === "bald" && (
-        <ellipse cx="45" cy="14" rx="6" ry="2.2" fill="#ffffff" opacity="0.25" />
-      )}
-      {/* Ears */}
-      <ellipse cx="33.5" cy="22" rx="1.4" ry="2.4" fill={skinShade} />
-      <ellipse cx="56.5" cy="22" rx="1.4" ry="2.4" fill={skinShade} />
-      {/* Brows — minimal angled strokes */}
-      <g transform={`rotate(${browTilt} 41 21)`}>
-        <rect x="38.5" y="20.5" width="4.5" height="1.4" rx="0.7" fill="#1a1208" />
-      </g>
-      <g transform={`rotate(${-browTilt} 49 21)`}>
-        <rect x="47" y="20.5" width="4.5" height="1.4" rx="0.7" fill="#1a1208" />
-      </g>
-      {/* Eyes — minimal dots */}
-      <circle cx="41" cy="24" r="0.9" fill="#1a1208" />
-      <circle cx="49" cy="24" r="0.9" fill="#1a1208" />
-      {/* Mouth */}
-      {emotion === "happy" ? (
-        <path
-          d="M41 29 Q45 32 49 29"
-          stroke="#1a1208"
-          strokeWidth="1.2"
-          fill="none"
-          strokeLinecap="round"
-        />
-      ) : emotion === "sad" ? (
-        <path
-          d="M41 30 Q45 28 49 30"
-          stroke="#1a1208"
-          strokeWidth="1.2"
-          fill="none"
-          strokeLinecap="round"
-        />
-      ) : (
-        <line
-          x1="42"
-          y1="29.5"
-          x2="48"
-          y2="29.5"
-          stroke="#1a1208"
-          strokeWidth="1.2"
-          strokeLinecap="round"
-        />
-      )}
 
-      {/* === NECK === */}
-      <path d="M40 33 L40 38 Q45 40 50 38 L50 33 Z" fill={`url(#${skinId})`} />
-      <path d="M40 36 Q45 39 50 36 L50 38 Q45 40 40 38 Z" fill={skinShade} opacity="0.4" />
-
-      {/* === TORSO (modern athletic jersey) === */}
-      <path
-        d="M24 46 Q26 40 34 38 Q40 41 45 41 Q50 41 56 38 Q64 40 66 46 L68 70 Q58 74 56 74 L56 82 L34 82 L34 74 Q32 74 22 70 Z"
-        fill={`url(#${jerseyId})`}
-      />
-      {/* Jersey side panel highlights */}
-      <path d="M26 46 L24 70 L30 72 L32 48 Z" fill="#fff" opacity="0.08" />
-      <path d="M64 46 L66 70 L60 72 L58 48 Z" fill="#000" opacity="0.18" />
-      {/* V-collar */}
-      <path d="M38 41 L45 49 L52 41 L50 41 L45 46 L40 41 Z" fill="#0d0d0d" />
-      {/* Shoulder accent stripes */}
-      <path d="M30 41 L34 38 L36 42 L32 45 Z" fill={accent} opacity="0.9" />
-      <path d="M60 41 L56 38 L54 42 L58 45 Z" fill={accent} opacity="0.9" />
-      {/* Jersey number */}
-      <text
-        x="45"
-        y="64"
-        textAnchor="middle"
-        fontSize="16"
-        fontWeight="900"
-        fill={accent}
-        fontFamily="Kanit, sans-serif"
-        letterSpacing="-0.5"
-      >
-        {isKeeper ? "01" : "10"}
-      </text>
-      {/* Sponsor badge */}
-      {sponsor && sponsor.id !== "none" && (
-        <g>
-          <rect
-            x="32"
-            y="50"
-            width="26"
-            height="7"
-            rx="1.5"
-            fill={sponsor.color}
-            stroke="#0a0a0a"
-            strokeWidth="0.4"
+      <g className={rigClass}>
+        <g className={headClass}>
+          {/* === HEAD === */}
+          {/* Hair back layer (varies by style) */}
+          {hairStyle === "sidepart" && (
+            <path d="M33 18 Q33 7 45 7 Q57 7 57 18 L57 24 L33 24 Z" fill={hair} />
+          )}
+          {hairStyle === "slickback" && (
+            <path d="M32 18 Q32 5 45 5 Q58 5 58 18 L60 24 L58 28 L32 28 L30 24 Z" fill={hair} />
+          )}
+          {hairStyle === "short" && (
+            <path d="M32 18 Q32 7 45 7 Q58 7 58 18 L58 24 L32 24 Z" fill={hair} />
+          )}
+          {hairStyle === "mohawk" && <path d="M42 4 Q45 0 48 4 L48 18 L42 18 Z" fill={hair} />}
+          {hairStyle === "buzz" && (
+            <path d="M34 16 Q34 9 45 9 Q56 9 56 16 L56 20 L34 20 Z" fill={hair} opacity="0.9" />
+          )}
+          {/* bald: no hair layer; add a subtle highlight later */}
+          {/* Face */}
+          <path
+            d="M34 18 Q34 11 45 11 Q56 11 56 18 L56 26 Q56 33 45 33 Q34 33 34 26 Z"
+            fill={`url(#${skinId})`}
           />
+          {/* Jaw shade */}
+          <path d="M37 28 Q45 32 53 28 L53 30 Q45 33.5 37 30 Z" fill={skinShade} opacity="0.5" />
+          {/* Hair fringe over forehead (style-dependent) */}
+          {hairStyle === "short" && (
+            <path
+              d="M33 18 Q40 12 47 16 Q52 14 57 18 L56 21 Q50 18 46 20 Q40 17 34 22 Z"
+              fill={hair}
+            />
+          )}
+          {hairStyle === "slickback" && (
+            <path
+              d="M33 18 Q40 10 45 12 Q50 10 57 18 L56 22 Q50 18 45 20 Q40 18 34 22 Z"
+              fill={hair}
+            />
+          )}
+          {hairStyle === "sidepart" && (
+            <path d="M34 18 Q40 14 45 16 Q50 14 56 18 L55 21 L45 19 Q40 17 35 22 Z" fill={hair} />
+          )}
+          {hairStyle === "buzz" && (
+            <path d="M35 17 Q45 14 55 17 L55 19 Q45 17 35 19 Z" fill={hair} opacity="0.7" />
+          )}
+          {hairStyle === "bald" && (
+            <ellipse cx="45" cy="14" rx="6" ry="2.2" fill="#ffffff" opacity="0.25" />
+          )}
+          {/* Ears */}
+          <ellipse cx="33.5" cy="22" rx="1.4" ry="2.4" fill={skinShade} />
+          <ellipse cx="56.5" cy="22" rx="1.4" ry="2.4" fill={skinShade} />
+          {/* Brows — minimal angled strokes */}
+          <g transform={`rotate(${browTilt} 41 21)`}>
+            <rect x="38.5" y="20.5" width="4.5" height="1.4" rx="0.7" fill="#1a1208" />
+          </g>
+          <g transform={`rotate(${-browTilt} 49 21)`}>
+            <rect x="47" y="20.5" width="4.5" height="1.4" rx="0.7" fill="#1a1208" />
+          </g>
+          {/* Eyes — minimal dots */}
+          <circle cx="41" cy="24" r="0.9" fill="#1a1208" />
+          <circle cx="49" cy="24" r="0.9" fill="#1a1208" />
+          {/* Mouth */}
+          {emotion === "happy" ? (
+            <path
+              d="M41 29 Q45 32 49 29"
+              stroke="#1a1208"
+              strokeWidth="1.2"
+              fill="none"
+              strokeLinecap="round"
+            />
+          ) : emotion === "sad" ? (
+            <path
+              d="M41 30 Q45 28 49 30"
+              stroke="#1a1208"
+              strokeWidth="1.2"
+              fill="none"
+              strokeLinecap="round"
+            />
+          ) : (
+            <line
+              x1="42"
+              y1="29.5"
+              x2="48"
+              y2="29.5"
+              stroke="#1a1208"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+            />
+          )}
+        </g>
+
+        <g className={torsoClass}>
+          {/* === NECK === */}
+          <path d="M40 33 L40 38 Q45 40 50 38 L50 33 Z" fill={`url(#${skinId})`} />
+          <path d="M40 36 Q45 39 50 36 L50 38 Q45 40 40 38 Z" fill={skinShade} opacity="0.4" />
+
+          {/* === TORSO (modern athletic jersey) === */}
+          <path
+            d="M24 46 Q26 40 34 38 Q40 41 45 41 Q50 41 56 38 Q64 40 66 46 L68 70 Q58 74 56 74 L56 82 L34 82 L34 74 Q32 74 22 70 Z"
+            fill={`url(#${jerseyId})`}
+          />
+          {/* Jersey side panel highlights */}
+          <path d="M26 46 L24 70 L30 72 L32 48 Z" fill="#fff" opacity="0.08" />
+          <path d="M64 46 L66 70 L60 72 L58 48 Z" fill="#000" opacity="0.18" />
+          {/* V-collar */}
+          <path d="M38 41 L45 49 L52 41 L50 41 L45 46 L40 41 Z" fill="#0d0d0d" />
+          {/* Shoulder accent stripes */}
+          <path d="M30 41 L34 38 L36 42 L32 45 Z" fill={accent} opacity="0.9" />
+          <path d="M60 41 L56 38 L54 42 L58 45 Z" fill={accent} opacity="0.9" />
+          {/* Jersey number */}
           <text
             x="45"
-            y="55.6"
+            y="64"
             textAnchor="middle"
-            fontSize="5"
+            fontSize="16"
             fontWeight="900"
-            fill={sponsor.textColor}
+            fill={accent}
             fontFamily="Kanit, sans-serif"
-            letterSpacing="0.4"
+            letterSpacing="-0.5"
           >
-            {sponsor.name}
+            {isKeeper ? "01" : "10"}
           </text>
+          {/* Sponsor badge */}
+          {sponsor && sponsor.id !== "none" && (
+            <g>
+              <rect
+                x="32"
+                y="50"
+                width="26"
+                height="7"
+                rx="1.5"
+                fill={sponsor.color}
+                stroke="#0a0a0a"
+                strokeWidth="0.4"
+              />
+              <text
+                x="45"
+                y="55.6"
+                textAnchor="middle"
+                fontSize="5"
+                fontWeight="900"
+                fill={sponsor.textColor}
+                fontFamily="Kanit, sans-serif"
+                letterSpacing="0.4"
+              >
+                {sponsor.name}
+              </text>
+            </g>
+          )}
         </g>
-      )}
 
-      {/* === ARMS === */}
-      {isKeeper ? (
-        <>
-          {/* LEFT arm — slightly away from body */}
-          <path d="M26 46 L16 68 L22 70 L32 48 Z" fill={`url(#${jerseyId})`} />
-          <path
-            d="M16 68 L12 86 L18 88 L22 70 Z"
-            fill={`url(#${skinId})`}
-            stroke="#1a1208"
-            strokeWidth="0.4"
-          />
-          <rect
-            x="12"
-            y="83"
-            width="6"
-            height="3"
-            rx="1"
-            fill={resolvedBand}
-            stroke="#0a0a0a"
-            strokeWidth="0.3"
-          />
-          {/* LEFT GLOVE — slightly away from body, fingers down */}
-          <g transform="translate(17 92) scale(-0.6 -0.6)">
-            <path
-              d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
-              fill={`url(#${gloveGradId})`}
-              stroke="#0a0a0a"
-              strokeWidth="0.8"
-            />
-            <path
-              d="M-10 -2 Q-14 -10 -8 -14 Q-3 -14 -3 -8 Z"
-              fill={`url(#${gloveGradId})`}
-              stroke="#0a0a0a"
-              strokeWidth="0.7"
-            />
-            <rect
-              x="-5"
-              y="-23"
-              width="3.4"
-              height="13"
-              rx="1.6"
-              fill={`url(#${gloveGradId})`}
-              stroke="#0a0a0a"
-              strokeWidth="0.7"
-            />
-            <rect
-              x="-1"
-              y="-26"
-              width="3.4"
-              height="16"
-              rx="1.6"
-              fill={`url(#${gloveGradId})`}
-              stroke="#0a0a0a"
-              strokeWidth="0.7"
-            />
-            <rect
-              x="3"
-              y="-24"
-              width="3.4"
-              height="14"
-              rx="1.6"
-              fill={`url(#${gloveGradId})`}
-              stroke="#0a0a0a"
-              strokeWidth="0.7"
-            />
-            <rect
-              x="7"
-              y="-20"
-              width="3.4"
-              height="10"
-              rx="1.6"
-              fill={`url(#${gloveGradId})`}
-              stroke="#0a0a0a"
-              strokeWidth="0.7"
-            />
-            <GloveBaseDetails />
-            <GloveDecor style={gear.gloveStyle} accent={gear.gloveAccent} />
-            <rect x="-10" y="10" width="22" height="5" rx="1.2" fill="#0a0a0a" />
-            <rect x="-10" y="11" width="22" height="1.5" fill={gear.gloveAccent} opacity="0.9" />
-          </g>
+        <g className={armsClass}>
+          {/* === ARMS === */}
+          {isKeeper ? (
+            <>
+              {/* LEFT arm — slightly away from body */}
+              <path d="M26 46 L16 68 L22 70 L32 48 Z" fill={`url(#${jerseyId})`} />
+              <path
+                d="M16 68 L12 86 L18 88 L22 70 Z"
+                fill={`url(#${skinId})`}
+                stroke="#1a1208"
+                strokeWidth="0.4"
+              />
+              <rect
+                x="12"
+                y="83"
+                width="6"
+                height="3"
+                rx="1"
+                fill={resolvedBand}
+                stroke="#0a0a0a"
+                strokeWidth="0.3"
+              />
+              {/* LEFT GLOVE — slightly away from body, fingers down */}
+              <g transform="translate(17 92) scale(-0.6 -0.6)">
+                <path
+                  d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
+                  fill={`url(#${gloveGradId})`}
+                  stroke="#0a0a0a"
+                  strokeWidth="0.8"
+                />
+                <path
+                  d="M-10 -2 Q-14 -10 -8 -14 Q-3 -14 -3 -8 Z"
+                  fill={`url(#${gloveGradId})`}
+                  stroke="#0a0a0a"
+                  strokeWidth="0.7"
+                />
+                <rect
+                  x="-5"
+                  y="-23"
+                  width="3.4"
+                  height="13"
+                  rx="1.6"
+                  fill={`url(#${gloveGradId})`}
+                  stroke="#0a0a0a"
+                  strokeWidth="0.7"
+                />
+                <rect
+                  x="-1"
+                  y="-26"
+                  width="3.4"
+                  height="16"
+                  rx="1.6"
+                  fill={`url(#${gloveGradId})`}
+                  stroke="#0a0a0a"
+                  strokeWidth="0.7"
+                />
+                <rect
+                  x="3"
+                  y="-24"
+                  width="3.4"
+                  height="14"
+                  rx="1.6"
+                  fill={`url(#${gloveGradId})`}
+                  stroke="#0a0a0a"
+                  strokeWidth="0.7"
+                />
+                <rect
+                  x="7"
+                  y="-20"
+                  width="3.4"
+                  height="10"
+                  rx="1.6"
+                  fill={`url(#${gloveGradId})`}
+                  stroke="#0a0a0a"
+                  strokeWidth="0.7"
+                />
+                <GloveBaseDetails />
+                <GloveDecor style={gear.gloveStyle} accent={gear.gloveAccent} />
+                <rect x="-10" y="10" width="22" height="5" rx="1.2" fill="#0a0a0a" />
+                <rect
+                  x="-10"
+                  y="11"
+                  width="22"
+                  height="1.5"
+                  fill={gear.gloveAccent}
+                  opacity="0.9"
+                />
+              </g>
 
-          {/* RIGHT arm — slightly away from body */}
-          <path d="M64 46 L74 68 L68 70 L58 48 Z" fill={`url(#${jerseyId})`} />
-          <path
-            d="M74 68 L78 86 L72 88 L68 70 Z"
-            fill={`url(#${skinId})`}
-            stroke="#1a1208"
-            strokeWidth="0.4"
-          />
-          <rect
-            x="72"
-            y="83"
-            width="6"
-            height="3"
-            rx="1"
-            fill={resolvedBand}
-            stroke="#0a0a0a"
-            strokeWidth="0.3"
-          />
-          {/* RIGHT GLOVE — slightly away from body, fingers down */}
-          <g transform="translate(75 92) scale(0.6 -0.6)">
-            <path
-              d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
-              fill={`url(#${gloveGradId})`}
-              stroke="#0a0a0a"
-              strokeWidth="0.8"
-            />
-            <path
-              d="M-10 -2 Q-14 -10 -8 -14 Q-3 -14 -3 -8 Z"
-              fill={`url(#${gloveGradId})`}
-              stroke="#0a0a0a"
-              strokeWidth="0.7"
-            />
-            <rect
-              x="-5"
-              y="-23"
-              width="3.4"
-              height="13"
-              rx="1.6"
-              fill={`url(#${gloveGradId})`}
-              stroke="#0a0a0a"
-              strokeWidth="0.7"
-            />
-            <rect
-              x="-1"
-              y="-26"
-              width="3.4"
-              height="16"
-              rx="1.6"
-              fill={`url(#${gloveGradId})`}
-              stroke="#0a0a0a"
-              strokeWidth="0.7"
-            />
-            <rect
-              x="3"
-              y="-24"
-              width="3.4"
-              height="14"
-              rx="1.6"
-              fill={`url(#${gloveGradId})`}
-              stroke="#0a0a0a"
-              strokeWidth="0.7"
-            />
-            <rect
-              x="7"
-              y="-20"
-              width="3.4"
-              height="10"
-              rx="1.6"
-              fill={`url(#${gloveGradId})`}
-              stroke="#0a0a0a"
-              strokeWidth="0.7"
-            />
-            <GloveBaseDetails />
-            <GloveDecor style={gear.gloveStyle} accent={gear.gloveAccent} />
-            <rect x="-10" y="10" width="22" height="5" rx="1.2" fill="#0a0a0a" />
-            <rect x="-10" y="11" width="22" height="1.5" fill={gear.gloveAccent} opacity="0.9" />
-          </g>
-        </>
-      ) : kicking ? (
-        <>
-          {/* LEFT arm — back swung, longer reach */}
-          {/* Upper arm (jersey) */}
-          <path d="M26 46 L18 60 L22 64 L30 50 Z" fill={`url(#${jerseyId})`} />
-          {/* Forearm (skin) */}
-          <path
-            d="M18 60 L8 74 L12 78 L22 64 Z"
-            fill={`url(#${skinId})`}
-            stroke="#1a1208"
-            strokeWidth="0.4"
-          />
-          {/* Wrist band */}
-          <rect
-            x="9"
-            y="73"
-            width="6"
-            height="2.5"
-            fill={resolvedBand}
-            transform="rotate(55 12 74)"
-          />
-          {/* Hand */}
-          <ellipse
-            cx="9"
-            cy="78"
-            rx="3.4"
-            ry="3.8"
-            fill={`url(#${skinId})`}
-            stroke="#1a1208"
-            strokeWidth="0.4"
-          />
+              {/* RIGHT arm — slightly away from body */}
+              <path d="M64 46 L74 68 L68 70 L58 48 Z" fill={`url(#${jerseyId})`} />
+              <path
+                d="M74 68 L78 86 L72 88 L68 70 Z"
+                fill={`url(#${skinId})`}
+                stroke="#1a1208"
+                strokeWidth="0.4"
+              />
+              <rect
+                x="72"
+                y="83"
+                width="6"
+                height="3"
+                rx="1"
+                fill={resolvedBand}
+                stroke="#0a0a0a"
+                strokeWidth="0.3"
+              />
+              {/* RIGHT GLOVE — slightly away from body, fingers down */}
+              <g transform="translate(75 92) scale(0.6 -0.6)">
+                <path
+                  d="M-9 -4 Q-10 -11 -2 -12 L8 -12 Q12 -12 12 -7 L12 8 Q12 13 6 13 L-4 13 Q-10 13 -10 7 Z"
+                  fill={`url(#${gloveGradId})`}
+                  stroke="#0a0a0a"
+                  strokeWidth="0.8"
+                />
+                <path
+                  d="M-10 -2 Q-14 -10 -8 -14 Q-3 -14 -3 -8 Z"
+                  fill={`url(#${gloveGradId})`}
+                  stroke="#0a0a0a"
+                  strokeWidth="0.7"
+                />
+                <rect
+                  x="-5"
+                  y="-23"
+                  width="3.4"
+                  height="13"
+                  rx="1.6"
+                  fill={`url(#${gloveGradId})`}
+                  stroke="#0a0a0a"
+                  strokeWidth="0.7"
+                />
+                <rect
+                  x="-1"
+                  y="-26"
+                  width="3.4"
+                  height="16"
+                  rx="1.6"
+                  fill={`url(#${gloveGradId})`}
+                  stroke="#0a0a0a"
+                  strokeWidth="0.7"
+                />
+                <rect
+                  x="3"
+                  y="-24"
+                  width="3.4"
+                  height="14"
+                  rx="1.6"
+                  fill={`url(#${gloveGradId})`}
+                  stroke="#0a0a0a"
+                  strokeWidth="0.7"
+                />
+                <rect
+                  x="7"
+                  y="-20"
+                  width="3.4"
+                  height="10"
+                  rx="1.6"
+                  fill={`url(#${gloveGradId})`}
+                  stroke="#0a0a0a"
+                  strokeWidth="0.7"
+                />
+                <GloveBaseDetails />
+                <GloveDecor style={gear.gloveStyle} accent={gear.gloveAccent} />
+                <rect x="-10" y="10" width="22" height="5" rx="1.2" fill="#0a0a0a" />
+                <rect
+                  x="-10"
+                  y="11"
+                  width="22"
+                  height="1.5"
+                  fill={gear.gloveAccent}
+                  opacity="0.9"
+                />
+              </g>
+            </>
+          ) : kicking ? (
+            <>
+              {/* LEFT arm — back swung, longer reach */}
+              {/* Upper arm (jersey) */}
+              <path d="M26 46 L18 60 L22 64 L30 50 Z" fill={`url(#${jerseyId})`} />
+              {/* Forearm (skin) */}
+              <path
+                d="M18 60 L8 74 L12 78 L22 64 Z"
+                fill={`url(#${skinId})`}
+                stroke="#1a1208"
+                strokeWidth="0.4"
+              />
+              {/* Wrist band */}
+              <rect
+                x="9"
+                y="73"
+                width="6"
+                height="2.5"
+                fill={resolvedBand}
+                transform="rotate(55 12 74)"
+              />
+              {/* Hand */}
+              <ellipse
+                cx="9"
+                cy="78"
+                rx="3.4"
+                ry="3.8"
+                fill={`url(#${skinId})`}
+                stroke="#1a1208"
+                strokeWidth="0.4"
+              />
 
-          {/* RIGHT arm — forward swing */}
-          <path d="M64 46 L72 60 L68 64 L60 50 Z" fill={`url(#${jerseyId})`} />
-          <path
-            d="M72 60 L82 74 L78 78 L68 64 Z"
-            fill={`url(#${skinId})`}
-            stroke="#1a1208"
-            strokeWidth="0.4"
-          />
-          <rect
-            x="75"
-            y="73"
-            width="6"
-            height="2.5"
-            fill={resolvedBand}
-            transform="rotate(-55 78 74)"
-          />
-          <ellipse
-            cx="81"
-            cy="78"
-            rx="3.4"
-            ry="3.8"
-            fill={`url(#${skinId})`}
-            stroke="#1a1208"
-            strokeWidth="0.4"
-          />
-        </>
-      ) : (
-        <>
-          {/* IDLE arms — hanging at sides */}
-          <path d="M26 46 L22 70 L28 72 L32 48 Z" fill={`url(#${jerseyId})`} />
-          <path
-            d="M22 70 L20 86 L26 88 L28 72 Z"
-            fill={`url(#${skinId})`}
-            stroke="#1a1208"
-            strokeWidth="0.4"
-          />
-          <rect
-            x="20"
-            y="83"
-            width="6"
-            height="3"
-            rx="1"
-            fill={resolvedBand}
-            stroke="#0a0a0a"
-            strokeWidth="0.3"
-          />
-          <ellipse
-            cx="23"
-            cy="90"
-            rx="3.2"
-            ry="3.6"
-            fill={`url(#${skinId})`}
-            stroke="#1a1208"
-            strokeWidth="0.4"
-          />
+              {/* RIGHT arm — forward swing */}
+              <path d="M64 46 L72 60 L68 64 L60 50 Z" fill={`url(#${jerseyId})`} />
+              <path
+                d="M72 60 L82 74 L78 78 L68 64 Z"
+                fill={`url(#${skinId})`}
+                stroke="#1a1208"
+                strokeWidth="0.4"
+              />
+              <rect
+                x="75"
+                y="73"
+                width="6"
+                height="2.5"
+                fill={resolvedBand}
+                transform="rotate(-55 78 74)"
+              />
+              <ellipse
+                cx="81"
+                cy="78"
+                rx="3.4"
+                ry="3.8"
+                fill={`url(#${skinId})`}
+                stroke="#1a1208"
+                strokeWidth="0.4"
+              />
+            </>
+          ) : (
+            <>
+              {/* IDLE arms — hanging at sides */}
+              <path d="M26 46 L22 70 L28 72 L32 48 Z" fill={`url(#${jerseyId})`} />
+              <path
+                d="M22 70 L20 86 L26 88 L28 72 Z"
+                fill={`url(#${skinId})`}
+                stroke="#1a1208"
+                strokeWidth="0.4"
+              />
+              <rect
+                x="20"
+                y="83"
+                width="6"
+                height="3"
+                rx="1"
+                fill={resolvedBand}
+                stroke="#0a0a0a"
+                strokeWidth="0.3"
+              />
+              <ellipse
+                cx="23"
+                cy="90"
+                rx="3.2"
+                ry="3.6"
+                fill={`url(#${skinId})`}
+                stroke="#1a1208"
+                strokeWidth="0.4"
+              />
 
-          <path d="M64 46 L68 70 L62 72 L58 48 Z" fill={`url(#${jerseyId})`} />
-          <path
-            d="M68 70 L70 86 L64 88 L62 72 Z"
-            fill={`url(#${skinId})`}
-            stroke="#1a1208"
-            strokeWidth="0.4"
-          />
-          <rect
-            x="64"
-            y="83"
-            width="6"
-            height="3"
-            rx="1"
-            fill={resolvedBand}
-            stroke="#0a0a0a"
-            strokeWidth="0.3"
-          />
-          <ellipse
-            cx="67"
-            cy="90"
-            rx="3.2"
-            ry="3.6"
-            fill={`url(#${skinId})`}
-            stroke="#1a1208"
-            strokeWidth="0.4"
-          />
-        </>
-      )}
+              <path d="M64 46 L68 70 L62 72 L58 48 Z" fill={`url(#${jerseyId})`} />
+              <path
+                d="M68 70 L70 86 L64 88 L62 72 Z"
+                fill={`url(#${skinId})`}
+                stroke="#1a1208"
+                strokeWidth="0.4"
+              />
+              <rect
+                x="64"
+                y="83"
+                width="6"
+                height="3"
+                rx="1"
+                fill={resolvedBand}
+                stroke="#0a0a0a"
+                strokeWidth="0.3"
+              />
+              <ellipse
+                cx="67"
+                cy="90"
+                rx="3.2"
+                ry="3.6"
+                fill={`url(#${skinId})`}
+                stroke="#1a1208"
+                strokeWidth="0.4"
+              />
+            </>
+          )}
+        </g>
 
-      {/* === SHORTS === */}
-      <path d="M34 82 L56 82 L58 100 L48 100 L46 88 L44 88 L42 100 L32 100 Z" fill="#111114" />
-      {/* Shorts highlight */}
-      <path d="M34 83 L56 83 L57 86 L34 86 Z" fill={color} opacity="0.85" />
-      <path d="M44 88 L46 88 L46 100 L44 100 Z" fill="#000" opacity="0.4" />
+        {/* === SHORTS === */}
+        <g className={legsClass}>
+          <path d="M34 82 L56 82 L58 100 L48 100 L46 88 L44 88 L42 100 L32 100 Z" fill="#111114" />
+          {/* Shorts highlight */}
+          <path d="M34 83 L56 83 L57 86 L34 86 Z" fill={color} opacity="0.85" />
+          <path d="M44 88 L46 88 L46 100 L44 100 Z" fill="#000" opacity="0.4" />
 
-      {/* === LEGS === */}
-      {isKeeper ? (
-        <>
-          {/* Standing keeper stance */}
-          <path d="M34 100 L36 118 L44 118 L43 100 Z" fill={sockDark} />
-          <path d="M47 100 L46 118 L54 118 L56 100 Z" fill={sockDark} />
-          {/* Sock bands (team color) */}
-          <rect x="35" y="112" width="9" height="2.5" fill={sockAccent} />
-          <rect x="46" y="112" width="9" height="2.5" fill={sockAccent} />
-          {/* Cleats */}
-          <path d="M30 118 Q34 116 44 118 L44 122 Q37 124 30 122 Z" fill={cleat} />
-          <path d="M46 118 Q56 116 60 118 L60 122 Q53 124 46 122 Z" fill={cleat} />
-          {/* Cleat sole stripe */}
-          <rect x="30" y="121" width="14" height="1.5" fill={cleatAccent} />
-          <rect x="46" y="121" width="14" height="1.5" fill={cleatAccent} />
-        </>
-      ) : kicking ? (
-        <>
-          {/* Planted leg */}
-          <path d="M34 100 L36 118 L44 118 L44 100 Z" fill={sockDark} />
-          {/* Kicking leg swung forward */}
-          <path d="M46 100 L62 110 L60 116 L44 106 Z" fill={sockDark} />
-          {/* Sock bands */}
-          <rect x="35" y="112" width="9" height="2.5" fill={sockAccent} />
-          <rect
-            x="50"
-            y="105"
-            width="9"
-            height="2.5"
-            fill={sockAccent}
-            transform="rotate(30 54 106)"
-          />
-          {/* Planted cleat */}
-          <path d="M30 118 Q34 116 44 118 L44 122 Q37 124 30 122 Z" fill={cleat} />
-          <rect x="30" y="121" width="14" height="1.5" fill={cleatAccent} />
-          {/* Kicking cleat */}
-          <g transform="rotate(20 60 113)">
-            <path d="M54 110 Q60 108 68 110 L68 114 Q60 116 54 114 Z" fill={cleat} />
-            <rect x="54" y="113" width="14" height="1.5" fill={cleatAccent} />
-          </g>
-        </>
-      ) : (
-        <>
-          {/* IDLE — both legs straight */}
-          <path d="M34 100 L36 118 L44 118 L44 100 Z" fill={sockDark} />
-          <path d="M46 100 L46 118 L54 118 L56 100 Z" fill={sockDark} />
-          <rect x="35" y="112" width="9" height="2.5" fill={sockAccent} />
-          <rect x="46" y="112" width="9" height="2.5" fill={sockAccent} />
-          <path d="M30 118 Q34 116 44 118 L44 122 Q37 124 30 122 Z" fill={cleat} />
-          <path d="M46 118 Q56 116 60 118 L60 122 Q53 124 46 122 Z" fill={cleat} />
-          <rect x="30" y="121" width="14" height="1.5" fill={cleatAccent} />
-          <rect x="46" y="121" width="14" height="1.5" fill={cleatAccent} />
-        </>
-      )}
+          {/* === LEGS === */}
+          {isKeeper ? (
+            <>
+              {/* Standing keeper stance */}
+              <path d="M34 100 L36 118 L44 118 L43 100 Z" fill={sockDark} />
+              <path d="M47 100 L46 118 L54 118 L56 100 Z" fill={sockDark} />
+              {/* Sock bands (team color) */}
+              <rect x="35" y="112" width="9" height="2.5" fill={sockAccent} />
+              <rect x="46" y="112" width="9" height="2.5" fill={sockAccent} />
+              {/* Cleats */}
+              <path d="M30 118 Q34 116 44 118 L44 122 Q37 124 30 122 Z" fill={cleat} />
+              <path d="M46 118 Q56 116 60 118 L60 122 Q53 124 46 122 Z" fill={cleat} />
+              {/* Cleat sole stripe */}
+              <rect x="30" y="121" width="14" height="1.5" fill={cleatAccent} />
+              <rect x="46" y="121" width="14" height="1.5" fill={cleatAccent} />
+            </>
+          ) : kicking ? (
+            <>
+              {/* Planted leg */}
+              <path d="M34 100 L36 118 L44 118 L44 100 Z" fill={sockDark} />
+              {/* Kicking leg swung forward */}
+              <path d="M46 100 L62 110 L60 116 L44 106 Z" fill={sockDark} />
+              {/* Sock bands */}
+              <rect x="35" y="112" width="9" height="2.5" fill={sockAccent} />
+              <rect
+                x="50"
+                y="105"
+                width="9"
+                height="2.5"
+                fill={sockAccent}
+                transform="rotate(30 54 106)"
+              />
+              {/* Planted cleat */}
+              <path d="M30 118 Q34 116 44 118 L44 122 Q37 124 30 122 Z" fill={cleat} />
+              <rect x="30" y="121" width="14" height="1.5" fill={cleatAccent} />
+              {/* Kicking cleat */}
+              <g transform="rotate(20 60 113)">
+                <path d="M54 110 Q60 108 68 110 L68 114 Q60 116 54 114 Z" fill={cleat} />
+                <rect x="54" y="113" width="14" height="1.5" fill={cleatAccent} />
+              </g>
+            </>
+          ) : (
+            <>
+              {/* IDLE — both legs straight */}
+              <path d="M34 100 L36 118 L44 118 L44 100 Z" fill={sockDark} />
+              <path d="M46 100 L46 118 L54 118 L56 100 Z" fill={sockDark} />
+              <rect x="35" y="112" width="9" height="2.5" fill={sockAccent} />
+              <rect x="46" y="112" width="9" height="2.5" fill={sockAccent} />
+              <path d="M30 118 Q34 116 44 118 L44 122 Q37 124 30 122 Z" fill={cleat} />
+              <path d="M46 118 Q56 116 60 118 L60 122 Q53 124 46 122 Z" fill={cleat} />
+              <rect x="30" y="121" width="14" height="1.5" fill={cleatAccent} />
+              <rect x="46" y="121" width="14" height="1.5" fill={cleatAccent} />
+            </>
+          )}
+        </g>
+      </g>
     </svg>
   );
 }
@@ -2550,9 +2603,7 @@ function GoalScene({
   // Вратарь во время удара делает короткий бросок в свою зону через CSS-анимацию,
   // но визуально всегда остаётся в центре ворот (анимация возвращает его обратно).
   const keeperPos = { left: "50%", top: "65%" };
-  const keeperMeta = showAction
-    ? ZONES.find((z) => z.id === last!.keeper)
-    : undefined;
+  const keeperMeta = showAction ? ZONES.find((z) => z.id === last!.keeper) : undefined;
   const keeperCol = keeperMeta?.col ?? 1;
   const keeperRow = keeperMeta?.row ?? 1;
   // Смещение для броска вратаря — в пикселях, чтобы реально долететь до зоны.
@@ -2607,18 +2658,13 @@ function GoalScene({
       {/* Crowd stand behind the goal */}
       <Crowd playerColor={playerColor} oppColor={oppColor} />
       {/* Goal frame */}
-      <div
-        className="relative z-10 w-full"
-        style={{ aspectRatio: "16 / 9" }}
-      >
+      <div className="relative z-10 w-full" style={{ aspectRatio: "16 / 9" }}>
         {/* Net — diagonal mesh with depth fade */}
         <div
           className="absolute inset-0 overflow-hidden"
           style={{
-            background:
-              "linear-gradient(180deg, rgba(20,40,30,0.55) 0%, rgba(10,25,18,0.85) 100%)",
-            boxShadow:
-              "inset 0 0 60px rgba(0,0,0,0.55), inset 0 8px 24px rgba(0,0,0,0.35)",
+            background: "linear-gradient(180deg, rgba(20,40,30,0.55) 0%, rgba(10,25,18,0.85) 100%)",
+            boxShadow: "inset 0 0 60px rgba(0,0,0,0.55), inset 0 8px 24px rgba(0,0,0,0.35)",
           }}
         >
           {/* Net mesh — two diagonal sets of fine lines */}
@@ -2627,8 +2673,7 @@ function GoalScene({
             style={{
               backgroundImage:
                 "repeating-linear-gradient(45deg, rgba(255,255,255,0.18) 0 1px, transparent 1px 14px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.18) 0 1px, transparent 1px 14px)",
-              maskImage:
-                "radial-gradient(ellipse at 50% 40%, #000 60%, rgba(0,0,0,0.6) 100%)",
+              maskImage: "radial-gradient(ellipse at 50% 40%, #000 60%, rgba(0,0,0,0.6) 100%)",
               WebkitMaskImage:
                 "radial-gradient(ellipse at 50% 40%, #000 60%, rgba(0,0,0,0.6) 100%)",
             }}
@@ -2648,8 +2693,7 @@ function GoalScene({
           className="absolute inset-x-0 top-0"
           style={{
             height: 10,
-            background:
-              "linear-gradient(180deg, #ffffff 0%, #f1f1f1 55%, #b8b8b8 100%)",
+            background: "linear-gradient(180deg, #ffffff 0%, #f1f1f1 55%, #b8b8b8 100%)",
             boxShadow: "0 3px 6px rgba(0,0,0,0.45)",
             borderTopLeftRadius: 4,
             borderTopRightRadius: 4,
@@ -2660,8 +2704,7 @@ function GoalScene({
           className="absolute top-0 bottom-0 left-0"
           style={{
             width: 10,
-            background:
-              "linear-gradient(90deg, #ffffff 0%, #e8e8e8 60%, #a8a8a8 100%)",
+            background: "linear-gradient(90deg, #ffffff 0%, #e8e8e8 60%, #a8a8a8 100%)",
             boxShadow: "3px 0 6px rgba(0,0,0,0.4)",
           }}
         />
@@ -2670,8 +2713,7 @@ function GoalScene({
           className="absolute top-0 bottom-0 right-0"
           style={{
             width: 10,
-            background:
-              "linear-gradient(270deg, #ffffff 0%, #e8e8e8 60%, #a8a8a8 100%)",
+            background: "linear-gradient(270deg, #ffffff 0%, #e8e8e8 60%, #a8a8a8 100%)",
             boxShadow: "-3px 0 6px rgba(0,0,0,0.4)",
           }}
         />
@@ -2699,6 +2741,7 @@ function GoalScene({
             pose="keeper"
             size={104}
             emotion={keeperEmotion}
+            motion={ballFly ? "dive" : "ready"}
             gear={activeShooter === "player" ? DEFAULT_GEAR : gear}
             sponsor={activeShooter === "player" ? undefined : sponsor}
           />
@@ -2738,48 +2781,49 @@ function GoalScene({
           />
         )}
         {/* Outcome flash — big banner with shockwave when the ball lands */}
-        {showAction && outcomeFlash && (() => {
-          const isGoal = last!.scored;
-          const isMiss = last!.offTarget;
-          const text = isGoal ? "ГОЛ!" : isMiss ? "МИМО!" : "СЕЙВ!";
-          const color = isGoal ? "#22c55e" : isMiss ? "#f59e0b" : "#38bdf8";
-          return (
-            <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center overflow-hidden">
-              {/* Coloured flash */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  background: `radial-gradient(ellipse at center, ${color}55 0%, ${color}22 35%, transparent 70%)`,
-                  animation: "outcomeFlashBg 0.7s ease-out",
-                }}
-              />
-              {/* Shockwave ring */}
-              <div
-                className="absolute rounded-full"
-                style={{
-                  width: 40,
-                  height: 40,
-                  border: `4px solid ${color}`,
-                  animation: "outcomeRing 0.7s ease-out forwards",
-                }}
-              />
-              {/* Big text */}
-              <span
-                className="relative font-black tracking-wider"
-                style={{
-                  fontSize: 64,
-                  color,
-                  textShadow:
-                    "0 4px 0 rgba(0,0,0,0.45), 0 0 24px rgba(0,0,0,0.5)",
-                  WebkitTextStroke: "2px rgba(0,0,0,0.55)",
-                  animation: "outcomePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                }}
-              >
-                {text}
-              </span>
-            </div>
-          );
-        })()}
+        {showAction &&
+          outcomeFlash &&
+          (() => {
+            const isGoal = last!.scored;
+            const isMiss = last!.offTarget;
+            const text = isGoal ? "ГОЛ!" : isMiss ? "МИМО!" : "СЕЙВ!";
+            const color = isGoal ? "#22c55e" : isMiss ? "#f59e0b" : "#38bdf8";
+            return (
+              <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center overflow-hidden">
+                {/* Coloured flash */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: `radial-gradient(ellipse at center, ${color}55 0%, ${color}22 35%, transparent 70%)`,
+                    animation: "outcomeFlashBg 0.7s ease-out",
+                  }}
+                />
+                {/* Shockwave ring */}
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    border: `4px solid ${color}`,
+                    animation: "outcomeRing 0.7s ease-out forwards",
+                  }}
+                />
+                {/* Big text */}
+                <span
+                  className="relative font-black tracking-wider"
+                  style={{
+                    fontSize: 64,
+                    color,
+                    textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 24px rgba(0,0,0,0.5)",
+                    WebkitTextStroke: "2px rgba(0,0,0,0.55)",
+                    animation: "outcomePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                  }}
+                >
+                  {text}
+                </span>
+              </div>
+            );
+          })()}
       </div>
 
       {/* Pitch in front of the goal */}
@@ -2796,9 +2840,12 @@ function GoalScene({
           style={{
             left: "50%",
             transform:
-              kickStage === "kick" ? "translateX(-50%) translateX(6px)" : "translateX(-50%)",
-            transition: "transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1)",
-            animation: kickStage === "windup" ? "strikerWindup 3s ease-in-out infinite" : "none",
+              kickStage === "kick" ? "translateX(-50%) translate(10px, -2px)" : "translateX(-50%)",
+            transition: "transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1)",
+            animation:
+              kickStage === "windup"
+                ? "strikerRunUp 3s cubic-bezier(0.22, 0.72, 0.18, 1) forwards"
+                : "none",
           }}
         >
           <PlayerFigure
@@ -2807,10 +2854,41 @@ function GoalScene({
             size={120}
             emotion={strikerEmotion}
             kicking={kickStage === "kick"}
+            motion={kickStage}
             gear={activeShooter === "player" ? gear : DEFAULT_GEAR}
             sponsor={activeShooter === "player" ? sponsor : undefined}
           />
         </div>
+        {kickStage === "kick" && (
+          <div
+            className="pointer-events-none absolute"
+            style={{
+              left: "50%",
+              bottom: 18,
+              width: 80,
+              height: 24,
+              transform: "translateX(-30%)",
+              animation: "turfSpray 0.55s ease-out forwards",
+            }}
+          >
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <span
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  left: `${18 + i * 8}px`,
+                  bottom: 4,
+                  width: 3 + (i % 2),
+                  height: 3 + (i % 2),
+                  background: i % 2 ? "#c8f7a0" : "#6fbf4a",
+                  ["--spray-x" as string]: `${18 + i * 7}px`,
+                  ["--spray-y" as string]: `${-8 - (i % 3) * 5}px`,
+                  animation: `grassBit 0.55s ${i * 0.025}s ease-out forwards`,
+                }}
+              />
+            ))}
+          </div>
+        )}
         {/* Label */}
         <span className="absolute right-3 top-3 rounded bg-black/50 px-2 py-1 text-[10px] tracking-[0.25em] text-white/80 uppercase">
           {activeShooter === "player" ? "Бьёшь ты" : "Бьёт соперник"}
@@ -2852,12 +2930,371 @@ function GoalScene({
           0%, 100% { transform: translateY(0) scaleY(1); }
           50% { transform: translateY(-6px) scaleY(1.05); }
         }
-        @keyframes strikerWindup {
-          0% { transform: translateX(-50%) rotate(0deg) scale(1); }
-          25% { transform: translateX(-50%) rotate(-3deg) scale(1.02) translateY(-2px); }
-          50% { transform: translateX(-50%) rotate(-6deg) scale(1.03) translateY(-3px); }
-          75% { transform: translateX(-50%) rotate(-3deg) scale(1.02) translateY(-2px); }
-          100% { transform: translateX(-50%) rotate(0deg) scale(1); }
+        .player-rig,
+        .player-head,
+        .player-torso,
+        .player-arms,
+        .player-legs,
+        .player-shadow {
+          transform-box: fill-box;
+          transform-origin: center bottom;
+        }
+        .player-head {
+          transform-origin: center center;
+        }
+        .player-arms {
+          transform-origin: 45px 48px;
+        }
+        .player-legs {
+          transform-origin: 45px 86px;
+        }
+        .player-shadow {
+          transform-origin: center center;
+        }
+        .player-rig-idle {
+          animation: playerBreathe 2.8s ease-in-out infinite;
+        }
+        .player-rig-ready {
+          animation: keeperReady 1.35s ease-in-out infinite;
+        }
+        .player-rig-windup {
+          animation: strikerBodyWindup 3s cubic-bezier(0.2, 0.72, 0.16, 1) forwards;
+        }
+        .player-rig-kick {
+          animation: strikerStrike 0.68s cubic-bezier(0.16, 0.82, 0.2, 1) both;
+        }
+        .player-rig-dive {
+          animation: keeperBodyDive 0.9s cubic-bezier(0.12, 0.82, 0.24, 1) both;
+        }
+        .player-rig-happy {
+          animation: playerCelebrate 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.52s 1 both;
+        }
+        .player-rig-sad {
+          animation: playerDeflate 0.6s ease-out 0.52s 1 both;
+        }
+        .player-rig-kick.player-rig-happy {
+          animation:
+            strikerStrike 0.68s cubic-bezier(0.16, 0.82, 0.2, 1) both,
+            playerCelebrate 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.58s 1 both;
+        }
+        .player-rig-kick.player-rig-sad {
+          animation:
+            strikerStrike 0.68s cubic-bezier(0.16, 0.82, 0.2, 1) both,
+            playerDeflate 0.6s ease-out 0.58s 1 both;
+        }
+        .player-rig-dive.player-rig-happy {
+          animation:
+            keeperBodyDive 0.9s cubic-bezier(0.12, 0.82, 0.24, 1) both,
+            playerCelebrate 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.72s 1 both;
+        }
+        .player-rig-dive.player-rig-sad {
+          animation:
+            keeperBodyDive 0.9s cubic-bezier(0.12, 0.82, 0.24, 1) both,
+            playerDeflate 0.6s ease-out 0.72s 1 both;
+        }
+        .player-head-idle,
+        .player-head-ready {
+          animation: headScan 3.7s ease-in-out infinite;
+        }
+        .player-head-windup {
+          animation: headTrackBall 3s cubic-bezier(0.25, 0.72, 0.18, 1) forwards;
+        }
+        .player-head-kick {
+          animation: headStrikeFollow 0.68s ease-out both;
+        }
+        .player-head-dive {
+          animation: headDiveBrace 0.9s ease-out both;
+        }
+        .player-head-happy {
+          animation: headCelebrate 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.46s both;
+        }
+        .player-head-sad {
+          animation: headDrop 0.6s ease-out 0.46s both;
+        }
+        .player-head-kick.player-head-happy {
+          animation:
+            headStrikeFollow 0.68s ease-out both,
+            headCelebrate 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.58s both;
+        }
+        .player-head-kick.player-head-sad {
+          animation:
+            headStrikeFollow 0.68s ease-out both,
+            headDrop 0.6s ease-out 0.58s both;
+        }
+        .player-head-dive.player-head-happy {
+          animation:
+            headDiveBrace 0.9s ease-out both,
+            headCelebrate 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.72s both;
+        }
+        .player-head-dive.player-head-sad {
+          animation:
+            headDiveBrace 0.9s ease-out both,
+            headDrop 0.6s ease-out 0.72s both;
+        }
+        .player-torso-idle {
+          animation: torsoBreathe 2.8s ease-in-out infinite;
+        }
+        .player-torso-ready {
+          animation: keeperTorsoReady 1.35s ease-in-out infinite;
+        }
+        .player-torso-windup {
+          animation: torsoWindup 3s cubic-bezier(0.2, 0.72, 0.16, 1) forwards;
+        }
+        .player-torso-kick {
+          animation: torsoStrike 0.68s cubic-bezier(0.16, 0.82, 0.2, 1) both;
+        }
+        .player-torso-dive {
+          animation: torsoDive 0.9s cubic-bezier(0.12, 0.82, 0.24, 1) both;
+        }
+        .player-arms-striker.player-arms-idle {
+          animation: strikerArmsIdle 2.8s ease-in-out infinite;
+        }
+        .player-arms-striker.player-arms-windup {
+          animation: armsBalanceRun 1.5s ease-in-out 0s 2 forwards;
+        }
+        .player-arms-striker.player-arms-kick {
+          animation: armsCounterSwing 0.68s cubic-bezier(0.16, 0.82, 0.2, 1) both;
+        }
+        .player-arms-keeper.player-arms-ready {
+          animation: keeperHandsReady 1.12s ease-in-out infinite;
+        }
+        .player-arms-keeper.player-arms-dive {
+          animation: keeperHandsReach 0.9s cubic-bezier(0.12, 0.82, 0.24, 1) both;
+        }
+        .player-legs-striker.player-legs-idle {
+          animation: strikerLegsIdle 2.8s ease-in-out infinite;
+        }
+        .player-legs-striker.player-legs-windup {
+          animation: legsRunSteps 1.5s cubic-bezier(0.34, 0.02, 0.32, 1) 0s 2 forwards;
+        }
+        .player-legs-striker.player-legs-kick {
+          animation: legsStrikeFollow 0.68s cubic-bezier(0.16, 0.82, 0.2, 1) both;
+        }
+        .player-legs-keeper.player-legs-ready {
+          animation: keeperBounce 0.92s ease-in-out infinite;
+        }
+        .player-legs-keeper.player-legs-dive {
+          animation: keeperLegsTrail 0.9s cubic-bezier(0.12, 0.82, 0.24, 1) both;
+        }
+        .player-shadow-idle,
+        .player-shadow-ready {
+          animation: shadowPulse 2.6s ease-in-out infinite;
+        }
+        .player-shadow-windup {
+          animation: shadowRunUp 3s cubic-bezier(0.22, 0.72, 0.18, 1) forwards;
+        }
+        .player-shadow-kick {
+          animation: shadowStrike 0.62s ease-out both;
+        }
+        .player-shadow-dive {
+          animation: shadowDive 0.9s ease-out both;
+        }
+        @keyframes strikerRunUp {
+          0% { transform: translateX(-50%) translate(-46px, 12px) rotate(2deg) scale(0.94); }
+          16% { transform: translateX(-50%) translate(-36px, 5px) rotate(-1deg) scale(0.97); }
+          32% { transform: translateX(-50%) translate(-27px, 10px) rotate(2deg) scale(0.965); }
+          50% { transform: translateX(-50%) translate(-17px, 2px) rotate(-2deg) scale(1); }
+          68% { transform: translateX(-50%) translate(-8px, 8px) rotate(1deg) scale(0.99); }
+          84% { transform: translateX(-50%) translate(0, 1px) rotate(-5deg) scale(1.025); }
+          100% { transform: translateX(-50%) translate(8px, -2px) rotate(-9deg) scale(1.04); }
+        }
+        @keyframes playerBreathe {
+          0%, 100% { transform: translateY(0) rotate(0deg) scaleY(1); }
+          45% { transform: translateY(-1px) rotate(-0.5deg) scaleY(1.004); }
+          70% { transform: translateY(-0.4px) rotate(0.4deg) scaleY(1.002); }
+        }
+        @keyframes keeperReady {
+          0%, 100% { transform: translate(0, 2px) scaleY(0.97) scaleX(1.05); }
+          28% { transform: translate(-2.2px, -1px) scaleY(1.015) scaleX(1.01); }
+          56% { transform: translate(1.6px, 1px) scaleY(0.98) scaleX(1.065); }
+          82% { transform: translate(2.4px, -0.4px) scaleY(1.005) scaleX(1.02); }
+        }
+        @keyframes strikerBodyWindup {
+          0% { transform: translateY(1px) rotate(2deg) scaleY(0.99); }
+          18% { transform: translateY(-2px) rotate(-2deg) scaleY(1.01); }
+          36% { transform: translateY(1px) rotate(2.5deg) scaleY(0.985); }
+          55% { transform: translateY(-3px) rotate(-2deg) scaleY(1.015); }
+          76% { transform: translateY(0) rotate(-5deg) scaleY(1); }
+          100% { transform: translateY(-5px) rotate(-11deg) scaleY(1.02); }
+        }
+        @keyframes strikerStrike {
+          0% { transform: translate(0, -5px) rotate(-11deg) scaleY(1.02) scaleX(0.99); }
+          18% { transform: translate(5px, -9px) rotate(9deg) scaleY(0.965) scaleX(1.04); }
+          34% { transform: translate(13px, -6px) rotate(22deg) scaleY(0.985) scaleX(1.02); }
+          58% { transform: translate(10px, -3px) rotate(14deg) scaleY(1.01) scaleX(0.99); }
+          78% { transform: translate(6px, -1px) rotate(6deg); }
+          100% { transform: translate(2px, 0) rotate(1deg); }
+        }
+        @keyframes keeperBodyDive {
+          0% { transform: translateY(3px) scaleY(0.91) scaleX(1.12) rotate(0deg); }
+          16% { transform: translateY(6px) scaleY(0.86) scaleX(1.18) rotate(-3deg); }
+          34% { transform: translateY(-14px) scaleY(1.08) scaleX(1.03) rotate(7deg); }
+          62% { transform: translateY(-9px) scaleY(1.03) scaleX(1.08) rotate(3deg); }
+          100% { transform: translateY(3px) scaleY(0.98) scaleX(1.03) rotate(0deg); }
+        }
+        @keyframes playerCelebrate {
+          0% { transform: translateY(0) scale(1); }
+          45% { transform: translateY(-12px) scale(1.04); }
+          75% { transform: translateY(1px) scale(0.99); }
+          100% { transform: translateY(0) scale(1); }
+        }
+        @keyframes playerDeflate {
+          0% { transform: translateY(0) rotate(0deg); }
+          55% { transform: translateY(5px) rotate(-3deg) scaleY(0.985); }
+          100% { transform: translateY(2px) rotate(-1deg); }
+        }
+        @keyframes headScan {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          28% { transform: translate(-0.7px, -0.5px) rotate(-2.5deg); }
+          62% { transform: translate(0.8px, 0.2px) rotate(2deg); }
+        }
+        @keyframes headTrackBall {
+          0% { transform: rotate(-3deg) translate(0, 0); }
+          22% { transform: rotate(2deg) translate(0.5px, -0.4px); }
+          48% { transform: rotate(-1deg) translate(-0.4px, 0.2px); }
+          76% { transform: rotate(6deg) translate(1px, -0.8px); }
+          100% { transform: rotate(11deg) translate(1.4px, -1.2px); }
+        }
+        @keyframes headStrikeFollow {
+          0% { transform: rotate(11deg) translate(1px, -1px); }
+          22% { transform: rotate(24deg) translate(2px, -2px); }
+          48% { transform: rotate(13deg) translate(1px, -0.5px); }
+          100% { transform: rotate(3deg) translate(0, 0); }
+        }
+        @keyframes headDiveBrace {
+          0% { transform: rotate(0deg) translateY(0); }
+          26% { transform: rotate(7deg) translateY(1px); }
+          52% { transform: rotate(-13deg) translateY(-2px); }
+          100% { transform: rotate(0deg) translateY(0); }
+        }
+        @keyframes headCelebrate {
+          0% { transform: rotate(0deg) translateY(0); }
+          45% { transform: rotate(-7deg) translateY(-5px); }
+          78% { transform: rotate(4deg) translateY(1px); }
+          100% { transform: rotate(0deg) translateY(0); }
+        }
+        @keyframes headDrop {
+          0% { transform: rotate(0deg) translateY(0); }
+          55% { transform: rotate(8deg) translateY(5px); }
+          100% { transform: rotate(4deg) translateY(3px); }
+        }
+        @keyframes torsoBreathe {
+          0%, 100% { transform: translateY(0) scaleY(1); }
+          48% { transform: translateY(-0.5px) scaleY(1.006); }
+        }
+        @keyframes keeperTorsoReady {
+          0%, 100% { transform: translateY(1px) rotate(0deg) scaleX(1.02); }
+          34% { transform: translateY(-1px) rotate(-1.8deg) scaleX(1); }
+          68% { transform: translateY(0) rotate(1.6deg) scaleX(1.025); }
+        }
+        @keyframes torsoWindup {
+          0% { transform: rotate(2deg) translateY(0); }
+          20% { transform: rotate(-3deg) translateY(-1px); }
+          42% { transform: rotate(4deg) translateY(0); }
+          68% { transform: rotate(-5deg) translateY(-2px); }
+          100% { transform: rotate(-12deg) translateY(-3px); }
+        }
+        @keyframes torsoStrike {
+          0% { transform: rotate(-12deg) translateY(-3px); }
+          26% { transform: rotate(21deg) translate(4px, -4px); }
+          54% { transform: rotate(12deg) translate(3px, -1px); }
+          100% { transform: rotate(1deg) translateY(0); }
+        }
+        @keyframes torsoDive {
+          0% { transform: rotate(0deg) translateY(1px) scaleX(1.04); }
+          22% { transform: rotate(-4deg) translateY(4px) scaleX(1.1); }
+          48% { transform: rotate(12deg) translateY(-7px) scaleX(1.02); }
+          100% { transform: rotate(0deg) translateY(1px) scaleX(1.02); }
+        }
+        @keyframes strikerArmsIdle {
+          0%, 100% { transform: rotate(0deg) translateY(0); }
+          50% { transform: rotate(-1.5deg) translateY(-0.6px); }
+        }
+        @keyframes armsBalanceRun {
+          0% { transform: rotate(-14deg) translate(1px, 0); }
+          18% { transform: rotate(16deg) translate(-2px, -1px); }
+          38% { transform: rotate(-20deg) translate(2px, 0); }
+          62% { transform: rotate(18deg) translate(-2px, -1px); }
+          82% { transform: rotate(-12deg) translate(1px, -0.5px); }
+          100% { transform: rotate(18deg) translate(-2px, -1px); }
+        }
+        @keyframes armsCounterSwing {
+          0% { transform: rotate(18deg) translate(-2px, -1px); }
+          22% { transform: rotate(-34deg) translate(-5px, -3px); }
+          48% { transform: rotate(-18deg) translate(-2px, -1px); }
+          100% { transform: rotate(-3deg) translate(0, 0); }
+        }
+        @keyframes keeperHandsReady {
+          0%, 100% { transform: translateY(0) scaleX(1.02); }
+          34% { transform: translateY(-3px) translateX(-1px) scaleX(1.08); }
+          68% { transform: translateY(-1px) translateX(1px) scaleX(1.03); }
+        }
+        @keyframes keeperHandsReach {
+          0% { transform: translateY(0) scaleX(1.02) rotate(0deg); }
+          18% { transform: translateY(4px) scaleX(0.95) rotate(-2deg); }
+          38% { transform: translateY(-15px) scaleX(1.32) rotate(7deg); }
+          68% { transform: translateY(-9px) scaleX(1.2) rotate(3deg); }
+          100% { transform: translateY(1px) scaleX(1.02) rotate(0deg); }
+        }
+        @keyframes strikerLegsIdle {
+          0%, 100% { transform: translateY(0) skewX(0deg); }
+          50% { transform: translateY(0.4px) skewX(1deg); }
+        }
+        @keyframes legsRunSteps {
+          0% { transform: skewX(9deg) translate(-1px, 1px) scaleY(0.98); }
+          18% { transform: skewX(-13deg) translate(2px, -2px) scaleY(1.02); }
+          38% { transform: skewX(15deg) translate(-2px, 1px) scaleY(0.98); }
+          62% { transform: skewX(-18deg) translate(3px, -3px) scaleY(1.03); }
+          82% { transform: skewX(10deg) translate(-1px, 0) scaleY(0.99); }
+          100% { transform: skewX(-16deg) translate(3px, -4px) scaleY(1.02); }
+        }
+        @keyframes legsStrikeFollow {
+          0% { transform: skewX(-16deg) translate(3px, -4px); }
+          20% { transform: skewX(28deg) translate(10px, -6px) scaleY(0.98); }
+          44% { transform: skewX(17deg) translate(8px, -3px) scaleY(1.03); }
+          78% { transform: skewX(8deg) translate(4px, -1px); }
+          100% { transform: skewX(2deg) translate(0, 0); }
+        }
+        @keyframes keeperBounce {
+          0%, 100% { transform: translateY(1px) scaleX(1.06) scaleY(0.98); }
+          36% { transform: translateY(-3px) translateX(-1px) scaleX(0.98) scaleY(1.03); }
+          70% { transform: translateY(0) translateX(1px) scaleX(1.1) scaleY(0.98); }
+        }
+        @keyframes keeperLegsTrail {
+          0% { transform: translateY(1px) scaleX(1.08) scaleY(0.95); }
+          18% { transform: translateY(5px) skewX(8deg) scaleX(1.14) scaleY(0.9); }
+          42% { transform: translateY(-2px) skewX(-22deg) scaleX(1.2) scaleY(1.04); }
+          78% { transform: translateY(2px) skewX(-10deg) scaleX(1.08); }
+          100% { transform: translateY(1px) skewX(0deg) scaleX(1.02); }
+        }
+        @keyframes shadowPulse {
+          0%, 100% { transform: scaleX(1); opacity: 0.35; }
+          50% { transform: scaleX(0.92); opacity: 0.28; }
+        }
+        @keyframes shadowRunUp {
+          0% { transform: translateX(-18px) scaleX(1.08); opacity: 0.34; }
+          45% { transform: translateX(-8px) scaleX(0.96); opacity: 0.3; }
+          100% { transform: translateX(6px) scaleX(0.78); opacity: 0.22; }
+        }
+        @keyframes shadowStrike {
+          0% { transform: translateX(6px) scaleX(0.78); opacity: 0.22; }
+          40% { transform: translateX(14px) scaleX(0.62); opacity: 0.18; }
+          100% { transform: translateX(3px) scaleX(0.98); opacity: 0.32; }
+        }
+        @keyframes turfSpray {
+          0% { opacity: 0; transform: translateX(-30%) scale(0.6); }
+          20% { opacity: 1; }
+          100% { opacity: 0; transform: translateX(-30%) scale(1); }
+        }
+        @keyframes grassBit {
+          0% { transform: translate(0, 0) scale(0.7); opacity: 0; }
+          12% { opacity: 1; }
+          100% { transform: translate(var(--spray-x), var(--spray-y)) scale(0.15); opacity: 0; }
+        }
+        @keyframes shadowDive {
+          0% { transform: scaleX(1); opacity: 0.35; }
+          45% { transform: scaleX(1.45) translateY(2px); opacity: 0.22; }
+          100% { transform: scaleX(1.05); opacity: 0.32; }
         }
         @keyframes boltFlash {
           0%, 92%, 100% { opacity: 0; transform: translateX(-50%) scaleY(0.8); filter: brightness(1); }
@@ -2956,20 +3393,22 @@ function FieldLightning({ side }: { side: "left" | "right" }) {
       {[0, 1, 2, 3, 4].map((e) => (
         <span
           key={e}
-          style={{
-            position: "absolute",
-            left: `${30 + (e * 11) % 40}%`,
-            bottom: 6,
-            width: 3,
-            height: 3,
-            borderRadius: "50%",
-            background: e % 2 === 0 ? "#d8e4ff" : "#b8a8ff",
-            boxShadow: "0 0 6px #a8c0ff, 0 0 12px #7a5cff",
-            ["--drift" as any]: `${(e - 2) * 6}px`,
-            animation: `sparkFloat ${1.8 + e * 0.3}s linear infinite`,
-            animationDelay: `${delay + e * 0.25}s`,
-            opacity: 0,
-          }}
+          style={
+            {
+              position: "absolute",
+              left: `${30 + ((e * 11) % 40)}%`,
+              bottom: 6,
+              width: 3,
+              height: 3,
+              borderRadius: "50%",
+              background: e % 2 === 0 ? "#d8e4ff" : "#b8a8ff",
+              boxShadow: "0 0 6px #a8c0ff, 0 0 12px #7a5cff",
+              "--drift": `${(e - 2) * 6}px`,
+              animation: `sparkFloat ${1.8 + e * 0.3}s linear infinite`,
+              animationDelay: `${delay + e * 0.25}s`,
+              opacity: 0,
+            } as React.CSSProperties & { "--drift": string }
+          }
         />
       ))}
     </div>
@@ -3035,19 +3474,17 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
       "linear-gradient(180deg, rgba(255,120,40,0.28) 0%, rgba(255,80,120,0.18) 50%, rgba(80,30,80,0.25) 100%)",
     night:
       "linear-gradient(180deg, rgba(5,8,28,0.70) 0%, rgba(8,16,48,0.62) 55%, rgba(12,22,60,0.55) 100%)",
-    rain:
-      "linear-gradient(180deg, rgba(40,55,75,0.45) 0%, rgba(30,45,65,0.45) 100%)",
-    storm:
-      "linear-gradient(180deg, rgba(15,18,30,0.65) 0%, rgba(20,25,45,0.65) 100%)",
-    snow:
-      "linear-gradient(180deg, rgba(200,220,240,0.30) 0%, rgba(170,190,220,0.25) 100%)",
+    rain: "linear-gradient(180deg, rgba(40,55,75,0.45) 0%, rgba(30,45,65,0.45) 100%)",
+    storm: "linear-gradient(180deg, rgba(15,18,30,0.65) 0%, rgba(20,25,45,0.65) 100%)",
+    snow: "linear-gradient(180deg, rgba(200,220,240,0.30) 0%, rgba(170,190,220,0.25) 100%)",
     fog: "linear-gradient(180deg, rgba(220,225,230,0.45), rgba(200,210,220,0.55))",
   };
 
   const label = WEATHER_LABEL[weather];
 
   // Stadium floodlights turn on for dark conditions
-  const isDark = weather === "night" || weather === "rain" || weather === "storm" || weather === "fog";
+  const isDark =
+    weather === "night" || weather === "rain" || weather === "storm" || weather === "fog";
 
   // Pre-compute drop / flake positions
   const drops = useMemo(
@@ -3082,12 +3519,7 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
         opacity: 0.55 + Math.random() * 0.45,
         twinkle: 1.6 + Math.random() * 2.6,
         // Редкая «голубая/жёлтая» подсветка.
-        hue:
-          Math.random() < 0.12
-            ? "#cfe0ff"
-            : Math.random() < 0.08
-              ? "#fff2c2"
-              : "#ffffff",
+        hue: Math.random() < 0.12 ? "#cfe0ff" : Math.random() < 0.08 ? "#fff2c2" : "#ffffff",
       })),
     [],
   );
@@ -3130,8 +3562,7 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
               right: "12%",
               width: 80,
               height: 80,
-              background:
-                "radial-gradient(circle, #fff1a8 0%, #ff8a3d 50%, rgba(255,80,40,0) 78%)",
+              background: "radial-gradient(circle, #fff1a8 0%, #ff8a3d 50%, rgba(255,80,40,0) 78%)",
               filter: "blur(1px)",
               boxShadow: "0 0 80px rgba(255,120,40,0.8)",
             }}
@@ -3320,7 +3751,8 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
               height: 10,
               background: "linear-gradient(180deg, #fffce0 0%, #ffe066 100%)",
               borderRadius: 2,
-              boxShadow: "0 0 18px 4px rgba(255,236,150,0.95), 0 0 40px 10px rgba(255,220,120,0.55)",
+              boxShadow:
+                "0 0 18px 4px rgba(255,236,150,0.95), 0 0 40px 10px rgba(255,220,120,0.55)",
               animation: "floodFlicker 5s ease-in-out infinite",
             }}
           />
@@ -3334,7 +3766,8 @@ function WeatherScene({ weather }: { weather: WeatherKind }) {
               height: 10,
               background: "linear-gradient(180deg, #fffce0 0%, #ffe066 100%)",
               borderRadius: 2,
-              boxShadow: "0 0 18px 4px rgba(255,236,150,0.95), 0 0 40px 10px rgba(255,220,120,0.55)",
+              boxShadow:
+                "0 0 18px 4px rgba(255,236,150,0.95), 0 0 40px 10px rgba(255,220,120,0.55)",
               animation: "floodFlicker 5s -2.5s ease-in-out infinite",
             }}
           />
